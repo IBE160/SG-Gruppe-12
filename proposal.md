@@ -1,61 +1,94 @@
-#### Case Title
-AI CV & Job Application Assistant
+# AI CV & Job Application Assistant
 
-#### Background
+## Background
 Creating tailored CVs and job applications is often time-consuming and challenging for students and job seekers. Many struggle to showcase their most relevant experiences and adapt their application to match the language of the job description. With employers increasingly relying on AI-driven Applicant Tracking Systems (ATS), it has become essential for applicants to optimize their documents for these systems to improve their chances of success.
 
-#### Purpose
+## Purpose
 The purpose of this application is to assist users in creating customized, high-quality CVs and job applications that align with specific job postings. It not only provides personalized suggestions, highlights missing qualifications, and ensures ATS optimization, but also helps applicants emphasize their genuine skills and experiences. The system is designed to focus on what is truly relevant for the job without fabricating or misrepresenting information, making the job search process both effective and authentic.
 
-#### Target Users
-- Students and graduates entering the job market
+## Target Users
+- Students and graduates entering the job market  
+- Professionals seeking new opportunities or career changes  
+- Anyone who needs support in preparing effective CVs and job applications  
 
-- Professionals seeking new opportunities or career changes
-
-- Anyone who needs support in preparing effective CVs and job applications
-
-#### Core Functionality
+## Core Functionality
 The core functionality of the system revolves around analyzing user CVs in relation to job postings and providing actionable, tailored outputs that improve job application quality.
 
-##### Must Have (MVP)
-- Feature 1: Upload CV and job posting for analysis
-- Feature 2: Generate tailored job application letter based on the CV and posting
-- Feature 3: Provide suggestions to improve the CV (structure, keywords, formatting)
+### Must Have (MVP)
+- Upload CV and job posting for analysis  
+- Generate tailored job application letter based on the CV and posting  
+- Provide suggestions to improve the CV (structure, keywords, formatting)  
 
-##### Nice to Have (Optional Extensions)
-- Feature 4: Gap analysis showing missing qualifications or skills
-- Feature 5: ATS optimization checker with a scoring system
+### Nice to Have (Optional Extensions)
+- Gap analysis showing missing qualifications or skills  
+- ATS optimization checker with a scoring system  
 
-#### Data Requirements
+## Data Requirements
+- User CVs: name, education, work experience, skills, contact information  
+- Job postings: title, description, key requirements, company details  
+- Application outputs: tailored cover letters, CV improvement notes, keyword suggestions  
 
-- Data entity 1: User CVs: name, education, work experience, skills, contact information
-- Data entity 2: Job postings: title, description, key requirements, company details
-- Data entity 3: Application outputs: tailored cover letters, CV improvement notes, keyword suggestions
+### Database Structure (ERD Overview)
+The PostgreSQL database will include four main tables:  
+- Users (user_id, name, email, hashed_password)  
+- CVs (cv_id, user_id, upload_date, file_path, skills_extracted)  
+- Job_Postings (job_id, title, company, key_requirements, description)  
+- Generated_Outputs (output_id, cv_id, job_id, cover_letter_text, ats_score, feedback_notes)  
 
-#### User Stories (Optional)
+Relationships: Users → CVs → Generated_Outputs (1–M–M), Job_Postings → Generated_Outputs (1–M).  
 
-1. As a student, I want to upload my CV and a job ad, so that I can receive a tailored job application letter.
-2. As a job seeker, I want the system to point out missing skills, so that I understand how to improve my profile.
-3. As a graduate, I want my CV to be optimized for ATS systems, so that my chances of being shortlisted increase.
+## Technical Constraints
+- Secure login and encrypted document storage  
+- Accept multiple document formats (DOC, PDF, TXT)  
+- Multi-language support (English, Norwegian, etc.)  
 
-#### Technical Constraints
+## Decision Points
+- AI Provider: Dual integration with GPT-5 (OpenAI) and Claude 3.5 (Anthropic)  
+- Output Mode: AI suggestions and semi-automated rewriting  
+- Data Storage: PostgreSQL with encrypted access, automatic file deletion after 7 days  
+- Authentication: Firebase Auth with HTTPS; optional OAuth integration later  
+- Language: English for MVP; Norwegian as extension  
+- Deployment: Vercel (frontend) + Render (backend)  
 
-- Must support secure login and encrypted document storage
-- Must accept multiple document formats (DOC, PDF, TXT)
-- Should provide multi-language support (English, Norwegian, etc.)
+## Platform Type
+The system will be implemented as a **web application**, accessible directly from the browser.
 
-#### Decision Points
+## Technology Stack
+- **Frontend:** React.js + Tailwind CSS  
+- **Backend:** Node.js (Express)  
+- **AI/NLP:** GPT-5 (OpenAI) + Claude 3.5 (Anthropic)  
+- **Database:** PostgreSQL (Supabase Cloud)  
+- **Authentication:** Firebase Auth with HTTPS  
+- **Hosting:** Vercel (frontend) + Render (backend)  
+- **Security:** TLS encryption and GDPR-compliant file deletion (7 days)  
 
-- Level of rewriting vs. suggestion-only outputs
-- Choice of
+## Development Timeline and Milestones
+| Week | Focus | Deliverables |
+|------|--------|--------------|
+| 1 | Setup and architecture design | Configure Node.js, connect to PostgreSQL, design API endpoints |
+| 2 | File upload and parsing | Implement secure upload (PDF/TXT) and storage in database |
+| 3 | AI integration | Connect GPT-5 and Claude APIs for analysis and keyword extraction |
+| 4 | Cover letter generation | Create cover letter generator and refinement interface |
+| 5 | CV improvement module | Add feedback system for structure, formatting, and missing skills |
+| 6 | Testing and deployment | Unit testing, bug fixes, and cloud deployment |
 
-#### Success Criteria
+## Risk Assessment
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| API integration complexity | Medium | Start with one API, add dual-model logic later |
+| Parsing errors for DOCX/PDF | Medium | Limit MVP to PDF/TXT |
+| Hosting downtime | Low | Use managed cloud hosting |
+| API cost | Medium | Apply rate limiting and batch processing |
+| Data privacy compliance | High | Enforce GDPR and TLS encryption |
+| Schedule overrun | Medium | Follow weekly milestones and limited MVP scope |
 
-- Criterion 1: Users can upload CVs and job postings without errors
-- Criterion 2: The system generates coherent, tailored cover letters that match job descriptions
-- Criterion 3: Users receive practical and actionable feedback on how to improve their CV
-- Criterion 4: Applications generated score higher in ATS simulations compared to unmodified versions
+## Success Criteria
+- 95% of uploaded documents processed successfully  
+- Cover letters include ≥80% of job requirements  
+- Average user satisfaction ≥4/5  
+- 100% encryption of user data and deletion within 7 days  
+- AI response time <10 seconds  
+- Users can rate outputs (1–5 scale)  
 
-#### Difficulty Level
-
-The difficulty level for this program is medium. The system requires natural language processing, document handling and ATS-compatibility scoring. While the scope is manageable, the technical challende lies in balancing automation with authenticity and ensuring data security. 
+## Difficulty Level
+Medium – NLP integration, secure storage, and ATS scoring require careful balancing between automation and authenticity.
