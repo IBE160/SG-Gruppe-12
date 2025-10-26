@@ -92,3 +92,36 @@ The system will be implemented as a **web application**, accessible directly fro
 
 ## Difficulty Level
 Medium – NLP integration, secure storage, and ATS scoring require careful balancing between automation and authenticity.
+
+## User Flows
+
+**User Flow 1 – Job Seeker: CV → Match → Cover Letter**
+
+1. User visits the landing page  
+2. Logs in or creates an account  
+3. Uploads CV (PDF/TXT)  
+4. Pastes or uploads job posting  
+5. Clicks “Analyze”  
+6. Views keyword match and missing skills  
+7. Generates a tailored cover letter  
+8. Downloads cover letter and suggestions  
+9. Logs out  
+
+**User Flow 2 – Job Seeker: ATS-check only**
+
+1. User visits landing page  
+2. Logs in  
+3. Uploads CV  
+4. Pastes job posting text  
+5. Runs “ATS Compatibility Check”  
+6. Sees ATS score and improvement tips  
+7. Saves or downloads report  
+8. Logs out  
+
+**User Flow 3 – Admin (future feature)**
+
+1. Admin logs in  
+2. Views overall usage statistics (number of analyses, response time)  
+3. Exports anonymized logs for system improvement  
+4. Logs out  
+
