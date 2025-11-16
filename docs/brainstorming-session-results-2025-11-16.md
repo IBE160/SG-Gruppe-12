@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-**Topic:** {{session_topic}}
+**Topic:** User Problems
 
 **Session Goals:** {{stated_goals}}
 
@@ -20,7 +20,18 @@
 
 ## Technique Sessions
 
-{{technique_sessions}}
+### Question Storming
+
+**Goal:** Generate questions before seeking answers to properly define the problem space.
+
+**Questions Generated:**
+1. What does the user want to get out of using the application?
+2. What is the most difficult part of applying for a job?
+3. Do you struggle with writing an appropriate resume?
+4. Do you have trouble knowing which jobs you're actually qualified for?
+5. Do you know how to write a good application?
+6. Is the application relevant for the job posting?
+7. Are you and the job a good fit?
 
 ## Idea Categorization
 
@@ -94,7 +105,7 @@ _Key realizations from the session_
 ### Next Session Planning
 
 - **Suggested topics:** {{followup_topics}}
-- **Recommended timeframe:** {{timeframe}}
+- **Recommended timeframe:**_ {{timeframe}}
 - **Preparation needed:** {{preparation}}
 
 ---
