@@ -31,7 +31,27 @@
 4. Do you have trouble knowing which jobs you're actually qualified for?
 5. Do you know how to write a good application?
 6. Is the application relevant for the job posting?
-7. Are you and the job a good fit?
+
+### Five Whys - Root Cause Analysis
+
+**Problem:** Users have trouble knowing which jobs they're actually qualified for.
+
+**Why 1:** The job postings are either too specific or not specific enough.
+**Why 2:** There is no standardized skill taxonomy across industries; Different companies use different terms for the same skills, making matching difficult.
+**Why 3:** Technology and job roles evolve faster than standardization efforts; New frameworks, tools, and roles emerge constantly (e.g., "AI Engineer", "DevOps", "full Stack") making it hard to maintain a universal taxonomy.
+**Why 4:** Market competition drives rapid innovation and new tool adoption; Companies race to adopt cutting-edge technologies to gain competitive advantages, creating new roles and skills before standards can catch up.
+**Why 5:** Companies must innovate to survive in a capitalist economy; businesses that don't adopt new technologies risk becoming obsolete and losing to competitors who are more efficient/
+### Mind Mapping - Problem Space Overview
+
+**Central Problem:** Users have trouble knowing which jobs they're actually qualified for.
+
+**Key Themes/Branches:**
+
+*   **Job postings quality issues:** Postings are too specific or not specific enough, no distinction between "required" vs "preferred" qualifications, target unrealistic "unicorn" candidates, optimized for SEO rather than clarity, lack of feedback between recruiters and actual role requirements.
+*   **Lack of Standardization:** No standardized skill taxonomy across industries, different terminology for the same skills, industries evolved independently with their own jargon, educational institutions and industry certifications aren't aligned, no central governing body enforcing standards.
+*   **Rapid Technology Evolution:** Technology and job roles evolve faster than standardization efforts, new frameworks tools and roles emerge constantly, skills become outdated quickly, innovation happens in months while standardization takes years, open-source culture encourages experimentation over conformity.
+*   **Market/Economy Drivers:** Market competition drives rapid innovation, companies must innovate to survive, venture capital funds disruption and new technology, network effects reward early adopters, customer expectations constantly increase.
+*   **Job Seeker Information Gap:** Students don't know what they are qualified for, can't keep up with changing skill requirements, unclear how education translates to job requirements, hard to self-assess against vague job descriptions.
 
 ## Idea Categorization
 
