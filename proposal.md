@@ -53,6 +53,14 @@ Relationships: Users → CVs → Generated_Outputs (1–M–M), Job_Postings →
 ## Platform Type
 The system will be implemented as a **web application**, accessible directly from the browser.
 
+## Core User Activities
+1.  **Upload/Paste Information:** The user uploads or pastes all their raw information into the system.
+2.  **Automated Extraction and Categorization:** The system automatically extracts key details and organizes them into categories such as skills, achievements, responsibilities, and measurable results.
+3.  **Style Selection:** The user chooses a resume style from a selection of templates (e.g., simple, professional, ATS-optimized, creative).
+4.  **Suggestions and Interaction:** The platform provides suggestions for improvements and asks for more information if needed to fill any gaps.
+5.  **Job-Specific Adaptation:** The system automatically adapts the CV to match a job posting provided by the user, highlighting relevant skills and phrasing without misrepresenting the user's experience.
+6.  **Version Generation:** The user can generate and manage multiple versions of their CV.
+
 ## Technology Stack
 - **Frontend:** React.js + Tailwind CSS  
 - **Backend:** Node.js (Express)  
