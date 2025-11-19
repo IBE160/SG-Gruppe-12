@@ -1,3 +1,21 @@
-[![CI](https://github.com/IBE160/SG-Gruppe-12/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/IBE160/SG-Gruppe-12/actions/workflows/ci.yml)
-# SG-Gruppe-12
-Repository for SG-Gruppe-12 - IBE160 Programmering med KI.
+# CV Analyzer API
+
+API for CV analysis and job application assistance.
+
+## Project Structure
+
+- `src/config`: Application configuration.
+- `src/controllers`: Request handlers.
+- `src/models`: Database models and queries.
+- `src/routes`: API endpoint definitions.
+- `src/services`: Core business logic.
+- `src/middleware`: Express middleware.
+- `src/utils`: Utility functions.
+- `src/app.js`: Express app setup.
+- `src/server.js`: Server entry point.
+
+## Setup
+
+1. Install dependencies: `npm install`
+2. Start the server: `npm start`
+3. Start in development mode: `npm run dev`
