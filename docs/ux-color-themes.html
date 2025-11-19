@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CV Assistant - Color Theme Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 60px; }
+        h1 { font-size: 36px; color: #1f2937; margin-bottom: 12px; }
+        .subtitle { font-size: 18px; color: #6b7280; }
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+            gap: 32px;
+            margin-bottom: 60px;
+        }
+        .theme-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        .theme-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .theme-card.selected {
+            border: 3px solid #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+        }
+        .theme-header { padding: 24px; border-bottom: 2px solid #f3f4f6; }
+        .theme-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chosen-badge {
+            background: #10b981;
+            color: white;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .theme-description {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .color-palette { padding: 24px; background: #f9fafb; }
+        .palette-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+        }
+        .color-swatches {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .color-swatch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .swatch-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .swatch-label {
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .swatch-code {
+            font-size: 10px;
+            color: #9ca3af;
+            font-family: monospace;
+        }
+        .components-demo { padding: 24px; }
+        .demo-section { margin-bottom: 20px; }
+        .demo-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .card-demo {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            padding: 32px;
+            background: white;
+            border-radius: 16px;
+        }
+        .comparison-item h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #1f2937;
+        }
+        .comparison-item ul {
+            list-style: none;
+        }
+        .comparison-item li {
+            padding: 6px 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .comparison-item li::before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Color Theme Explorer</h1>
+            <p class="subtitle">Choose the color scheme that best represents trust, professionalism, and confidence</p>
+        </header>
+
+        <div class="themes-grid">
+            <!-- Theme 1: Confident Professional (CHOSEN) -->
+            <div class="theme-card selected">
+                <div class="theme-header">
+                    <div class="theme-title">
+                        Confident Professional
+                        <span class="chosen-badge">✓ CHOSEN</span>
+                    </div>
+                    <p class="theme-description">
+                        Blue inspires trust and professionalism. Green provides positive reinforcement. Perfect for job seekers handling sensitive career documents.
+                    </p>
+                </div>
+
+                <div class="color-palette">
+                    <div class="palette-title">Color Palette</div>
+                    <div class="color-swatches">
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #2563EB;"></div>
+                            <div class="swatch-label">Primary</div>
+                            <div class="swatch-code">#2563EB</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #10B981;"></div>
+                            <div class="swatch-label">Success</div>
+                            <div class="swatch-code">#10B981</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #F59E0B;"></div>
+                            <div class="swatch-label">Warning</div>
+                            <div class="swatch-code">#F59E0B</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #EF4444;"></div>
+                            <div class="swatch-label">Error</div>
+                            <div class="swatch-code">#EF4444</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #8B5CF6;"></div>
+                            <div class="swatch-label">Premium</div>
+                            <div class="swatch-code">#8B5CF6</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="components-demo">
+                    <div class="demo-section">
+                        <div class="demo-label">Buttons</div>
+                        <div class="button-group">
+                            <button class="btn" style="background: #2563EB; color: white;">Primary Action</button>
+                            <button class="btn" style="background: #10B981; color: white;">Success</button>
+                            <button class="btn" style="background: white; border: 2px solid #2563EB; color: #2563EB;">Outline</button>
+                        </div>
+                    </div>
+
+                    <div class="demo-section">
+                        <div class="demo-label">Alerts & Feedback</div>
+                        <div class="alert" style="background: #DBEAFE; color: #1E40AF;">ℹ️ Your CV is being analyzed...</div>
+                        <div class="alert" style="background: #D1FAE5; color: #065F46;">✓ Application generated successfully!</div>
+                        <div class="alert" style="background: #FEF3C7; color: #92400E;">⚠ You've used your free application this week</div>
+                    </div>
+
+                    <div class="demo-section">
+                        <div class="demo-label">Card Component</div>
+                        <div class="card-demo" style="border-left: 4px solid #2563EB;">
+                            <strong style="color: #1f2937; font-size: 16px;">Match Score: 78%</strong>
+                            <p style="color: #6b7280; font-size: 14px; margin-top: 8px;">Good match! You have most of the required skills.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme 2: Energetic Growth -->
+            <div class="theme-card">
+                <div class="theme-header">
+                    <div class="theme-title">Energetic Growth</div>
+                    <p class="theme-description">Green-focused emphasizing growth and momentum. Orange energizes. Best for career changers.</p>
+                </div>
+
+                <div class="color-palette">
+                    <div class="palette-title">Color Palette</div>
+                    <div class="color-swatches">
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #059669;"></div>
+                            <div class="swatch-label">Primary</div>
+                            <div class="swatch-code">#059669</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #10B981;"></div>
+                            <div class="swatch-label">Success</div>
+                            <div class="swatch-code">#10B981</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #F97316;"></div>
+                            <div class="swatch-label">Accent</div>
+                            <div class="swatch-code">#F97316</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #DC2626;"></div>
+                            <div class="swatch-label">Error</div>
+                            <div class="swatch-code">#DC2626</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #7C3AED;"></div>
+                            <div class="swatch-label">Premium</div>
+                            <div class="swatch-code">#7C3AED</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="components-demo">
+                    <div class="demo-section">
+                        <div class="demo-label">Buttons</div>
+                        <div class="button-group">
+                            <button class="btn" style="background: #059669; color: white;">Primary Action</button>
+                            <button class="btn" style="background: #10B981; color: white;">Success</button>
+                            <button class="btn" style="background: white; border: 2px solid #059669; color: #059669;">Outline</button>
+                        </div>
+                    </div>
+
+                    <div class="demo-section">
+                        <div class="demo-label">Alerts & Feedback</div>
+                        <div class="alert" style="background: #D1FAE5; color: #065F46;">ℹ️ Your CV is being analyzed...</div>
+                        <div class="alert" style="background: #DCFCE7; color: #14532D;">✓ Application generated successfully!</div>
+                        <div class="alert" style="background: #FFEDD5; color: #9A3412;">⚠ You've used your free application this week</div>
+                    </div>
+
+                    <div class="demo-section">
+                        <div class="demo-label">Card Component</div>
+                        <div class="card-demo" style="border-left: 4px solid #059669;">
+                            <strong style="color: #1f2937; font-size: 16px;">Match Score: 78%</strong>
+                            <p style="color: #6b7280; font-size: 14px; margin-top: 8px;">Good match! You have most of the required skills.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme 3: Calm & Clear -->
+            <div class="theme-card">
+                <div class="theme-header">
+                    <div class="theme-title">Calm & Clear</div>
+                    <p class="theme-description">Teal-based reducing anxiety with calming blues and greens. Gentle contrast for extended reading.</p>
+                </div>
+
+                <div class="color-palette">
+                    <div class="palette-title">Color Palette</div>
+                    <div class="color-swatches">
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #0D9488;"></div>
+                            <div class="swatch-label">Primary</div>
+                            <div class="swatch-code">#0D9488</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #14B8A6;"></div>
+                            <div class="swatch-label">Success</div>
+                            <div class="swatch-code">#14B8A6</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #F59E0B;"></div>
+                            <div class="swatch-label">Warning</div>
+                            <div class="swatch-code">#F59E0B</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #EF4444;"></div>
+                            <div class="swatch-label">Error</div>
+                            <div class="swatch-code">#EF4444</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #6366F1;"></div>
+                            <div class="swatch-label">Premium</div>
+                            <div class="swatch-code">#6366F1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="components-demo">
+                    <div class="demo-section">
+                        <div class="demo-label">Buttons</div>
+                        <div class="button-group">
+                            <button class="btn" style="background: #0D9488; color: white;">Primary Action</button>
+                            <button class="btn" style="background: #14B8A6; color: white;">Success</button>
+                            <button class="btn" style="background: white; border: 2px solid #0D9488; color: #0D9488;">Outline</button>
+                        </div>
+                    </div>
+
+                    <div class="demo-section">
+                        <div class="demo-label">Alerts & Feedback</div>
+                        <div class="alert" style="background: #CCFBF1; color: #115E59;">ℹ️ Your CV is being analyzed...</div>
+                        <div class="alert" style="background: #D1FAE5; color: #065F46;">✓ Application generated successfully!</div>
+                        <div class="alert" style="background: #FEF3C7; color: #92400E;">⚠ You've used your free application this week</div>
+                    </div>
+
+                    <div class="demo-section">
+                        <div class="demo-label">Card Component</div>
+                        <div class="card-demo" style="border-left: 4px solid #0D9488;">
+                            <strong style="color: #1f2937; font-size: 16px;">Match Score: 78%</strong>
+                            <p style="color: #6b7280; font-size: 14px; margin-top: 8px;">Good match! You have most of the required skills.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme 4: Modern Minimal -->
+            <div class="theme-card">
+                <div class="theme-header">
+                    <div class="theme-title">Modern Minimal</div>
+                    <p class="theme-description">Indigo-based sophisticated palette. Purple accents for premium feel. Best for tech or professional roles.</p>
+                </div>
+
+                <div class="color-palette">
+                    <div class="palette-title">Color Palette</div>
+                    <div class="color-swatches">
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #4F46E5;"></div>
+                            <div class="swatch-label">Primary</div>
+                            <div class="swatch-code">#4F46E5</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #10B981;"></div>
+                            <div class="swatch-label">Success</div>
+                            <div class="swatch-code">#10B981</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #F59E0B;"></div>
+                            <div class="swatch-label">Warning</div>
+                            <div class="swatch-code">#F59E0B</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #EF4444;"></div>
+                            <div class="swatch-label">Error</div>
+                            <div class="swatch-code">#EF4444</div>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch-box" style="background: #A855F7;"></div>
+                            <div class="swatch-label">Premium</div>
+                            <div class="swatch-code">#A855F7</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="components-demo">
+                    <div class="demo-section">
+                        <div class="demo-label">Buttons</div>
+                        <div class="button-group">
+                            <button class="btn" style="background: #4F46E5; color: white;">Primary Action</button>
+                            <button class="btn" style="background: #10B981; color: white;">Success</button>
+                            <button class="btn" style="background: white; border: 2px solid #4F46E5; color: #4F46E5;">Outline</button>
+                        </div>
+                    </div>
+
+                    <div class="demo-section">
+                        <div class="demo-label">Alerts & Feedback</div>
+                        <div class="alert" style="background: #E0E7FF; color: #3730A3;">ℹ️ Your CV is being analyzed...</div>
+                        <div class="alert" style="background: #D1FAE5; color: #065F46;">✓ Application generated successfully!</div>
+                        <div class="alert" style="background: #FEF3C7; color: #92400E;">⚠ You've used your free application this week</div>
+                    </div>
+
+                    <div class="demo-section">
+                        <div class="demo-label">Card Component</div>
+                        <div class="card-demo" style="border-left: 4px solid #4F46E5;">
+                            <strong style="color: #1f2937; font-size: 16px;">Match Score: 78%</strong>
+                            <p style="color: #6b7280; font-size: 14px; margin-top: 8px;">Good match! You have most of the required skills.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-grid">
+            <div class="comparison-item">
+                <h3>✓ Confident Professional</h3>
+                <ul>
+                    <li>Trust & professionalism</li>
+                    <li>Widely accessible</li>
+                    <li>Positive reinforcement</li>
+                    <li>Industry standard</li>
+                    <li>Low cognitive load</li>
+                </ul>
+            </div>
+            <div class="comparison-item">
+                <h3>Energetic Growth</h3>
+                <ul>
+                    <li>Growth mindset</li>
+                    <li>Career transition</li>
+                    <li>Youth appeal</li>
+                    <li>High energy</li>
+                </ul>
+            </div>
+            <div class="comparison-item">
+                <h3>Calm & Clear</h3>
+                <ul>
+                    <li>Reduces anxiety</li>
+                    <li>Extended reading</li>
+                    <li>Calming effect</li>
+                    <li>Gentle contrast</li>
+                </ul>
+            </div>
+            <div class="comparison-item">
+                <h3>Modern Minimal</h3>
+                <ul>
+                    <li>Tech-forward</li>
+                    <li>Sophisticated</li>
+                    <li>Premium feel</li>
+                    <li>Modern aesthetic</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
