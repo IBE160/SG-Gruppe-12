@@ -168,7 +168,7 @@ Gemini played a crucial role by:
 The result is a new `docs/bmm-workflow-status.yaml` file in our repository. This file formally establishes our project's workflow, recognizes the work already completed in Phase 1, and provides a clear path forward. Our next step is now officially defined as `document-project`, followed by `prd` (Product Requirements Document), unblocking our progress into Phase 2.
 ---
 
-## Phase 1 – Product Requirements Document (PRD) *(Kaylee Floden, with Gemini)*
+## Phase 2 – Product Requirements Document (PRD) *(Kaylee Floden, with Gemini)*
 
 ### Goal
 To define the comprehensive Product Requirements Document for the "AI CV and Application" platform, formalizing the product vision, scope, and detailed requirements that will guide development.
