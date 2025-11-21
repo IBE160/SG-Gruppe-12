@@ -31,7 +31,7 @@ workflow_status:
   product-brief: docs/product-brief-ibe160-2025-11-18.md # agent: analyst
 
   # Phase 1: Planning
-  prd: required # agent: pm
+  prd: docs/PRD.md # agent: pm
   validate-prd: optional # agent: pm
   create-design: docs/ux-design-specification-COMPLETE.md # agent: ux-designer
 
