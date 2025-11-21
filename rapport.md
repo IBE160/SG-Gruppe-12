@@ -1,6 +1,6 @@
 # Rapport – SG-Gruppe-12
 
-Dette dokumentet beskriver arbeidet i prosjektet **"CV Application App"** i faget *IBE160 Programmering med KI*.  
+Dette dokumentet beskriver arbeidet i prosjektet **"AI CV and Application"** i faget *IBE160 Programmering med KI*.  
 Prosjektet er delt inn i flere deler, og hvert gruppemedlem har hatt ansvar for en spesifikk del av fase 1.
 
 ---
@@ -91,3 +91,78 @@ A comprehensive Product Brief document (`docs/product-brief-ibe160-2025-11-18.md
 
 ### Brief Summary
 I have led the work of defining the product's core, from vision to MVP, and ensured that we have a solid foundation for building the "AI CV and Application" project.
+---
+
+## Phase 1 – Project Documentation *(Kaylee Floden, with Gemini)*
+
+### Goal
+After formalizing the project's workflow, the next step was to generate comprehensive documentation for our existing codebase. The goal was to use the BMad agent's `document-project` workflow to perform an "Exhaustive Scan" and create a full suite of architectural and development documents. This provides a deep, shared understanding of the project for both the team and the AI agents.
+
+### What We Did
+We worked with the Gemini agent, this time acting as "Mary, the Business Analyst," to execute the documentation workflow.
+
+1.  **Initiated Workflow:** We selected the `*document-project` command to begin the process.
+2.  **Selected Scan Depth:** When prompted, we chose the "Exhaustive Scan" (option 3) to ensure the agent would read and analyze all source files for maximum detail.
+3.  **Confirmed Project Structure:** The agent automatically detected a multi-part structure (`frontend` and `src`). We confirmed this was correct, allowing the agent to analyze each part individually.
+4.  **Automated Analysis & Generation:** The agent then proceeded through a 12-step process, analyzing the codebase and generating a full set of documentation. This included:
+    - Identifying the technology stack (Next.js, Express.js).
+    - Inventorying all UI and custom components from the frontend.
+    - Reverse-engineering the database schema from the backend models.
+    - Documenting the (minimal) API contracts and the lack of frontend/backend integration.
+    - Creating development and deployment guides based on `package.json` and `.github/` files.
+    - Generating architecture diagrams and a master index file.
+5.  **Finalized and Committed:** After reviewing the list of 12 generated documents, we instructed the agent to finalize the process and then commit and push all the new documentation to the `git-branch-–b-fase-2-planning` branch.
+
+### Prompts & Interaction Used
+- Selected `*document-project` from the agent's menu.
+- Chose option `3` for "Exhaustive Scan".
+- Confirmed the project root directory (`y`).
+- Confirmed the multi-part project structure (`y`).
+- Responded `none` when asked for additional documents.
+- Selected option `4` to "Finalize and complete" the documentation process.
+- Requested the agent to `commit and push changes`.
+
+### How Gemini Helped
+Gemini, as the Analyst, was instrumental in this phase:
+- **Performing Deep Code Analysis:** It read and understood the entire codebase across both the frontend and backend, something that would be extremely time-consuming to do manually.
+- **Automating Documentation Writing:** It authored 12 detailed markdown files, covering everything from high-level architecture to specific component inventories and database schemas.
+- **Ensuring Consistency:** It maintained a consistent structure and terminology across all generated documents, making them easy to navigate and understand.
+- **Handling Git Operations:** It managed the entire Git workflow of staging, committing with a detailed message, and pushing the large set of new files.
+
+### Result
+A new, comprehensive `docs/` directory containing a full suite of project documentation, all linked from a central `index.md`. This documentation provides a foundational understanding of the current state of the project, which is critical for planning the next phases of development and for enabling effective AI-assisted coding.
+---
+
+## Phase 1 – Formalizing the Project Workflow *(Kaylee Floden, with Gemini)*
+
+### Goal
+The goal was to formalize our project's development process within the BMad (Build-Measure-Adapt-Develop) framework. Although initial work for Phase 1 was complete (Brainstorming, Product Brief, UX Design), there was no central tracking file, which prevented us from using the BMM tools to proceed with creating a Product Requirements Document (PRD).
+
+### What We Did
+We worked with the Gemini agent, acting as a "Product Manager" persona, to correctly initialize the project workflow.
+
+1.  **Attempted Status Check:** We first tried to check the project status using the agent's `*workflow-status` command. This failed because a `bmm-workflow-status.yaml` file did not exist, confirming the need for initialization.
+
+2.  **Workflow Initialization:** We then ran the `*workflow-init` command. The Gemini agent performed a comprehensive scan of the repository and identified our existing planning documents.
+    *   **Prompt used:** The user selected menu option `*workflow-init` after the status check failed.
+
+3.  **Clarified Project State:** The agent presented the found documents and asked for clarification on our current situation. We explained that Phase 1 work was complete and we needed to create a PRD.
+    *   **User explanation:** "We are three people working on this project... i think i need to make a workflow so that i can move on and make prd"
+    *   This led the agent to guide us to select the "Continue this work" option, ensuring our existing progress was not lost.
+
+4.  **Generated Workflow File:** Based on our inputs, Gemini generated a personalized `bmm-workflow-status.yaml` file for a "BMad Method" (brownfield) project. This file automatically marked the following workflows as complete:
+    *   `Product Brief`
+    *   `UX Design`
+    *   `Research`
+    *   `Brainstorm`
+
+5.  **Committed Changes:** Finally, we instructed the agent to commit the new `bmm-workflow-status.yaml` file to the `git-branch-–b-fase-2-planning` branch and push it to the remote repository.
+
+### How Gemini Helped
+Gemini played a crucial role by:
+- **Guiding the process:** It led us through the structured `workflow-init` process, asking clarifying questions to understand our specific needs.
+- **Automating setup:** It automatically scanned the repository, detected our existing work, and generated the correct `bmm-workflow-status.yaml` file. This saved us from having to manually create a complex configuration file.
+- **Executing Git operations:** It handled the `git add`, `git commit`, and `git push` commands on our behalf, including troubleshooting shell errors during the commit process.
+
+### Result
+The result is a new `docs/bmm-workflow-status.yaml` file in our repository. This file formally establishes our project's workflow, recognizes the work already completed in Phase 1, and provides a clear path forward. Our next step is now officially defined as `document-project`, followed by `prd` (Product Requirements Document), unblocking our progress into Phase 2.
