@@ -166,3 +166,54 @@ Gemini played a crucial role by:
 
 ### Result
 The result is a new `docs/bmm-workflow-status.yaml` file in our repository. This file formally establishes our project's workflow, recognizes the work already completed in Phase 1, and provides a clear path forward. Our next step is now officially defined as `document-project`, followed by `prd` (Product Requirements Document), unblocking our progress into Phase 2.
+---
+
+## Phase 1 – Product Requirements Document (PRD) *(Kaylee Floden, with Gemini)*
+
+### Goal
+To define the comprehensive Product Requirements Document for the "AI CV and Application" platform, formalizing the product vision, scope, and detailed requirements that will guide development.
+
+### What We Did
+We collaborated with the Gemini agent, acting as "John, the Product Manager," through a structured PRD workflow.
+
+1.  **Workflow Initiation:** We initiated the PRD creation process using the `*create-prd` command. The agent verified the workflow readiness and loaded existing project context.
+2.  **Vision & Discovery:** We articulated the core problem, solution, target users, and the "magic moment" of the product. The agent confirmed alignment with the product vision.
+    *   **User Prompt:** "My goal is to build an AI-powered CV and job application platform that removes the biggest frustrations job seekers struggle with today. Most people spend hours rewriting the same information over and over..." (followed by detailed vision).
+    *   **Agent Confirmation:** "yes, it correspondents with my vission, lets continue"
+3.  **Success Definition:** We elaborated on what "winning" looks like for the platform, focusing on user transformation (from stressed to confident), workflow efficiency, user trust, organic growth, and real-world impact (interviews, job offers).
+    *   **User Prompt:** "Winning for our platform means that users go from feeling lost and stressed in their job searches to feeling organised, confident, and empowered..." (followed by detailed success criteria).
+    *   **Elicitation:** The agent proposed "Critique and Refine" and other methods to strengthen the definition.
+    *   **User Prompt:** (Detailed response to refinement questions, providing measurable criteria for AI parser, edge cases, and NFRs).
+4.  **Scope Definition:** We meticulously defined the Minimum Viable Product (MVP) with core features like frictionless onboarding, AI parsing, real-time CV preview, job-matcher, and tailored document generation. We also identified growth and vision features for future phases.
+    *   **User Prompt:** "The essential features that must work for this platform to be genuinely useful to a job seeker are a frictionless onboarding flow, a simple way to enter or paste their CV information..." (followed by detailed MVP scope).
+    *   **Elicitation:** The agent applied "Critique and Refine" to the scope, leading to a detailed refinement of AI parser reliability and critical non-functional requirements.
+5.  **Domain-Specific Exploration:** We outlined critical GDPR compliance requirements, AI fairness considerations (bias mitigation, user control), and transparency needs, which are paramount for a platform handling sensitive data.
+    *   **User Prompt:** "The platform must comply with GDPR because it processes sensitive personal data such as work history, education, names, contact information..." (followed by detailed GDPR and AI ethics requirements).
+6.  **Innovation Discovery:** We articulated the core innovations, including inverting traditional job search assumptions, eliminating guesswork through automation, the fairness-driven AI design, and the long-term vision of transforming the applicant-employer relationship.
+    *   **User Prompt:** "The core innovation of my AI CV and Application platform is that it fundamentally rethinks how job seekers interact with the job market..." (followed by detailed innovation patterns).
+7.  **Project-Specific Deep Dive:** We detailed specific requirements for both the API/Backend (security, GDPR support, LLM integration) and the Web Application (reliability, UX, accessibility, AI transparency).
+    *   **User Prompt:** "For the API and backend the core requirements are clear, strict, and privacy-first. We need a well-defined set of endpoints for authentication..." (followed by detailed backend and frontend requirements).
+8.  **Functional Requirements Synthesis:** We provided a comprehensive list of functional requirements, covering user management, CV data management, generation, job analysis, application history, system feedback, data privacy, and UI aspects.
+    *   **User Prompt:** "The core functional requirements translate directly from the UX principles, scope definition, and MVP vision and define exactly what the system must do..." (followed by comprehensive functional requirements).
+9.  **Non-Functional Requirements Discovery:** We synthesized critical NFRs across performance, security, data privacy, scalability, accessibility, and reliability based on previous discussions.
+    *   **User Prompt:** (Confirmed synthesized NFRs).
+10. **Finalization:** The agent compiled all the gathered information into `docs/PRD.md` and updated `docs/bmm-workflow-status.yaml` to reflect the completion of the PRD workflow.
+
+### Prompts & Interaction Used
+- Selected `*create-prd` from the agent's menu.
+- Responded to a series of agent prompts regarding project vision, success criteria, scope, domain considerations, innovation, project-specific requirements, functional requirements, and non-functional requirements.
+- Utilized advanced elicitation methods (Critique and Refine) to deepen the understanding of scope.
+- Confirmed accuracy of summarized content at various stages.
+- Confirmed the final PRD output.
+
+### How Gemini Helped
+Gemini, as the Product Manager, played a pivotal role by:
+- **Structuring the Planning Process:** Guiding us through the complex stages of PRD creation, ensuring a comprehensive and systematic approach.
+- **Eliciting Detailed Information:** Employing probing questions and advanced elicitation techniques to extract granular details and critical considerations for each section of the PRD.
+- **Synthesizing Diverse Inputs:** Collating disparate pieces of information into a cohesive and well-organized document, ensuring all aspects of the product vision and requirements were captured.
+- **Maintaining Project Context:** Continuously referencing previous discussions and project artifacts to build a holistic understanding.
+- **Automating Document Generation:** Creating the `PRD.md` file based on the collaborative input.
+- **Managing Workflow Status:** Updating the `bmm-workflow-status.yaml` to reflect the completion of the PRD.
+
+### Result
+A comprehensive `docs/PRD.md` document that serves as the definitive guide for the "AI CV and Application" project. This document provides a shared understanding across all stakeholders and is now ready to be used for the next phase of development: breaking down requirements into epics and stories.
