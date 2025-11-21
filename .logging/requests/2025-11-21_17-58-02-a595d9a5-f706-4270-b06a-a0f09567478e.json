@@ -1,0 +1,103 @@
+[
+  {
+    "request": {
+      "session.id": "a595d9a5-f706-4270-b06a-a0f09567478e",
+      "installation.id": "61675743-2551-4675-b234-517e42bef991",
+      "interactive": false,
+      "user.email": "kaylee.floden@hotmail.com",
+      "event.name": "gemini_cli.api_request",
+      "event.timestamp": "2025-11-21T17:59:55.147Z",
+      "model": "gemini-2.5-flash",
+      "prompt_id": "798564b6091ae",
+      "request_text": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "text": "This is the Gemini CLI. We are setting up the context for our chat.\nToday's date is fredag 21. november 2025 (formatted according to the user's locale).\nMy operating system is: win32\nThe project's temporary directory is: C:\\Users\\kayle\\.gemini\\tmp\\b5ba20cfe143461bd63eeace48c9e1fd2363c43541707df678d3a68a5dbbee62\nI'm currently working in the directory: C:\\Users\\kayle\\Desktop\\SG-Gruppe-12\nHere is the folder structure of the current working directories:\n\nShowing up to 200 items (files + folders). Folders or files indicated with ... contain more items not shown, were ignored, or the display limit (200 items) was reached.\n\nC:\\Users\\kayle\\Desktop\\SG-Gruppe-12\\\n├───-- Drop tables if they exist to start fr.sql\n├───.gitignore\n├───CLAUDE.md\n├───init_db.sql\n├───package-lock.json\n├───package.json\n├───proposal.md\n├───rapport.md\n├───README.md\n├───.bmad\\\n│   ├───_cfg\\\n│   │   ├───agent-manifest.csv\n│   │   ├───files-manifest.csv\n│   │   ├───manifest.yaml\n│   │   ├───task-manifest.csv\n│   │   ├───tool-manifest.csv\n│   │   ├───workflow-manifest.csv\n│   │   ├───agents\\\n│   │   │   ├───bmm-analyst.customize.yaml\n│   │   │   ├───bmm-architect.customize.yaml\n│   │   │   ├───bmm-dev.customize.yaml\n│   │   │   ├───bmm-pm.customize.yaml\n│   │   │   ├───bmm-sm.customize.yaml\n│   │   │   ├───bmm-tea.customize.yaml\n│   │   │   ├───bmm-tech-writer.customize.yaml\n│   │   │   ├───bmm-ux-designer.customize.yaml\n│   │   │   ├───cis-brainstorming-coach.customize.yaml\n│   │   │   ├───cis-creative-problem-solver.customize.yaml\n│   │   │   ├───cis-design-thinking-coach.customize.yaml\n│   │   │   ├───cis-innovation-strategist.customize.yaml\n│   │   │   ├───cis-storyteller.customize.yaml\n│   │   │   └───core-bmad-master.customize.yaml\n│   │   └───ides\\\n│   │       └───claude-code.yaml\n│   ├───bmm\\\n│   │   ├───config.yaml\n│   │   ├───README.md\n│   │   ├───agents\\\n│   │   │   ├───analyst.md\n│   │   │   ├───architect.md\n│   │   │   ├───dev.md\n│   │   │   ├───pm.md\n│   │   │   ├───sm.md\n│   │   │   ├───tea.md\n│   │   │   ├───tech-writer.md\n│   │   │   └───ux-designer.md\n│   │   ├───docs\\\n│   │   │   ├───agents-guide.md\n│   │   │   ├───brownfield-guide.md\n│   │   │   ├───enterprise-agentic-development.md\n│   │   │   ├───faq.md\n│   │   │   ├───glossary.md\n│   │   │   ├───party-mode.md\n│   │   │   ├───quick-spec-flow.md\n│   │   │   ├───quick-start.md\n│   │   │   ├───README.md\n│   │   │   ├───scale-adaptive-system.md\n│   │   │   └───test-architecture.md\n│   │   │   └───...\n│   │   ├───sub-modules\\\n│   │   ├───tasks\\\n│   │   ├───teams\\\n│   │   ├───testarch\\\n│   │   └───workflows\\\n│   ├───cis\\\n│   │   ├───config.yaml\n│   │   ├───README.md\n│   │   ├───agents\\\n│   │   ├───teams\\\n│   │   └───workflows\\\n│   ├───core\\\n│   │   ├───config.yaml\n│   │   ├───agents\\\n│   │   ├───tasks\\\n│   │   ├───tools\\\n│   │   └───workflows\\\n│   └───docs\\\n│       ├───claude-code-instructions.md\n│       └───gemini-instructions.md\n├───.claude\\\n│   ├───settings.json\n│   └───agents\\\n│       ├───bmm-analyst.md\n│       ├───bmm-architect.md\n│       ├───bmm-dev.md\n│       ├───bmm-pm.md\n│       ├───bmm-sm.md\n│       ├───bmm-tea.md\n│       ├───bmm-tech-writer.md\n│       ├───bmm-ux-designer.md\n│       ├───cis-brainstorming-coach.md\n│       ├───cis-creative-problem-solver.md\n│       ├───cis-design-thinking-coach.md\n│       ├───cis-innovation-strategist.md\n│       ├───cis-README.md\n│       ├───cis-storyteller.md\n│       ├───core-bmad-master.md\n│       ├───run-agent-task.md\n│       ├───task-bmm-daily-standup.md\n│       ├───task-core-adv-elicit.md\n│       ├───task-core-index-docs.md\n│       ├───task-core-validate-workflow.md\n│       └───task-core-workflow.md\n├───.gemini\\\n│   ├───settings.json\n│   └───commands\\\n│       ├───bmad-agent-bmm-analyst.toml\n│       ├───bmad-agent-bmm-architect.toml\n│       ├───bmad-agent-bmm-dev.toml\n│       ├───bmad-agent-bmm-pm.toml\n│       ├───bmad-agent-bmm-sm.toml\n│       ├───bmad-agent-bmm-tea.toml\n│       ├───bmad-agent-bmm-tech-writer.toml\n│       ├───bmad-agent-bmm-ux-designer.toml\n│       ├───bmad-agent-cis-brainstorming-coach.toml\n│       ├───bmad-agent-cis-creative-problem-solver.toml\n│       ├───bmad-agent-cis-design-thinking-coach.toml\n│       ├───bmad-agent-cis-innovation-strategist.toml\n│       ├───bmad-agent-cis-README.toml\n│       ├───bmad-agent-cis-storyteller.toml\n│       ├───bmad-agent-core-bmad-master.toml\n│       ├───bmad-task-bmm-daily-standup.toml\n│       ├───bmad-task-core-adv-elicit.toml\n│       ├───bmad-task-core-index-docs.toml\n│       ├───bmad-task-core-validate-workflow.toml\n│       ├───bmad-task-core-workflow.toml\n│       └───run-agent-task.toml\n├───.git\\...\n├───.github\\\n│   └───workflows\\\n│       └───ci.yml\n├───.logging\\\n│   ├───.gitignore\n│   ├───api-viewer.html\n│   ├───api-viewer.html.bak\n│   ├───process-api-requests.py\n│   ├───README.md\n│   ├───requirements.txt\n│   ├───server.py\n│   ├───server.py.backup\n│   ├───telemetry.md\n│   ├───truncate.py\n│   └───watcher.py\n├───.vscode\\\n│   ├───launch.json\n│   ├───settings.json\n│   └───tasks.json\n├───docs\\\n│   ├───brainstorming-session-results-2025-11-16.md\n│   ├───brainstorming-session-results-2025-11-17.md\n│   ├───CRITICAL_ISSUES_FIXED.md\n│   ├───FRONTEND_IMPLEMENTATION_SUMMARY.md\n│   ├───product-brief-ibe160-2025-11-18.md\n│   ├───project-plan.md\n│   ├───research-market.md\n│   ├───research-prompt-engineering.md\n│   ├───research-technical.md\n│   ├───ux-color-themes.html\n│   ├───ux-design-directions.html\n│   ├───ux-design-specification-COMPLETE.md\n│   ├───ux-mobile-and-error-states.md\n│   ├───validation-report-ux-design-2025-11-19.md\n│   └───stories\\\n│       └───.gitkeep\n├───frontend\\\n│   ├───components.json\n│   ├───next.config.js\n│   ├───package.json\n│   ├───postcss.config.js\n│   ├───README.md\n│   ├───tailwind.config.ts\n│   ├───tsconfig.json\n│   └───src\\\n│       ├───app\\\n│       ├───components\\\n│       ├───lib\\\n│       ├───styles\\\n│       └───types\\\n├───node_modules\\...\n├───src\\\n│   ├───app.js\n│   ├───server.js\n│   ├───config\\\n│   │   └───db.config.js\n│   ├───controllers\\\n│   ├───middleware\\\n│   ├───models\\\n│   │   ├───applicationAnalysis.model.js\n│   │   ├───cv.model.js\n│   │   ├───cvComponent.model.js\n│   │   ├───jobPosting.model.js\n│   │   └───user.model.js\n│   ├───routes\\\n│   ├───services\\\n│   └───utils\\\n│       └───db.js\n├───tests\\\n└───venv\\\n    ├───Include\\...\n    ├───Lib\\...\n    └───Scripts\\...\n\nReminder: Do not return an empty response when a tool call is required.\n\nMy setup is complete. I will provide my first command in the next turn."
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "text": "yolo"
+            }
+          ]
+        }
+      ]
+    },
+    "response": {
+      "session.id": "a595d9a5-f706-4270-b06a-a0f09567478e",
+      "installation.id": "61675743-2551-4675-b234-517e42bef991",
+      "interactive": false,
+      "user.email": "kaylee.floden@hotmail.com",
+      "event.name": "gemini_cli.api_response",
+      "event.timestamp": "2025-11-21T17:58:44.721Z",
+      "model": "gemini-2.5-flash",
+      "duration_ms": 6403,
+      "input_token_count": 7725,
+      "output_token_count": 0,
+      "cached_content_token_count": 0,
+      "thoughts_token_count": 57,
+      "tool_token_count": 0,
+      "total_token_count": 7782,
+      "prompt_id": "798564b6091ae",
+      "auth_type": "oauth-personal",
+      "status_code": 200,
+      "response_text": [
+        {
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "thought": true,
+                    "text": "**Considering User Input**\n\nI'm currently in a holding pattern. The user has set the stage, offering the foundational elements. Now, my systems are primed and waiting. The critical next step hinges on the user's directive—a task or inquiry to kickstart the active phase of processing. I am ready to begin as soon as I get the signal.\n\n\n"
+                  }
+                ]
+              },
+              "finishReason": "STOP"
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 7725,
+            "totalTokenCount": 7782,
+            "trafficType": "ON_DEMAND",
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 7725
+              }
+            ],
+            "thoughtsTokenCount": 57
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "8ebc621d6a0818b5"
+        }
+      ],
+      "http.status_code": 200
+    },
+    "error": {
+      "session.id": "a595d9a5-f706-4270-b06a-a0f09567478e",
+      "installation.id": "61675743-2551-4675-b234-517e42bef991",
+      "interactive": false,
+      "user.email": "kaylee.floden@hotmail.com",
+      "event.name": "gemini_cli.api_error",
+      "event.timestamp": "2025-11-21T17:59:47.214Z",
+      "error.message": "[{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.\",\n    \"errors\": [\n      {\n        \"message\": \"Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.\",\n        \"domain\": \"global\",\n        \"reason\": \"rateLimitExceeded\"\n      }\n    ],\n    \"status\": \"RESOURCE_EXHAUSTED\"\n  }\n}\n]",
+      "model_name": "gemini-2.5-flash",
+      "duration": 17004,
+      "model": "gemini-2.5-flash",
+      "error": "[{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.\",\n    \"errors\": [\n      {\n        \"message\": \"Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.\",\n        \"domain\": \"global\",\n        \"reason\": \"rateLimitExceeded\"\n      }\n    ],\n    \"status\": \"RESOURCE_EXHAUSTED\"\n  }\n}\n]",
+      "status_code": 429,
+      "duration_ms": 17004,
+      "prompt_id": "798564b6091ae",
+      "auth_type": "oauth-personal",
+      "error.type": "Error",
+      "http.status_code": 429
+    }
+  }
+]
