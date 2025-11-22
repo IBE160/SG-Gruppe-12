@@ -23,7 +23,7 @@ field_type: "brownfield"
 workflow_path: "method-brownfield.yaml"
 workflow_status:
   # Phase Documentation: Documentation
-  document-project: required # agent: analyst
+  document-project: docs/index.md # agent: analyst
 
   # Phase 0: Discovery (Optional)
   brainstorm-project: docs/brainstorming-session-results-2025-11-17.md # agent: analyst
