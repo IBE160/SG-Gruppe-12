@@ -8,26 +8,24 @@
 
 ## Fase 0
 
-- [x] /run-agent-task analyst *workflow-init
-  - [x] File: bmm-workflow-status.yaml
-- [x] Brainstorming
-  - [x] /run-agent-task analyst *brainstorm "Root Cause Analysis and Solution Design for Player Inactivity"
-    - [x] File: brainstorming-session-results-date.md
-  - [x] /run-agent-task analyst *brainstorm "User Flow Deviations & Edge Cases"
-    - [x] File: brainstorming-session-results-date.md
-  - [x] /run-agent-task analyst *brainstorm "Brainstorm what it means to have a paid user"
-    - [x] File: brainstorming-session-results-date.md
-- [ ] Research
-  - [x] /run-agent-task analyst *research "Which AI library should we use for orchestrating LLM interactions?"
-    - [x] File: research-technical-date.md
-- [x] Product Brief
-  - [x] /run-agent-task analyst *product-brief "Read the two brainstorming sessions the research session and the @proposal.md file, and create a product brief for the project."
-    - [x] File: product-brief.md
+- [x ] Brainstorming
+  - [ x] /analyst *brainstorm "Root Cause Analysis and Solution Design for Player Inactivity"
+  - [ x] /analyst *brainstorm "User Flow Deviations & Edge Cases"
+- [x ] Research
+  - [x ] /analyst *research "Which AI library should we use for orchestrating LLM interactions?"
+- [x ] Product Brief
+  - [x ] /analyst *product-brief "Read the two brainstorming sessions the research session and the @proposal.md file, and create a product brief for the project."
 
 ## Fase 1
 
 - [ ] Planning
   - [x] /run-agent-task pm *prd
+  - [ x] /run-agent-task pm *validate-prd
+  - [x ] /run-agent-task ux-designer *create-ux-design {prompt / user-input-file}
+  - [ x] /run-agent-task ux-designer *validate-ux-design {prompt / user-input-file}
+  - [ ] /run-agent-task tea *framework {prompt / user-input-file}
+  - [ ] /run-agent-task tea *ci {prompt / user-input-file}
+  - [ ] /run-agent-task tea *test-design {prompt / user-input-file}
     - [x] File: PRD.md
   - [x] /run-agent-task pm *validate-prd
     - [x] File: validation-report-date.md
