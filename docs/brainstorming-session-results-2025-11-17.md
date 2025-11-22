@@ -2,7 +2,7 @@
 
 **Session Date:** mandag 17. november 2025
 **Facilitator:** AI Assistant Gemini
-**Participant:** User
+**Participant:** Kaylee Floden
 
 ## Executive Summary
 

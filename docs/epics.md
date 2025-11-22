@@ -1,6 +1,6 @@
 # ibe160 - Epic Breakdown
 
-**Author:** BIP
+**Author:** Kaylee Floden
 **Date:** lørdag 22. november 2025
 **Project Level:** Medium to High
 **Target Scale:** Global

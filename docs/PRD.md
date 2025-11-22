@@ -1,6 +1,6 @@
 # AI CV and Application - Product Requirements Document
 
-**Author:** BIP
+**Author:** Kaylee Floden
 **Date:** fredag 21. november 2025
 **Version:** 1.0
 
