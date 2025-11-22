@@ -32,7 +32,7 @@ The platform must comply with GDPR because it processes sensitive personal data 
 
 ## Success Criteria
 
-Users go from lost/stressed to organized/confident/empowered. They experience tangible improvement in application workflow, trusting the app more than manual methods, saving significant time, and getting interviews/job offers. The app becomes their primary tool for job applications.
+Users transition from lost/stressed to organized/confident/empowered, evidenced by a 25% reduction in perceived application effort and a 15% increase in self-reported confidence. They experience tangible improvement in application workflow, leading to a 30% reduction in time spent per application and a 10% increase in interview requests. The app becomes their primary tool for job applications, measured by 80% weekly active users post-onboarding.
 
 ### Business Metrics
 
@@ -44,27 +44,27 @@ High user retention and voluntary return rate, organic referrals, and a strong c
 
 ### MVP - Minimum Viable Product
 
-Frictionless onboarding flow.
-Simple way to enter or paste CV information.
-Reliable AI parser to extract and structure experience accurately.
-Clean CV preview that updates in real time.
-Job-matcher that takes a pasted job post and immediately shows:
-    Clear, honest match score.
-    Missing keywords.
-    Strengths and weaknesses.
-Generating a polished, downloadable CV and cover letter tailored to a specific job.
+*   **Frictionless onboarding flow.** (Rationale: Critical for initial user adoption and reducing drop-off.)
+*   **Simple way to enter or paste CV information.** (Rationale: Low barrier to entry for users to start building their profile.)
+*   **Reliable AI parser to extract and structure experience accurately.** (Rationale: Foundational for all AI-driven features and data integrity.)
+*   **Clean CV preview that updates in real time.** (Rationale: Provides immediate feedback and builds user confidence in data accuracy.)
+*   **Job-matcher that takes a pasted job post and immediately shows:** (Rationale: Delivers core value by directly addressing the pain point of job ad interpretation.)
+    *   Clear, honest match score.
+    *   Missing keywords.
+    *   Strengths and weaknesses.
+*   **Generating a polished, downloadable CV and cover letter tailored to a specific job.** (Rationale: The ultimate output value for the user, enabling targeted applications.)
 
 ### Growth Features (Post-MVP)
 
-Applications history.
-Advanced editing tools.
-Micro-interactions.
-Analytics.
+*   **Applications history.** (Reason: Enhances user value and retention after core MVP is validated.)
+*   **Advanced editing tools.** (Reason: Provides deeper customization once basic functionality is stable.)
+*   **Micro-interactions.** (Reason: Polishing UX elements can be deferred to focus on core features first.)
+*   **Analytics.** (Reason: Internal data for optimization is valuable post-MVP launch and initial user feedback.)
 
 ### Vision (Future)
 
-Company-side features.
-Premium tiers.
+*   **Company-side features.** (Reason: Strategic expansion into B2B market after B2C core is established.)
+*   **Premium tiers.** (Reason: Monetization strategy to be implemented after product-market fit is achieved and value demonstrated.)
 
 ---
 
@@ -133,7 +133,86 @@ Interaction patterns must be extremely predictable, with smooth transitions, gui
 
 ## Functional Requirements
 
-The core functional requirements translate directly from the UX principles, scope definition, and MVP vision and define exactly what the system must do to deliver a simple, structured, empowering job-search experience. The platform must allow a user to create an account, authenticate securely, and maintain a persistent session so their CV data is always available. It must allow the user to enter all core CV data through a clean, guided, step-by-step intake flow where each section—personal details, work experience, education, skills, and languages—is captured in a structured format with validation for completeness and correctness. The system must allow the user to edit, reorder, or delete any CV entry instantly with changes immediately reflected in the live preview. The platform must generate a clean, modern, formatted CV based on the structured data using selectable templates and allow the user to download it in PDF or DOCX format. It must allow the user to paste a job description and automatically extract keywords, compare them to the user’s CV, calculate a match score, and show which keywords are present and which are missing. It must allow the user to generate a tailored CV and cover letter that adapts the user’s data to the specific job description while giving the user full control to accept, reject, or edit every AI-generated suggestion. It must save a history of tailored applications so the user can revisit past job matches, CV versions, or cover letters. The system must provide immediate feedback during long operations through loading indicators, skeleton states, and retry options for any failed AI or API process. It must maintain strict data privacy by ensuring user control over stored data, allowing exporting, deleting, and managing personal information. It must offer a visually clear, predictable, minimalistic interface with frictionless navigation, guided flows, and obvious next steps to reinforce momentum and clarity. It must log user interactions and feature usage to support metrics such as activation, retention, feature adoption, and AI feedback signals. Finally, the platform must remain performant and reliable by ensuring fast response times for all endpoints, especially AI-dependent ones, and must degrade gracefully if AI services temporarily fail by offering manual fallback paths.
+The core functional requirements define exactly what the system must do to deliver a simple, structured, empowering job-search experience. These are derived from UX principles, scope definition, and the MVP vision.
+
+### 1. User Account & Management
+
+*   **FR-1.1: Account Creation & Authentication (MVP)**
+    *   The platform must allow a user to create an account.
+    *   The platform must allow a user to authenticate securely.
+    *   The platform must maintain a persistent session.
+    *   **Dependencies:** None
+
+### 2. CV Data Management
+
+*   **FR-2.1: CV Data Intake (MVP)**
+    *   The platform must allow the user to enter all core CV data through a clean, guided, step-by-step intake flow.
+    *   Each section (personal details, work experience, education, skills, and languages) must be captured in a structured format.
+    *   Validation for completeness and correctness must be provided for CV data.
+    *   **Dependencies:** FR-1.1
+*   **FR-2.2: CV Data Editing (MVP)**
+    *   The system must allow the user to edit any CV entry instantly.
+    *   The system must allow the user to reorder any CV entry instantly.
+    *   The system must allow the user to delete any CV entry instantly.
+    *   Changes must be immediately reflected in the live preview.
+    *   **Dependencies:** FR-2.1
+*   **FR-2.3: CV Generation & Download (MVP)**
+    *   The platform must generate a clean, modern, formatted CV based on the structured data.
+    *   The platform must use selectable templates for CV generation.
+    *   The platform must allow the user to download the generated CV in PDF format.
+    *   The platform must allow the user to download the generated CV in DOCX format.
+    *   **Dependencies:** FR-2.1, FR-2.2
+
+### 3. Job Analysis & Matching
+
+*   **FR-3.1: Job Description Input (MVP)**
+    *   The platform must allow the user to paste a job description.
+    *   **Dependencies:** FR-1.1
+*   **FR-3.2: AI-Powered Keyword Extraction (MVP)**
+    *   The platform must automatically extract keywords from the pasted job description.
+    *   **Dependencies:** FR-3.1
+*   **FR-3.3: CV-Job Match Score (MVP)**
+    *   The platform must compare the extracted job keywords to the user’s CV.
+    *   The platform must calculate a match score.
+    *   The platform must show which keywords are present in the CV from the job description.
+    *   The platform must show which keywords are missing from the CV but present in the job description.
+    *   **Dependencies:** FR-2.1, FR-3.2
+
+### 4. AI-Driven Application Tailoring
+
+*   **FR-4.1: Tailored CV Generation (MVP)**
+    *   The platform must allow the user to generate a tailored CV that adapts the user’s data to the specific job description.
+    *   The user must have full control to accept, reject, or edit every AI-generated suggestion for the CV.
+    *   **Dependencies:** FR-2.1, FR-3.3
+*   **FR-4.2: Tailored Cover Letter Generation (MVP)**
+    *   The platform must allow the user to generate a tailored cover letter that adapts the user’s data to the specific job description.
+    *   The user must have full control to accept, reject, or edit every AI-generated suggestion for the cover letter.
+    *   **Dependencies:** FR-2.1, FR-3.3
+*   **FR-4.3: Application History (Growth)**
+    *   The platform must save a history of tailored applications.
+    *   The user must be able to revisit past job matches, CV versions, or cover letters from the history.
+    *   **Dependencies:** FR-4.1, FR-4.2
+
+### 5. Platform Interaction & Feedback
+
+*   **FR-5.1: Immediate Feedback for Operations (MVP)**
+    *   The system must provide immediate feedback during long operations (e.g., AI processing, API calls).
+    *   Feedback mechanisms include loading indicators, skeleton states, and retry options for failed processes.
+    *   **Dependencies:** FR-1.1 (for all operations)
+*   **FR-5.2: Visually Clear Interface (MVP)**
+    *   The platform must offer a visually clear, predictable, minimalistic interface, achieving an average System Usability Scale (SUS) score of 80+.
+    *   The interface must support frictionless navigation (e.g., all core tasks completable in <= 3 clicks), guided flows, and obvious next steps to reinforce momentum and clarity, resulting in a 15% reduction in task completion time for first-time users.
+    *   **Dependencies:** All UI-related FRs
+
+### 6. Data Privacy & Control
+
+*   **FR-6.1: Strict Data Privacy (MVP)**
+    *   The system must maintain strict data privacy.
+    *   The system must ensure user control over stored data.
+    *   Users must be able to export their personal information.
+    *   Users must be able to delete their personal information.
+    *   Users must be able to manage their personal information.
+    *   **Dependencies:** FR-1.1, FR-2.1
 
 ---
 
@@ -175,6 +254,13 @@ UI Clarity: The user interface must maintain visual clarity, predictability, and
 Requirements must be decomposed into epics and bite-sized stories (200k context limit).
 
 **Next Step:** Run `workflow epics-stories` to create the implementation breakdown.
+
+### Technical Unknowns & Research Spikes
+
+*   **LLM Performance & Cost Optimization:** Ongoing research to balance AI quality, response time, and API costs across Gemini and GPT-4.
+*   **Bias Detection & Mitigation Algorithms:** Further investigation into robust, real-time methods for identifying and reducing AI bias in generated content beyond initial evaluations.
+*   **Advanced Template Rendering Engine:** Research into flexible and performant solutions for dynamic PDF/DOCX generation that can handle complex styling and multiple templates.
+*   **Internationalization (I18N) for CV Formats:** Future spikes to understand and implement support for diverse global CV conventions (e.g., Norwegian Kompetanseprofil) for broader market reach.
 
 ---
 
