@@ -121,6 +121,7 @@ So that I can begin developing the application.
 **Prerequisites:** None
 
 **Technical Notes:** This story establishes the entire dev environment. It will involve creating `package.json` files, `tsconfig.json`, `tailwind.config.ts`, `postcss.config.js` for frontend, and `server.js`, `app.js`, `db.config.js` for backend.
+**Covers FRs:** FR-1.1, FR-5.2
 
 ### Story 1.2: User Registration & Account Creation (MVP)
 
@@ -140,6 +141,7 @@ So that I can securely access the AI CV platform.
 **Prerequisites:** Story 1.1
 
 **Technical Notes:** Implement user model, registration API endpoint, and frontend registration form. Basic email service integration (or placeholder).
+**Covers FRs:** FR-1.1, FR-6.1
 
 ### Story 1.3: User Login & Session Management (MVP)
 
@@ -160,6 +162,7 @@ So that I can access my CV data and application tools.
 **Prerequisites:** Story 1.2
 
 **Technical Notes:** Implement login API endpoint, frontend login form, JWT generation and validation, and secure cookie handling.
+**Covers FRs:** FR-1.1, FR-6.1
 
 ### Story 1.4: Basic Profile Creation (Name & Contact Info) (MVP)
 
@@ -178,6 +181,7 @@ So that I can start building my professional profile.
 **Prerequisites:** Story 1.3
 
 **Technical Notes:** Implement API endpoint for updating user profile, frontend form for basic details.
+**Covers FRs:** FR-2.1
 
 <!-- End story repeat -->
 
@@ -206,6 +210,7 @@ So that user professional information can be consistently stored and managed.
 **Prerequisites:** Story 1.1 (Core Infrastructure)
 
 **Technical Notes:** Define Mongoose/Sequelize schemas for Node.js backend. Design database tables in PostgreSQL.
+**Covers FRs:** FR-2.1, FR-3.3, FR-3.5
 
 ### Story 2.2: User Interface for CV Section Editing (Work Experience) (MVP)
 
@@ -225,6 +230,7 @@ So that my CV accurately reflects my professional history.
 **Prerequisites:** Story 2.1
 
 **Technical Notes:** Develop React components for work experience form, implement API endpoints for CRUD operations on work experience.
+**Covers FRs:** FR-2.1, FR-2.2, FR-5.2
 
 ### Story 2.3: User Interface for CV Section Editing (Education, Skills, Languages) (MVP)
 
@@ -245,6 +251,7 @@ So that my CV is complete and up-to-date.
 **Prerequisites:** Story 2.1
 
 **Technical Notes:** Develop React components for education, skills, and language forms, implement API endpoints for CRUD operations.
+**Covers FRs:** FR-2.1, FR-2.2, FR-5.2
 
 ### Story 2.4: Dynamic CV Preview & Template Selection (MVP)
 
@@ -263,6 +270,7 @@ So that I can ensure its appearance is professional and suitable.
 **Prerequisites:** Stories 2.2, 2.3
 
 **Technical Notes:** Frontend rendering engine for CVs, use Tailwind CSS for styling templates.
+**Covers FRs:** FR-2.2, FR-2.3, FR-5.2
 
 ### Story 2.5: CV Download Functionality (PDF/DOCX) (MVP)
 
@@ -281,6 +289,7 @@ So that I can easily submit it to job applications.
 **Prerequisites:** Story 2.4
 
 **Technical Notes:** Backend service for generating PDF (e.g., Puppeteer, html-pdf) and DOCX (e.g., docx) from HTML/structured data.
+**Covers FRs:** FR-2.2, FR-2.3
 
 ### Story 2.6: Autosave & Unsaved Changes Warning (MVP)
 
@@ -298,6 +307,7 @@ So that I don't accidentally lose my progress.
 **Prerequisites:** Stories 2.2, 2.3
 
 **Technical Notes:** Implement frontend debouncing for auto-save, browser `beforeunload` event handler for warnings.
+**Covers FRs:** FR-2.2
 
 ### Story 2.7: CV Data Versioning (MVP)
 
@@ -315,6 +325,7 @@ So that I can revert to previous states if needed.
 **Prerequisites:** Story 2.1 (data model support), Stories 2.2, 2.3 (data modification)
 
 **Technical Notes:** Implement a versioning strategy in the database (e.g., storing deltas or full snapshots), API endpoints for listing and restoring versions.
+**Covers FRs:** FR-2.1, FR-2.2
 
 <!-- End story repeat -->
 
@@ -342,6 +353,7 @@ So that the system can analyze it.
 **Prerequisites:** Epic 1 (login), Epic 2 (CV data management)
 
 **Technical Notes:** Frontend text input component.
+**Covers FRs:** FR-3.1, FR-5.2
 
 ### Story 3.2: AI-Powered Job Description Text Extraction (MVP)
 
@@ -361,6 +373,7 @@ So that I can understand what the employer is looking for.
 **Prerequisites:** Story 3.1, Epic 1 (core infrastructure), Epic 5 (LLM security, prompt versioning)
 
 **Technical Notes:** Backend API endpoint for AI analysis, integration with Vercel AI SDK, prompt engineering for Gemini 2.5 Flash, structured output (e.g., JSON).
+**Covers FRs:** FR-3.1, FR-3.2
 
 ### Story 3.3: CV-Job Description Keyword Matching Algorithm (MVP)
 
@@ -379,6 +392,7 @@ So that I can see how well I align with the role.
 **Prerequisites:** Story 2.1 (structured CV data), Story 3.2 (extracted job data)
 
 **Technical Notes:** Backend service for keyword comparison, considering synonyms and semantic matches where appropriate.
+**Covers FRs:** FR-3.2, FR-3.3
 
 ### Story 3.4: Match Score Calculation & Display (MVP)
 
@@ -398,6 +412,7 @@ So that I can quickly assess my fit and areas for improvement.
 **Prerequisites:** Story 3.3
 
 **Technical Notes:** Frontend UI for match score visualization, logic for weighting different matching criteria.
+**Covers FRs:** FR-3.3, FR-5.2
 
 ### Story 3.5: Data Schema Contract Enforcement (Job Analysis Inputs/Outputs) (MVP)
 
@@ -416,6 +431,7 @@ So that data consistency is maintained across the pipeline.
 **Prerequisites:** Story 2.1 (CV data model), Story 3.2 (AI extraction)
 
 **Technical Notes:** Use schema validation libraries (e.g., Joi, Zod) for API endpoints and internal data structures.
+**Covers FRs:** FR-3.2
 
 <!-- End story repeat -->
 
@@ -445,6 +461,7 @@ So that my application is highly targeted.
 **Prerequisites:** Epic 2 (populated CV), Epic 3 (analyzed job description)
 
 **Technical Notes:** Integration with Google Gemini 2.5 Flash (or GPT-4 fallback) via Vercel AI SDK. Advanced prompt engineering to guide rephrasing and emphasis.
+**Covers FRs:** FR-4.1
 
 ### Story 4.2: AI-Driven Personalized Cover Letter Generation (MVP)
 
@@ -464,6 +481,7 @@ So that I can submit a complete and compelling application.
 **Prerequisites:** Epic 2 (populated CV), Epic 3 (analyzed job description)
 
 **Technical Notes:** Similar AI integration as Story 4.1, but focusing on cover letter structure and tone.
+**Covers FRs:** FR-4.2
 
 ### Story 4.3: User Review & Editing Interface for AI-Generated Content (MVP)
 
@@ -482,6 +500,7 @@ So that I have full control and can ensure accuracy and personal voice.
 **Prerequisites:** Stories 4.1, 4.2
 
 **Technical Notes:** Rich text editor component for frontend, API endpoints for saving edited content.
+**Covers FRs:** FR-4.1, FR-4.2, FR-5.2
 
 ### Story 4.4: Save & Retrieve Tailored Application History (Growth)
 
@@ -500,6 +519,7 @@ So that I can revisit them or make minor adjustments for similar roles.
 **Prerequisites:** Stories 4.1, 4.2, 4.3
 
 **Technical Notes:** Database model for application history, API endpoints for saving and retrieving.
+**Covers FRs:** FR-4.1, FR-4.2, FR-4.3
 
 ### Story 4.5: Robust AI Processing Feedback & Handling (MVP)
 
@@ -518,6 +538,7 @@ So that I understand the system's status and can recover from issues.
 **Prerequisites:** Stories 4.1, 4.2
 
 **Technical Notes:** Frontend UI for loading states, backend error handling and retry logic for AI calls.
+**Covers FRs:** FR-4.1, FR-4.2, FR-5.1
 
 <!-- End story repeat -->
 
@@ -543,6 +564,7 @@ So that I can ensure my privacy is respected.
 4.  **And** My consent choices are securely stored and auditable.
 5.  **And** I can easily review and modify my consent preferences at any time.
 
+**Covers FRs:** FR-6.1
 **Prerequisites:** Story 1.2 (User Registration)
 
 **Technical Notes:** Implement a consent management platform (CMP) or custom consent UI/backend. Update user model to store consent flags.
@@ -562,6 +584,7 @@ So that I can exercise my right to data portability and deletion under GDPR.
 5.  **Then** My account and all associated personal data are permanently removed from the system.
 6.  **And** Confirmation is provided for both export and deletion requests.
 
+**Covers FRs:** FR-6.1
 **Prerequisites:** Epic 2 (CV data storage), Epic 4 (application history)
 
 **Technical Notes:** API endpoints for data export/deletion. Ensure complete data purge across all linked systems.
@@ -581,6 +604,7 @@ So that my data is protected from unauthorized access.
 5.  **Then** It is encrypted at rest using industry-standard encryption methods.
 6.  **And** Data minimization principles are applied, ensuring only necessary personal data is collected and processed.
 
+**Covers FRs:** FR-6.1
 **Prerequisites:** Epic 1 (core infrastructure)
 
 **Technical Notes:** Configure HTTPS/TLS for all API endpoints. Enable database encryption features (e.g., PostgreSQL TDE or disk encryption).
@@ -599,6 +623,7 @@ So that only authorized users can access sensitive data and functionality.
 4.  **And** The system verifies user authorization based on their role for the requested action/resource.
 5.  **And** Unauthorized access attempts are rejected and logged.
 
+**Covers FRs:** FR-1.1, FR-6.1
 **Prerequisites:** Stories 1.2, 1.3 (authentication)
 
 **Technical Notes:** Implement middleware for route protection. Define user roles and permissions.
@@ -616,6 +641,7 @@ So that my privacy is fully protected when using AI features.
 3.  **Then** The system ensures no personal data is persistently stored or used for model training by the LLM provider, and user consent is explicitly respected for any data processing involving AI.
 4.  **And** Raw job advertisement text is only stored if absolutely necessary for analysis and is automatically deleted afterwards.
 
+**Covers FRs:** FR-6.1
 **Prerequisites:** Epic 3 (AI analysis), Epic 4 (AI generation)
 
 **Technical Notes:** Configure LLM API calls to disable data retention/training. Implement short-lived storage for job ad text.
@@ -634,6 +660,7 @@ So that compliance requirements are met without compromising privacy.
 4.  **And** Logs are auditable and retained according to policy.
 5.  **And** Logs are stored securely.
 
+**Covers FRs:** FR-6.1
 **Prerequisites:** Epic 1 (core infrastructure)
 
 **Technical Notes:** Implement a logging framework with PII redaction capabilities. Define log retention policies.
@@ -651,6 +678,7 @@ So that my job applications are evaluated purely on merit.
 3.  **Then** The system actively avoids biased phrasing or assumptions related to gender, ethnicity, disability, or age.
 4.  **And** Mechanisms for regular evaluation of LLM outputs for bias are in place (e.g., through testing or human review).
 
+**Covers FRs:** FR-6.1
 **Prerequisites:** Epic 3 (AI analysis), Epic 4 (AI generation)
 
 **Technical Notes:** Include bias detection in LLM output processing. Design evaluation metrics for AI fairness.

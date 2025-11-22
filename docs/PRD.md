@@ -247,6 +247,18 @@ UI Clarity: The user interface must maintain visual clarity, predictability, and
 
 ---
 
+## High-Level Epic Breakdown
+
+The project's implementation will be structured around the following five epics, each delivering distinct value:
+
+1.  **Platform Foundation & User Onboarding:** Establishes core infrastructure, secure authentication, and basic profile creation.
+2.  **AI-Powered CV Data Management & Preview:** Provides comprehensive control over CV data with real-time preview and download.
+3.  **Job Ad Analysis & Match Scoring:** Empowers users to interpret job descriptions and assess their alignment with roles.
+4.  **Tailored Application Generation:** Delivers core AI-driven value by crafting customized CVs and cover letters.
+5.  **Trust & Data Governance (Cross-Cutting Concern):** Ensures the highest standards of data security, user privacy, and ethical AI usage.
+
+---
+
 ## Implementation Planning
 
 ### Epic Breakdown Required
@@ -261,6 +273,7 @@ Requirements must be decomposed into epics and bite-sized stories (200k context 
 *   **Bias Detection & Mitigation Algorithms:** Further investigation into robust, real-time methods for identifying and reducing AI bias in generated content beyond initial evaluations.
 *   **Advanced Template Rendering Engine:** Research into flexible and performant solutions for dynamic PDF/DOCX generation that can handle complex styling and multiple templates.
 *   **Internationalization (I18N) for CV Formats:** Future spikes to understand and implement support for diverse global CV conventions (e.g., Norwegian Kompetanseprofil) for broader market reach.
+*   **DevOps and Testing Strategy:** Formalization of comprehensive DevOps practices (CI/CD pipelines, deployment strategy, monitoring) and a detailed testing strategy (unit, integration, E2E testing, test automation frameworks) will be documented in the architecture phase.
 
 ---
 
