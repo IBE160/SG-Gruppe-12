@@ -36,6 +36,7 @@ workflow_status:
   create-design: docs/ux-design-specification-COMPLETE.md # agent: ux-designer
 
   # Phase 2: Solutioning
+  create-epics-and-stories: docs/epics.md # agent: pm
   create-architecture: recommended # agent: architect
   validate-architecture: optional # agent: architect
   solutioning-gate-check: required # agent: architect
