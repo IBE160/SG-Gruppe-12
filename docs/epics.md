@@ -105,7 +105,7 @@ The following epic structure is designed to incrementally build the AI CV and Ap
 
 As a developer,
 I want to set up the project repository and core infrastructure,
-So that I can begin developing the application.
+So that I can begin developing the application (FR-1.1, FR-5.2).
 
 **Acceptance Criteria:**
 
@@ -127,7 +127,7 @@ So that I can begin developing the application.
 
 As a new user,
 I want to create an account,
-So that I can securely access the AI CV platform.
+So that I can securely access the AI CV platform (FR-1.1, FR-6.1).
 
 **Acceptance Criteria:**
 
@@ -147,7 +147,7 @@ So that I can securely access the AI CV platform.
 
 As a registered user,
 I want to log in and maintain a secure session,
-So that I can access my CV data and application tools.
+So that I can access my CV data and application tools (FR-1.1, FR-6.1).
 
 **Acceptance Criteria:**
 
@@ -168,7 +168,7 @@ So that I can access my CV data and application tools.
 
 As a new user,
 I want to quickly enter my name and contact information after logging in,
-So that I can start building my professional profile.
+So that I can start building my professional profile (FR-2.1).
 
 **Acceptance Criteria:**
 
@@ -197,7 +197,7 @@ So that I can start building my professional profile.
 
 As a developer,
 I want a structured internal data model for CV components,
-So that user professional information can be consistently stored and managed.
+So that user professional information can be consistently stored and managed (FR-2.1, FR-3.3).
 
 **Acceptance Criteria:**
 
@@ -216,7 +216,7 @@ So that user professional information can be consistently stored and managed.
 
 As a user,
 I want to easily add, edit, and remove my work experience entries,
-So that my CV accurately reflects my professional history.
+So that my CV accurately reflects my professional history (FR-2.1, FR-2.2, FR-5.2).
 
 **Acceptance Criteria:**
 
@@ -236,7 +236,7 @@ So that my CV accurately reflects my professional history.
 
 As a user,
 I want to manage my education, skills, and language entries,
-So that my CV is complete and up-to-date.
+So that my CV is complete and up-to-date (FR-2.1, FR-2.2, FR-5.2).
 
 **Acceptance Criteria:**
 
@@ -257,7 +257,7 @@ So that my CV is complete and up-to-date.
 
 As a user,
 I want to see a live preview of my CV and choose from basic templates,
-So that I can ensure its appearance is professional and suitable.
+So that I can ensure its appearance is professional and suitable (FR-2.2, FR-2.3, FR-5.2).
 
 **Acceptance Criteria:**
 
@@ -276,7 +276,7 @@ So that I can ensure its appearance is professional and suitable.
 
 As a user,
 I want to download my generated CV in common formats (PDF, DOCX),
-So that I can easily submit it to job applications.
+So that I can easily submit it to job applications (FR-2.2, FR-2.3).
 
 **Acceptance Criteria:**
 
@@ -295,7 +295,7 @@ So that I can easily submit it to job applications.
 
 As a user,
 I want my CV data to be automatically saved and be warned about unsaved changes,
-So that I don't accidentally lose my progress.
+So that I don't accidentally lose my progress (FR-2.2).
 
 **Acceptance Criteria:**
 
@@ -313,7 +313,7 @@ So that I don't accidentally lose my progress.
 
 As a user,
 I want my CV data to be versioned,
-So that I can revert to previous states if needed.
+So that I can revert to previous states if needed (FR-2.1, FR-2.2).
 
 **Acceptance Criteria:**
 
@@ -341,7 +341,7 @@ So that I can revert to previous states if needed.
 
 As a user,
 I want a simple interface to paste job description text,
-So that the system can analyze it.
+So that the system can analyze it (FR-3.1, FR-5.2).
 
 **Acceptance Criteria:**
 
@@ -359,7 +359,7 @@ So that the system can analyze it.
 
 As a user,
 I want the system to intelligently extract key requirements and keywords from a job description,
-So that I can understand what the employer is looking for.
+So that I can understand what the employer is looking for (FR-3.1, FR-3.2).
 
 **Acceptance Criteria:**
 
@@ -379,7 +379,7 @@ So that I can understand what the employer is looking for.
 
 As a user,
 I want the system to compare my CV data against the extracted job requirements,
-So that I can see how well I align with the role.
+So that I can see how well I align with the role (FR-3.2, FR-3.3).
 
 **Acceptance Criteria:**
 
@@ -398,7 +398,7 @@ So that I can see how well I align with the role.
 
 As a user,
 I want a clear match score and highlights of my strengths/weaknesses against a job description,
-So that I can quickly assess my fit and areas for improvement.
+So that I can quickly assess my fit and areas for improvement (FR-3.3, FR-5.2).
 
 **Acceptance Criteria:**
 
@@ -418,7 +418,7 @@ So that I can quickly assess my fit and areas for improvement.
 
 As a developer,
 I want clear data schema contracts for job analysis inputs and outputs,
-So that data consistency is maintained across the pipeline.
+So that data consistency is maintained across the pipeline (FR-3.2).
 
 **Acceptance Criteria:**
 
@@ -447,7 +447,7 @@ So that data consistency is maintained across the pipeline.
 
 As a user,
 I want an AI-driven tailored CV that rephrases and emphasizes my relevant experience based on a specific job ad,
-So that my application is highly targeted.
+So that my application is highly targeted (FR-4.1).
 
 **Acceptance Criteria:**
 
@@ -467,7 +467,7 @@ So that my application is highly targeted.
 
 As a user,
 I want a personalized cover letter generated by AI that addresses the specific job requirements,
-So that I can submit a complete and compelling application.
+So that I can submit a complete and compelling application (FR-4.2).
 
 **Acceptance Criteria:**
 
@@ -487,7 +487,7 @@ So that I can submit a complete and compelling application.
 
 As a user,
 I want to review and edit AI-generated CV and cover letter content,
-So that I have full control and can ensure accuracy and personal voice.
+So that I have full control and can ensure accuracy and personal voice (FR-4.1, FR-4.2, FR-5.2).
 
 **Acceptance Criteria:**
 
@@ -506,7 +506,7 @@ So that I have full control and can ensure accuracy and personal voice.
 
 As a user,
 I want to save a history of my tailored applications,
-So that I can revisit them or make minor adjustments for similar roles.
+So that I can revisit them or make minor adjustments for similar roles (FR-4.1, FR-4.2, FR-4.3).
 
 **Acceptance Criteria:**
 
@@ -525,7 +525,7 @@ So that I can revisit them or make minor adjustments for similar roles.
 
 As a user,
 I want clear feedback during long AI processing times and options to retry,
-So that I understand the system's status and can recover from issues.
+So that I understand the system's status and can recover from issues (FR-4.1, FR-4.2, FR-5.1).
 
 **Acceptance Criteria:**
 
@@ -554,7 +554,7 @@ So that I understand the system's status and can recover from issues.
 
 As a user,
 I want clear and granular control over my data consent preferences, including how my data is processed by AI,
-So that I can ensure my privacy is respected.
+So that I can ensure my privacy is respected (FR-6.1).
 
 **Acceptance Criteria:**
 
@@ -573,7 +573,7 @@ So that I can ensure my privacy is respected.
 
 As a user,
 I want to easily export my personal data and permanently delete my account and all associated data,
-So that I can exercise my right to data portability and deletion under GDPR.
+So that I can exercise my right to data portability and deletion under GDPR (FR-6.1).
 
 **Acceptance Criteria:**
 
@@ -593,7 +593,7 @@ So that I can exercise my right to data portability and deletion under GDPR.
 
 As a user,
 I want assurance that all my sensitive personal data is encrypted both when being transferred and when stored,
-So that my data is protected from unauthorized access.
+So that my data is protected from unauthorized access (FR-6.1).
 
 **Acceptance Criteria:**
 
@@ -613,7 +613,7 @@ So that my data is protected from unauthorized access.
 
 As a developer,
 I want strong, role-based authentication and authorization mechanisms,
-So that only authorized users can access sensitive data and functionality.
+So that only authorized users can access sensitive data and functionality (FR-1.1, FR-6.1).
 
 **Acceptance Criteria:**
 
@@ -632,7 +632,7 @@ So that only authorized users can access sensitive data and functionality.
 
 As a user,
 I want strict guarantees that my personal data is never used for AI model training by third-party providers,
-So that my privacy is fully protected when using AI features.
+So that my privacy is fully protected when using AI features (FR-6.1).
 
 **Acceptance Criteria:**
 
@@ -650,7 +650,7 @@ So that my privacy is fully protected when using AI features.
 
 As a developer,
 I want a logging system that records necessary events for auditing and debugging but minimizes the collection of personal data,
-So that compliance requirements are met without compromising privacy.
+So that compliance requirements are met without compromising privacy (FR-6.1).
 
 **Acceptance Criteria:**
 
@@ -669,7 +669,7 @@ So that compliance requirements are met without compromising privacy.
 
 As a user,
 I want the AI outputs to be fair and unbiased, without amplifying biases related to protected characteristics,
-So that my job applications are evaluated purely on merit.
+So that my job applications are evaluated purely on merit (FR-6.1).
 
 **Acceptance Criteria:**
 
