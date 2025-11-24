@@ -1,7 +1,7 @@
 # Rapport – SG-Gruppe-12
 
 Dette dokumentet beskriver arbeidet i prosjektet **"AI CV and Application"** i faget *IBE160 Programmering med KI*.  
-Prosjektet er delt inn i flere deler, og hvert gruppemedlem har hatt ansvar for en spesifikk del av fase 1.
+Prosjektet er delt inn i flere deler, og hvert gruppemedlem har hatt ansvar for en spesifik del av fase 1.
 
 ---
 
@@ -242,7 +242,7 @@ We collaborated with the Gemini agent, acting as "John, the Product Manager," th
     *   PRD Document Completeness
     *   Functional Requirements Quality (format, structure, completeness, organization)
     *   Epics Document Completeness and Quality
-    *   **CRITICAL FR Coverage Validation (Traceability):** This identified critical failures due to unnumbered Functional Requirements in the `PRD.md` and lack of explicit FR references in stories.
+    *   **CRITICAL FR Coverage Validation:** This identified critical failures due to unnumbered Functional Requirements in the `PRD.md` and lack of explicit FR references in stories.
     *   Story Sequencing Validation
     *   Scope Management
     *   Research and Context Integration
