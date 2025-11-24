@@ -22,21 +22,21 @@ so that I can **begin developing the application**.
 ## Tasks / Subtasks
 
 *   **Initialize Monorepo Structure:**
-    *   [ ] Create root `package.json` and `README.md`.
-    *   [ ] Create `src/` directory for backend.
-    *   [ ] Create `frontend/` directory for frontend.
-    *   [ ] Create `docs/` directory for documentation.
-    *   [ ] Create `.github/workflows/` directory for CI/CD.
+    *   [x] Create root `package.json` and `README.md`.
+    *   [x] Create `src/` directory for backend.
+    *   [x] Create `frontend/` directory for frontend.
+    *   [x] Create `docs/` directory for documentation.
+    *   [x] Create `.github/workflows/` directory for CI/CD.
 *   **Backend Setup (Node.js/Express.js):**
-    *   [ ] Initialize `src/package.json` with `express`, `pg`, `dotenv` dependencies. (AC: 4)
-    *   [ ] Create basic `src/server.js` and `src/app.js` files. (AC: 4)
-    *   [ ] Configure `src/config/db.config.js` for PostgreSQL connection. (AC: 7)
+    *   [x] Initialize `src/package.json` with `express`, `pg`, `dotenv` dependencies. (AC: 4)
+    *   [x] Create basic `src/server.js` and `src/app.js` files. (AC: 4)
+    *   [x] Configure `src/config/db.config.js` for PostgreSQL connection. (AC: 7)
     *   [ ] Add `nodemon` for development.
 *   **Frontend Setup (Next.js/React/Tailwind CSS):**
-    *   [ ] Initialize `frontend/package.json` with `next`, `react`, `react-dom` dependencies. (AC: 5)
-    *   [ ] Install `tailwindcss`, `postcss`, `autoprefixer` and configure `tailwind.config.ts`, `postcss.config.js`. (AC: 5)
-    *   [ ] Configure `shadcn/ui` and `lucide-react` for UI components and icons. (AC: 5)
-    *   [ ] Create basic Next.js page structure (e.g., `frontend/src/app/page.tsx`). (AC: 5)
+    *   [x] Initialize `frontend/package.json` with `next`, `react`, `react-dom` dependencies. (AC: 5)
+    *   [x] Install `tailwindcss`, `postcss`, `autoprefixer` and configure `tailwind.config.ts`, `postcss.config.js`. (AC: 5)
+    *   [x] Configure `shadcn/ui` and `lucide-react` for UI components and icons. (AC: 5)
+    *   [x] Create basic Next.js page structure (e.g., `frontend/src/app/page.tsx`). (AC: 5)
 *   **Database Integration (PostgreSQL):**
     *   [ ] Ensure local PostgreSQL instance is accessible.
     *   [ ] Configure database connection string in `src/config/db.config.js`. (AC: 7)
@@ -73,5 +73,11 @@ gemini-1.5-flash
 ### Debug Log References
 
 ### Completion Notes List
+- Created root monorepo `package.json` and `README.md`. Moved previous `package.json` and `README.md` to `src/`.
 
 ### File List
+- `package.json` (created)
+- `README.md` (created)
+- `src/package.json` (moved from root)
+- `src/README.md` (moved from root)
+- `src/config/db.config.js` (created)
