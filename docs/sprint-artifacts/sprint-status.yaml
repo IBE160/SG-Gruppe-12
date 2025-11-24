@@ -1,0 +1,85 @@
+# Sprint Status
+# This file tracks the progress of epics and stories through the development lifecycle.
+
+# generated: Monday 24. november 2025
+# project: ibe160
+# project_key: ibe160
+# tracking_system: file-system
+# story_location: C:\Users\kayle\Desktop\SG-Gruppe-12/docs/sprint-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic exists in epic file but not contexted
+#   - contexted: Epic tech context created (required before drafting stories)
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - drafted: Story file created in stories folder
+#   - ready-for-dev: Draft approved and story context created
+#   - in-progress: Developer actively working on implementation
+#   - review: Under SM review (via code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - completed: Retrospective has been done
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epics should be 'contexted' before stories can be 'drafted'
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically drafts next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', SM reviews, then Dev moves to 'done'
+
+generated: "Monday 24. november 2025"
+project: "ibe160"
+project_key: "ibe160"
+tracking_system: "file-system"
+story_location: "C:\Users\kayle\Desktop\SG-Gruppe-12/docs/sprint-artifacts"
+
+development_status:
+  epic-1: backlog
+  1-1-project-setup-core-infrastructure-initialization: backlog
+  1-2-user-registration-account-creation: backlog
+  1-3-user-login-session-management: backlog
+  1-4-basic-profile-creation-name-contact-info: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-structured-cv-data-model-design-implementation: backlog
+  2-2-ai-powered-cv-parsing-from-file-upload: backlog
+  2-4-user-interface-for-cv-section-editing-work-experience: backlog
+  2-5-user-interface-for-cv-section-editing-education-skills-languages: backlog
+  2-6-dynamic-cv-preview-template-selection: backlog
+  2-7-cv-download-functionality-pdf-docx: backlog
+  2-8-autosave-unsaved-changes-warning: backlog
+  2-9-cv-data-versioning: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-job-description-input-interface: backlog
+  3-2-ai-powered-job-description-text-extraction: backlog
+  3-3-cv-job-description-keyword-matching-algorithm: backlog
+  3-4-match-score-calculation-display: backlog
+  3-5-ats-score-calculation-display: backlog
+  3-6-data-schema-contract-enforcement-job-analysis-inputs-outputs: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-ai-driven-tailored-cv-generation: backlog
+  4-2-ai-driven-personalized-cover-letter-generation: backlog
+  4-3-user-review-editing-interface-for-ai-generated-content: backlog
+  4-4-save-retrieve-tailored-application-history: backlog
+  4-5-robust-ai-processing-feedback-handling: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-gdpr-consent-management: backlog
+  5-2-data-export-deletion-right-to-be-forgotten: backlog
+  5-3-data-encryption-in-transit-at-rest: backlog
+  5-4-role-based-authentication-authorization: backlog
+  5-5-rigorous-llm-sandboxing-data-minimization: backlog
+  5-6-minimal-auditable-logging: backlog
+  5-7-ai-fairness-bias-mitigation: backlog
+  epic-5-retrospective: optional
