@@ -1,0 +1,249 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>4</storyId>
+    <title>Basic Profile Creation (Name &amp; Contact Info)</title>
+    <status>drafted</status>
+    <generatedAt>{{date}}</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>{{story_path}}</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>new user</asA>
+    <iWant>quickly enter my name and contact information after logging in</iWant>
+    <soThat>I can start building my professional profile</soThat>
+    <tasks>
+-   [ ] **Backend: Extend User Model** (AC: 4)
+    -   [ ] Modify `prisma/schema.prisma` to add `firstName`, `lastName`, and `phoneNumber` fields to the `User` model.
+    -   [ ] Run Prisma migration to apply schema changes.
+-   [ ] **Backend: Implement User Profile Service & Controller** (AC: 4)
+    -   [ ] Create `user.service.ts` with `updateProfile` and `getProfile` functions.
+    -   [ ] Create `user.controller.ts` to handle profile API requests.
+-   [ ] **Backend: Create User Profile API Endpoints** (AC: 4)
+    -   [ ] Define `POST /api/v1/profile` (update) and `GET /api/v1/profile` (get) routes in `user.routes.ts`.
+    -   [ ] Apply `auth.middleware.ts` to protect these endpoints.
+    -   [ ] Add Zod validation (`user.validator.ts`) for profile fields.
+-   [ ] **Frontend: Create Basic Profile Form Component** (AC: 3, 5)
+    -   [ ] Develop `ProfileForm.tsx` component in `components/features/user/`, using `shadcn/ui` input components.
+    -   [ ] Use `React Hook Form` and `Zod` (`schemas/user.ts`) for validation.
+-   [ ] **Frontend: Implement API Integration & UI** (AC: 2, 4, 5)
+    -   [ ] Create `lib/api/user.ts` for profile API calls.
+    -   [ ] Develop `frontend/src/app/(dashboard)/settings/page.tsx` for displaying and editing the profile.
+    -   [ ] Fetch existing profile data on page load (`getProfile`).
+    -   [ ] Display confirmation message on successful update.
+-   [ ] **Testing:**
+    -   [ ] Write unit tests for `user.service.ts` profile update/get logic.
+    -   [ ] Write integration tests for `POST /api/v1/profile` and `GET /api/v1/profile` endpoints (authenticated access, validation errors).
+    -   [ ] Write E2E tests for the full profile creation/update flow (login, navigate to profile, input data, save, verify).
+    -   [ ] Test access control (unauthenticated users cannot access profile APIs).
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1.  **Given** I am a newly registered and logged-in user
+2.  **When** I navigate to the basic profile creation section
+3.  **Then** I can input my first name, last name, email, and phone number
+4.  **And** The entered information is saved and associated with my user account
+5.  **And** I receive confirmation that my basic profile is updated
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR-2.1: CV Data Intake</section>
+        <snippet>Defines the functional requirement for users to enter core CV data, starting with basic profile information.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Data Models and Contracts</section>
+        <snippet>Specifies the `User` model, which will be extended with `firstName`, `lastName`, and `phoneNumber` fields for basic profile information.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>APIs and Interfaces</section>
+        <snippet>Details the `POST /api/profile` and `GET /api/profile` endpoints for creating/updating and retrieving user profile information.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Workflows and Sequencing</section>
+        <snippet>Outlines the "Basic Profile Creation Flow" for new, logged-in users.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>Project Structure</section>
+        <snippet>Guides the creation of `user.service.ts`, `user.controller.ts`, and `user.routes.ts` for handling user profile logic.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>Data Models</section>
+        <snippet>Reinforces the use of Prisma for extending the `User` model.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-frontend.md</path>
+        <title>Frontend Architecture Specification</title>
+        <section>Form Handling Strategy</section>
+        <snippet>Specifies the use of React Hook Form and Zod for profile forms, ensuring type-safe validation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics Breakdown</title>
+        <section>Story 1.4: Basic Profile Creation (Name &amp; Contact Info) (MVP)</section>
+        <snippet>Authoritative source for story's acceptance criteria related to inputting and saving basic user profile data.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification-COMPLETE.md</path>
+        <title>UX Design Specification</title>
+        <section>Input Component Specifications</section>
+        <snippet>Provides design guidelines for input fields used in profile forms, including states and sizes.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>prisma/schema.prisma</path>
+        <kind>database schema</kind>
+        <symbol>User model</symbol>
+        <reason>Needs modification to add `firstName`, `lastName`, and `phoneNumber` fields.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/user.service.ts</path>
+        <kind>backend service</kind>
+        <symbol>updateProfile, getProfile</symbol>
+        <reason>New service for handling basic user profile business logic.</reason>
+      </artifact>
+      <artifact>
+        <path>src/controllers/user.controller.ts</path>
+        <kind>backend controller</kind>
+        <symbol>updateProfile, getProfile</symbol>
+        <reason>New controller for handling user profile API requests.</reason>
+      </artifact>
+      <artifact>
+        <path>src/routes/user.routes.ts</path>
+        <kind>backend routes</kind>
+        <symbol>POST /api/v1/profile, GET /api/v1/profile</symbol>
+        <reason>New routes for user profile creation and retrieval.</reason>
+      </artifact>
+      <artifact>
+        <path>src/validators/user.validator.ts</path>
+        <kind>backend validation</kind>
+        <symbol>profileSchema</symbol>
+        <reason>Zod schema for validating user profile data in API requests.</reason>
+      </artifact>
+      <artifact>
+        <path>src/middleware/auth.middleware.ts</path>
+        <kind>backend middleware</kind>
+        <symbol>authenticate</symbol>
+        <reason>Reused to protect user profile API endpoints, ensuring only logged-in users can modify their profile.</reason>
+      </artifact>
+      <artifact>
+        <path>frontend/src/components/features/user/ProfileForm.tsx</path>
+        <kind>frontend component</kind>
+        <symbol>ProfileForm</symbol>
+        <reason>New React component for the user profile input form.</reason>
+      </artifact>
+      <artifact>
+        <path>frontend/src/lib/api/user.ts</path>
+        <kind>frontend API client</kind>
+        <symbol>updateProfile, getProfile</symbol>
+        <reason>New functions for making API calls to the backend user profile endpoints.</reason>
+      </artifact>
+      <artifact>
+        <path>frontend/src/lib/schemas/user.ts</path>
+        <kind>frontend validation</kind>
+        <symbol>profileSchema</symbol>
+        <reason>New Zod schema for validating user profile data on the frontend.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <dependency>
+        <path>package.json</path>
+		<ecosystem>Node.js Backend</ecosystem>
+        <packages>
+          <package name="express" version="^4.18.2" />
+		  <package name="pg" version="^8.16.3" />
+		  <package name="prisma/client" version="^5.x" /> (planned)
+		  <package name="zod" version="^3.x" /> (planned)
+        </packages>
+		<devDependencies>
+		  <package name="nodemon" version="^2.0.22" />
+		  <package name="prisma" version="^5.x" /> (planned)
+		</devDependencies>
+      </dependency>
+      <dependency>
+        <path>frontend/package.json</path>
+		<ecosystem>Node.js Frontend</ecosystem>
+        <packages>
+		  <package name="next" version="^14.2.0" />
+          <package name="react" version="^18.3.0" />
+          <package name="react-dom" version="^18.3.0" />
+		  <package name="@radix-ui/react-label" version="^2.0.2" />
+		  <package name="@radix-ui/react-input" version="^1.0.0" /> (planned)
+		  <package name="class-variance-authority" version="^0.7.0" />
+		  <package name="clsx" version="^2.1.0" />
+		  <package name="tailwind-merge" version="^2.2.2" />
+		  <package name="tailwindcss-animate" version="^1.0.7" />
+		  <package name="react-hook-form" version="^7.x" /> (planned)
+		  <package name="zod" version="^3.x" /> (planned)
+        </packages>
+		<devDependencies>
+		  <package name="typescript" version="^5.4.3" />
+		</devDependencies>
+      </dependency>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>The backend User model in `prisma/schema.prisma` must be extended with `firstName`, `lastName`, and `phoneNumber` fields.</constraint>
+    <constraint>Prisma migration must be run after schema changes.</constraint>
+    <constraint>User profile API endpoints must be protected by authentication middleware.</constraint>
+    <constraint>Frontend profile forms must use React Hook Form and Zod for validation.</constraint>
+    <constraint>Frontend profile page will be located at `frontend/src/app/(dashboard)/settings/page.tsx`.</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>User Profile Update API</name>
+      <kind>REST endpoint</kind>
+      <signature>POST /api/v1/profile</signature>
+      <path>src/routes/user.routes.ts</path>
+      <description>Updates the authenticated user's basic profile information.</description>
+    </interface>
+    <interface>
+      <name>User Profile Get API</name>
+      <kind>REST endpoint</kind>
+      <signature>GET /api/v1/profile</signature>
+      <path>src/routes/user.routes.ts</path>
+      <description>Retrieves the authenticated user's basic profile information.</description>
+    </interface>
+    <interface>
+      <name>User Service Update Profile</name>
+      <kind>Backend Service Function</kind>
+      <signature>updateProfile(userId: string, profileData: object)</signature>
+      <path>src/services/user.service.ts</path>
+      <description>Business logic for updating user profile in the database.</description>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Testing for this story should align with the standards outlined in the `Tech Spec: Platform Foundation &amp; User Onboarding`. This includes unit tests for backend `user.service.ts` profile update/get logic, integration tests for `POST /api/v1/profile` and `GET /api/v1/profile` endpoints, and End-to-End (E2E) tests for the full profile creation/update flow. Access control for profile APIs must also be tested.
+    </standards>
+    <locations>
+      <location type="unit">tests/unit</location>
+      <location type="integration">tests/integration</location>
+      <location type="e2e">tests/e2e</location>
+    </locations>
+    <ideas>
+      <idea for="AC.4">Write unit tests for `user.service.ts` to verify that `updateProfile` and `getProfile` functions correctly interact with the database and handle valid/invalid data.</idea>
+      <idea for="AC.4">Create integration tests for `POST /api/v1/profile` and `GET /api/v1/profile` to ensure authenticated users can successfully create/update and retrieve their profile information.</idea>
+      <idea for="AC.3, AC.5">Develop E2E tests to simulate a logged-in user navigating to the profile section, inputting data into the form, saving it, and verifying that the changes are persisted and displayed correctly.</idea>
+      <idea for="AC.4">Test API endpoints for proper validation of input data (e.g., using Zod schemas) and ensure appropriate error responses are returned for invalid payloads.</idea>
+      <idea for="Security">Verify that unauthenticated users cannot access the `/api/v1/profile` endpoints and receive an `Unauthorized` error.</idea>
+    </ideas>
+  </tests>
+</story-context>

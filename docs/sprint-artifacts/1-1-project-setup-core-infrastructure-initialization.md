@@ -1,6 +1,6 @@
 # Story 1.1: Project Setup & Core Infrastructure Initialization
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -63,6 +63,8 @@ so that I can **begin developing the application**.
 ## Dev Agent Record
 
 ### Context Reference
+
+- `docs/sprint-artifacts/1-1-project-setup-core-infrastructure-initialization.context.xml`
 
 ### Agent Model Used
 

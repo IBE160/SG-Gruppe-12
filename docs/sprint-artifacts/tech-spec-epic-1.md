@@ -1,7 +1,7 @@
 # Epic Technical Specification: Platform Foundation & User Onboarding
 
 Date: lørdag 22. november 2025
-Author: BIP
+Author: Kaylee Floden
 Epic ID: 1
 Status: Draft
 

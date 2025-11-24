@@ -1,0 +1,267 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>3</storyId>
+    <title>User Login &amp; Session Management</title>
+    <status>drafted</status>
+    <generatedAt>{{date}}</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>{{story_path}}</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>registered user</asA>
+    <iWant>log in and maintain a secure session</iWant>
+    <soThat>I can access my CV data and application tools</soThat>
+    <tasks>
+-   [ ] **Backend: Implement Login Service & Controller** (AC: 3, 4, 7)
+    -   [ ] Extend `auth.service.ts` with a `login` function to verify credentials and generate JWTs.
+    -   [ ] Add `comparePassword` utility to `password.util.ts` using `bcrypt`.
+    -   [ ] Extend `auth.controller.ts` to handle the login request, calling the new `login` service.
+-   [ ] **Backend: Implement JWT Generation & Handling** (AC: 4, 6)
+    -   [ ] Create `jwt.util.ts` for signing, verifying, and decoding JWTs.
+    -   [ ] Configure JWT tokens (access token: 15min, refresh token: 7 days) and secure HTTP-only cookie handling.
+    -   [ ] Implement refresh token mechanism (rotation strategy to be defined/considered for future story).
+-   [ ] **Backend: Create Login API Endpoint** (AC: 3, 7)
+    -   [ ] Define `POST /api/v1/auth/login` route in `auth.routes.ts`.
+    -   [ ] Add Zod validation (`auth.validator.ts`) for email and password.
+    -   [ ] Apply rate limiting (`rate-limit.middleware.ts`) to prevent brute-force attacks.
+-   [ ] **Frontend: Create Login Form Component** (AC: 1, 2, 7)
+    -   [ ] Develop `LoginForm.tsx` component in `components/features/auth/`, following patterns from `SignupForm.tsx`.
+    -   [ ] Use `React Hook Form` and `Zod` (`schemas/auth.ts`) for validation.
+-   [ ] **Frontend: Implement API Integration & Session Management** (AC: 3, 4, 5, 6)
+    -   [ ] Extend `lib/api/auth.ts` to call the backend login and refresh token endpoints.
+    -   [ ] Implement `useAuth` hook and update `authStore.ts` (Zustand) to manage login state, JWT tokens, and user session.
+    -   [ ] Implement redirection to dashboard (`/dashboard`) on successful login.
+    -   [ ] Handle invalid credentials display on the UI.
+-   [ ] **Frontend: Implement Session Persistence & Logout** (AC: 6)
+    -   [ ] Implement logic to check and renew session (using refresh token if applicable).
+    -   [ ] Create a logout mechanism that clears session data and invalidates tokens.
+-   [ ] **Security: Address Weak Password Policy (from Architecture Review)** (AC: 2, 7)
+    -   [ ] Ensure `comparePassword` handles bcrypt.
+    -   [ ] Frontend validation provides informative feedback for invalid credentials.
+-   [ ] **Testing:**
+    -   [ ] Write unit tests for `auth.service.ts` login logic and `password.util.ts` `comparePassword`.
+    -   [ ] Write integration tests for `POST /api/v1/auth/login` endpoint (successful login, invalid credentials).
+    -   [ ] Write E2E tests for the full login flow (UI interaction, API call, redirection).
+    -   [ ] Test error messages for invalid credentials.
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1.  **Given** I am on the platform's login page
+2.  **When** I enter my registered email and password
+3.  **Then** I am successfully authenticated
+4.  **And** A secure session is established (e.g., using JWT tokens)
+5.  **And** I am redirected to my user dashboard
+6.  **And** My session persists until I explicitly log out or the session expires
+7.  **And** Invalid credentials result in an appropriate error message without revealing specific details (e.g., "Invalid email or password")
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR-1.1: Account Creation &amp; Authentication</section>
+        <snippet>Defines the functional requirement for secure user authentication, which story 1.3 implements.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Authentication API (/api/auth)</section>
+        <snippet>Details the API endpoints for user login (`POST /api/auth/login`) and session verification, including request/response structures.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Workflows and Sequencing</section>
+        <snippet>Outlines the "User Login and Session Management Flow" detailing interactions between frontend, backend, and database.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Non-Functional Requirements: Security</section>
+        <snippet>Emphasizes password hashing, secure JWT tokens, and input validation, all critical for login and session.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>Authentication &amp; Authorization</section>
+        <snippet>Describes the JWT token strategy (two-token system, HTTP-only cookies) and password hashing with bcrypt.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>Middleware Stack</section>
+        <snippet>Details the `auth.middleware.ts` for JWT verification and the `rate-limit.middleware.ts` to prevent brute-force attacks on authentication endpoints.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-frontend.md</path>
+        <title>Frontend Architecture Specification</title>
+        <section>Authentication Flow</section>
+        <snippet>Outlines the frontend JWT token strategy (HTTP-only cookies), protected routes, and the use of Zustand for authentication state.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics Breakdown</title>
+        <section>Story 1.3: User Login &amp; Session Management (MVP)</section>
+        <snippet>Authoritative source for story's acceptance criteria related to login, session, and redirection.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification-COMPLETE.md</path>
+        <title>UX Design Specification</title>
+        <section>Authentication</section>
+        <snippet>Provides design for login forms, password reset, and visual feedback for authentication processes.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/services/auth.service.ts</path>
+        <kind>backend service</kind>
+        <symbol>login</symbol>
+        <reason>Contains the core business logic for user login, including credential verification and JWT generation.</reason>
+      </artifact>
+      <artifact>
+        <path>src/utils/password.util.ts</path>
+        <kind>backend utility</kind>
+        <symbol>comparePassword</symbol>
+        <reason>Utility for securely comparing user-provided passwords with stored hashes.</reason>
+      </artifact>
+      <artifact>
+        <path>src/utils/jwt.util.ts</path>
+        <kind>backend utility</kind>
+        <symbol>signJWT, verifyJWT</symbol>
+        <reason>Handles the creation and validation of JSON Web Tokens for session management.</reason>
+      </artifact>
+      <artifact>
+        <path>src/controllers/auth.controller.ts</path>
+        <kind>backend controller</kind>
+        <symbol>login</symbol>
+        <reason>Handles incoming login requests, orchestrates calls to auth.service, and sets secure cookies.</reason>
+      </artifact>
+      <artifact>
+        <path>src/routes/auth.routes.ts</path>
+        <kind>backend routes</kind>
+        <symbol>POST /api/v1/auth/login</symbol>
+        <reason>Defines the API endpoint for user login.</reason>
+      </artifact>
+      <artifact>
+        <path>src/middleware/auth.middleware.ts</path>
+        <kind>backend middleware</kind>
+        <symbol>authenticate</symbol>
+        <reason>Middleware for verifying JWT tokens and protecting authenticated routes.</reason>
+      </artifact>
+      <artifact>
+        <path>src/validators/auth.validator.ts</path>
+        <kind>backend validation</kind>
+        <symbol>loginSchema</symbol>
+        <reason>Zod schema for validating login request payloads.</reason>
+      </artifact>
+      <artifact>
+        <path>frontend/src/components/features/auth/LoginForm.tsx</path>
+        <kind>frontend component</kind>
+        <symbol>LoginForm</symbol>
+        <reason>React component for the user login form.</reason>
+      </artifact>
+      <artifact>
+        <path>frontend/src/store/authStore.ts</path>
+        <kind>frontend state management</kind>
+        <symbol>authStore</symbol>
+        <reason>Zustand store for managing authentication state and JWT tokens on the frontend.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <dependency>
+        <path>package.json</path>
+		<ecosystem>Node.js Backend</ecosystem>
+        <packages>
+          <package name="express" version="^4.18.2" />
+		  <package name="pg" version="^8.16.3" />
+		  <package name="bcrypt" version="^5.x" /> (planned)
+		  <package name="jsonwebtoken" version="^9.x" /> (planned)
+        </packages>
+		<devDependencies>
+		  <package name="nodemon" version="^2.0.22" />
+		</devDependencies>
+      </dependency>
+      <dependency>
+        <path>frontend/package.json</path>
+		<ecosystem>Node.js Frontend</ecosystem>
+        <packages>
+		  <package name="next" version="^14.2.0" />
+          <package name="react" version="^18.3.0" />
+          <package name="react-dom" version="^18.3.0" />
+		  <package name="@radix-ui/react-label" version="^2.0.2" />
+		  <package name="@radix-ui/react-slot" version="^1.0.2" />
+		  <package name="class-variance-authority" version="^0.7.0" />
+		  <package name="clsx" version="^2.1.0" />
+		  <package name="tailwind-merge" version="^2.2.2" />
+		  <package name="tailwindcss-animate" version="^1.0.7" />
+		  <package name="react-hook-form" version="^7.x" /> (planned)
+		  <package name="zod" version="^3.x" /> (planned)
+		  <package name="zustand" version="^4.x" /> (planned)
+        </packages>
+		<devDependencies>
+		  <package name="typescript" version="^5.4.3" />
+		</devDependencies>
+      </dependency>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Backend must use JWT for session management, with HTTP-only cookies for token storage.</constraint>
+    <constraint>Password comparison must use bcrypt.</constraint>
+    <constraint>Login endpoint must implement rate limiting to prevent brute-force attacks.</constraint>
+    <constraint>Frontend forms must use React Hook Form and Zod for validation.</constraint>
+    <constraint>Frontend authentication state must be managed via Zustand.</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>Login API</name>
+      <kind>REST endpoint</kind>
+      <signature>POST /api/v1/auth/login</signature>
+      <path>src/routes/auth.routes.ts</path>
+      <description>Authenticates user credentials and returns JWT tokens for session management.</description>
+    </interface>
+    <interface>
+      <name>Verify Session API</name>
+      <kind>REST endpoint</kind>
+      <signature>GET /api/v1/auth/verify-session</signature>
+      <path>src/routes/auth.routes.ts</path>
+      <description>Verifies the validity of a user's session token.</description>
+    </interface>
+    <interface>
+      <name>JWT Utility</name>
+      <kind>Backend Utility Function</kind>
+      <signature>signJWT(payload: object, expiresIn: string)</signature>
+      <path>src/utils/jwt.util.ts</path>
+      <description>Generates a signed JSON Web Token.</description>
+    </interface>
+    <interface>
+      <name>Password Comparison Utility</name>
+      <kind>Backend Utility Function</kind>
+      <signature>comparePassword(password: string, hash: string)</signature>
+      <path>src/utils/password.util.ts</path>
+      <description>Compares a plain-text password with a hashed password.</description>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Testing for this story should align with the standards outlined in the `Tech Spec: Platform Foundation &amp; User Onboarding`. This includes unit tests for backend authentication logic (e.g., login service, password comparison, JWT generation/validation), integration tests for the `POST /api/v1/auth/login` endpoint, and End-to-End (E2E) tests for the full login flow from UI interaction to API call and redirection. Error message handling for invalid credentials should also be tested.
+    </standards>
+    <locations>
+      <location type="unit">tests/unit</location>
+      <location type="integration">tests/integration</location>
+      <location type="e2e">tests/e2e</location>
+    </locations>
+    <ideas>
+      <idea for="AC.3, AC.4, AC.7">Write unit tests for `auth.service.ts`'s login function to verify correct credential checking and JWT generation for valid users, and error handling for invalid users.</idea>
+      <idea for="AC.7">Implement unit tests for `password.util.ts`'s `comparePassword` to ensure it correctly validates hashed passwords.</idea>
+      <idea for="AC.3, AC.4, AC.7">Create integration tests for `POST /api/v1/auth/login` to confirm successful login with valid credentials (returns JWT), and appropriate error responses for invalid emails or passwords.</idea>
+      <idea for="AC.1, AC.2, AC.5, AC.6">Develop E2E tests using Playwright/Cypress to simulate a user navigating to the login page, entering credentials, submitting the form, and being redirected to the dashboard, with session persistence verified.</idea>
+      <idea for="AC.7">Test that invalid login attempts (e.g., incorrect password) result in a generic "Invalid email or password" message on the frontend.</idea>
+      <idea for="AC.4, AC.6">Verify that the JWT tokens are stored securely (HTTP-only cookies) and that authenticated requests use the token.</idea>
+    </ideas>
+  </tests>
+</story-context>
