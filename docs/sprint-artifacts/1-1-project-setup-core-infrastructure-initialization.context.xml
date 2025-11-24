@@ -1,0 +1,66 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Project Setup & Core Infrastructure Initialization</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-22</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-1-project-setup-core-infrastructure-initialization.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a developer</asA>
+    <iWant>to set up the project repository and core infrastructure</iWant>
+    <soThat>I can begin developing the application</soThat>
+    <tasks>
+*   **Initialize Monorepo Structure:**
+    *   [ ] Create root `package.json` and `README.md`.
+    *   [ ] Create `src/` directory for backend.
+    *   [ ] Create `frontend/` directory for frontend.
+    *   [ ] Create `docs/` directory for documentation.
+    *   [ ] Create `.github/workflows/` directory for CI/CD.
+*   **Backend Setup (Node.js/Express.js):**
+    *   [ ] Initialize `src/package.json` with `express`, `pg`, `dotenv` dependencies. (AC: 4)
+    *   [ ] Create basic `src/server.js` and `src/app.js` files. (AC: 4)
+    *   [ ] Configure `src/config/db.config.js` for PostgreSQL connection. (AC: 7)
+    *   [ ] Add `nodemon` for development.
+*   **Frontend Setup (Next.js/React/Tailwind CSS):**
+    *   [ ] Initialize `frontend/package.json` with `next`, `react`, `react-dom` dependencies. (AC: 5)
+    *   [ ] Install `tailwindcss`, `postcss`, `autoprefixer` and configure `tailwind.config.ts`, `postcss.config.js`. (AC: 5)
+    *   [ ] Configure `shadcn/ui` and `lucide-react` for UI components and icons. (AC: 5)
+    *   [ ] Create basic Next.js page structure (e.g., `frontend/src/app/page.tsx`). (AC: 5)
+*   **Database Integration (PostgreSQL):**
+    *   [ ] Ensure local PostgreSQL instance is accessible.
+    *   [ ] Configure database connection string in `src/config/db.config.js`. (AC: 7)
+    *   [ ] Implement basic database connection test. (AC: 7)
+*   **CI/CD Pipeline Configuration (GitHub Actions):**
+    *   [ ] Create `.github/workflows/ci.yml` for basic build and lint checks (e.g., run `npm install` and `npm run lint` for both frontend and backend). (AC: 8)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1.  **Given** a new project environment
+2.  **When** I execute the setup script/commands
+3.  **Then** The project repository is initialized with a standard structure (frontend, backend, docs, etc.)
+4.  **And** Node.js and Express.js for backend are configured
+5.  **And** React.js and Tailwind CSS for frontend are configured
+6.  **And** Basic build and development scripts are in `package.json`
+7.  **And** A local PostgreSQL database is integrated (e.g., via Supabase config)
+8.  **And** A basic CI/CD pipeline configuration is in place (e.g., `.github/workflows/ci.yml` for linting/testing)
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>{{docs_artifacts}}</docs>
+    <code>{{code_artifacts}}</code>
+    <dependencies>{{dependencies_artifacts}}</dependencies>
+  </artifacts>
+
+  <constraints>{{constraints}}</constraints>
+  <interfaces>{{interfaces}}</interfaces>
+  <tests>
+    <standards>{{test_standards}}</standards>
+    <locations>{{test_locations}}</locations>
+    <ideas>{{test_ideas}}</ideas>
+  </tests>
+</story-context>
