@@ -38,9 +38,9 @@ workflow_status:
   ux-supplemental-designs: docs/ux-application-history.md # Application history wireframes
 
   # Phase 2: Solutioning
-  create-architecture: ready # agent: architect (all blockers resolved, ready to start)
+  create-architecture: docs/architecture-frontend.md # agent: architect (5 docs created)
   validate-architecture: optional # agent: architect
-  solutioning-gate-check: required # agent: architect
+  solutioning-gate-check: docs/SOLUTIONING-GATE-CHECK.md # agent: architect (APPROVED)
 
   # Phase 3: Implementation
-  sprint-planning: pending # agent: sm (blocked until architecture complete)
+  sprint-planning: ready # agent: sm (Phase 2 complete, ready to start Sprint 1)
