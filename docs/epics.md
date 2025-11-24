@@ -212,7 +212,29 @@ So that user professional information can be consistently stored and managed.
 **Technical Notes:** Define Mongoose/Sequelize schemas for Node.js backend. Design database tables in PostgreSQL.
 **Covers FRs:** FR-2.1, FR-3.3, FR-3.5
 
-### Story 2.2: User Interface for CV Section Editing (Work Experience) (MVP)
+### Story 2.2: AI-Powered CV Parsing from File Upload (MVP)
+
+As a user,
+I want to upload my existing CV file and have it automatically parsed,
+So that I don't have to manually re-enter all my information.
+
+**Acceptance Criteria:**
+
+1.  **Given** I have an existing CV file (PDF, DOCX, or TXT)
+2.  **When** I upload the file via the CV upload interface
+3.  **Then** The system extracts structured data including work experience, education, skills, and contact information with 95%+ accuracy.
+4.  **And** The parsed data is displayed in a confirmation screen for review.
+5.  **And** I can edit any incorrectly parsed fields before confirming.
+6.  **And** Unsupported file formats show a clear error message with supported formats listed.
+7.  **And** Parsing progress is shown with estimated time (3-5 seconds).
+8.  **And** The system handles parsing errors gracefully with retry options.
+
+**Prerequisites:** Story 2.1 (data model)
+
+**Technical Notes:** Integrate AI-powered parsing service (Google Gemini 2.5 Flash or specialized document parsing API like Docparser). Implement file upload handling with format validation. Create confirmation UI for parsed data review. Max file size: 5 MB. Supported formats: PDF, DOCX, TXT (MVP).
+**Covers FRs:** FR-2.1, FR-2.2
+
+### Story 2.4: User Interface for CV Section Editing (Work Experience) (MVP)
 
 As a user,
 I want to easily add, edit, and remove my work experience entries,
@@ -227,12 +249,12 @@ So that my CV accurately reflects my professional history.
 5.  **And** I can delete work experience entries.
 6.  **And** All changes are immediately reflected in a dynamic preview (if available).
 
-**Prerequisites:** Story 2.1
+**Prerequisites:** Story 2.1, Story 2.2 (parsed data available)
 
 **Technical Notes:** Develop React components for work experience form, implement API endpoints for CRUD operations on work experience.
 **Covers FRs:** FR-2.1, FR-2.2, FR-5.2
 
-### Story 2.3: User Interface for CV Section Editing (Education, Skills, Languages) (MVP)
+### Story 2.5: User Interface for CV Section Editing (Education, Skills, Languages) (MVP)
 
 As a user,
 I want to manage my education, skills, and language entries,
@@ -248,12 +270,12 @@ So that my CV is complete and up-to-date.
 6.  **And** For languages, I can specify the language and proficiency level.
 7.  **And** All changes are immediately reflected in a dynamic preview (if available).
 
-**Prerequisites:** Story 2.1
+**Prerequisites:** Story 2.1, Story 2.2 (parsed data available)
 
 **Technical Notes:** Develop React components for education, skills, and language forms, implement API endpoints for CRUD operations.
 **Covers FRs:** FR-2.1, FR-2.2, FR-5.2
 
-### Story 2.4: Dynamic CV Preview & Template Selection (MVP)
+### Story 2.6: Dynamic CV Preview & Template Selection (MVP)
 
 As a user,
 I want to see a live preview of my CV and choose from basic templates,
@@ -267,12 +289,12 @@ So that I can ensure its appearance is professional and suitable.
 4.  **And** I can select from a few basic, ATS-friendly templates.
 5.  **And** The preview updates immediately when I switch templates.
 
-**Prerequisites:** Stories 2.2, 2.3
+**Prerequisites:** Stories 2.4, 2.5
 
 **Technical Notes:** Frontend rendering engine for CVs, use Tailwind CSS for styling templates.
 **Covers FRs:** FR-2.2, FR-2.3, FR-5.2
 
-### Story 2.5: CV Download Functionality (PDF/DOCX) (MVP)
+### Story 2.7: CV Download Functionality (PDF/DOCX) (MVP)
 
 As a user,
 I want to download my generated CV in common formats (PDF, DOCX),
@@ -286,12 +308,12 @@ So that I can easily submit it to job applications.
 4.  **And** My CV is downloaded as a DOCX file.
 5.  **And** The downloaded files accurately reflect the content and chosen template from the preview.
 
-**Prerequisites:** Story 2.4
+**Prerequisites:** Story 2.6
 
 **Technical Notes:** Backend service for generating PDF (e.g., Puppeteer, html-pdf) and DOCX (e.g., docx) from HTML/structured data.
 **Covers FRs:** FR-2.2, FR-2.3
 
-### Story 2.6: Autosave & Unsaved Changes Warning (MVP)
+### Story 2.8: Autosave & Unsaved Changes Warning (MVP)
 
 As a user,
 I want my CV data to be automatically saved and be warned about unsaved changes,
@@ -304,12 +326,12 @@ So that I don't accidentally lose my progress.
 3.  **Then** My changes are automatically saved periodically (e.g., every 30-60 seconds) without explicit action.
 4.  **And** If I try to navigate away from an unsaved form, I receive a warning prompt.
 
-**Prerequisites:** Stories 2.2, 2.3
+**Prerequisites:** Stories 2.4, 2.5
 
 **Technical Notes:** Implement frontend debouncing for auto-save, browser `beforeunload` event handler for warnings.
 **Covers FRs:** FR-2.2
 
-### Story 2.7: CV Data Versioning (MVP)
+### Story 2.9: CV Data Versioning (MVP)
 
 As a user,
 I want my CV data to be versioned,
@@ -322,7 +344,7 @@ So that I can revert to previous states if needed.
 3.  **Then** I can see a list of saved versions of my CV.
 4.  **And** I can select a previous version to view or restore it as my current CV.
 
-**Prerequisites:** Story 2.1 (data model support), Stories 2.2, 2.3 (data modification)
+**Prerequisites:** Story 2.1 (data model support), Stories 2.4, 2.5 (data modification)
 
 **Technical Notes:** Implement a versioning strategy in the database (e.g., storing deltas or full snapshots), API endpoints for listing and restoring versions.
 **Covers FRs:** FR-2.1, FR-2.2
@@ -414,7 +436,27 @@ So that I can quickly assess my fit and areas for improvement.
 **Technical Notes:** Frontend UI for match score visualization, logic for weighting different matching criteria.
 **Covers FRs:** FR-3.3, FR-5.2
 
-### Story 3.5: Data Schema Contract Enforcement (Job Analysis Inputs/Outputs) (MVP)
+### Story 3.5: ATS Score Calculation & Display (MVP)
+
+As a user,
+I want to see an ATS (Applicant Tracking System) compatibility score for my CV,
+So that I can ensure my application will pass automated screening.
+
+**Acceptance Criteria:**
+
+1.  **Given** I have a populated CV and an analyzed job description
+2.  **When** the system calculates the ATS score
+3.  **Then** An ATS compatibility score (0-100) is displayed.
+4.  **And** The score is accompanied by a qualitative rating (Excellent, Good, Fair, Poor).
+5.  **And** Specific improvement suggestions are provided (e.g., "Use more industry-standard job titles," "Add keywords from job description").
+6.  **And** Users can view detailed scoring breakdown (keyword density, formatting compatibility, section completeness).
+
+**Prerequisites:** Story 3.3 (keyword matching), Story 3.4 (match score)
+
+**Technical Notes:** Implement ATS scoring algorithm based on: keyword presence (40%), formatting simplicity (30%), section completeness (20%), quantifiable achievements (10%). Frontend ATSScoreCard component from UX spec Section 6.7.
+**Covers FRs:** FR-3.3, FR-5.2
+
+### Story 3.6: Data Schema Contract Enforcement (Job Analysis Inputs/Outputs) (MVP)
 
 As a developer,
 I want clear data schema contracts for job analysis inputs and outputs,
