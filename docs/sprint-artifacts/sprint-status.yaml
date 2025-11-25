@@ -1,5 +1,5 @@
  # Sprint Status
-# This file tracks the progress of epics and stories through the development lifecycle.
+ # This file tracks the progress of epics and stories through the development lifecycle.
 
 # generated: Monday 24. november 2025
 # project: ibe160
@@ -41,9 +41,9 @@ story_location: "C:\Users\kayle\Desktop\SG-Gruppe-12/docs/sprint-artifacts"
 development_status:
   epic-1: contexted
   1-1-project-setup-core-infrastructure-initialization: review
-  1-2-user-registration-account-creation: in-progress
-  1-3-user-login-session-management: ready-for-dev
-  1-4-basic-profile-creation-name-contact-info: ready-for-dev
+  1-2-user-registration-account-creation: review
+  1-3-user-login-session-management: review
+  1-4-basic-profile-creation-name-contact-info: review
   epic-1-retrospective: optional
 
   epic-2: contexted
