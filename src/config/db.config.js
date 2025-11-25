@@ -18,7 +18,20 @@ pool.on('error', (err) => {
   process.exit(-1);
 });
 
+const testConnection = async () => {
+  try {
+    await pool.query('SELECT 1');
+    console.log('Database connection test successful.');
+  } catch (error) {
+    console.error('Database connection test failed:', error.message);
+    process.exit(-1); // Exit if cannot connect to DB
+  }
+};
+
+testConnection(); // Call test connection on startup
+
 module.exports = {
   query: (text, params) => pool.query(text, params),
   pool,
+  testConnection,
 };
