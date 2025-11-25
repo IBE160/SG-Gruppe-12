@@ -46,15 +46,15 @@ development_status:
   1-4-basic-profile-creation-name-contact-info: ready-for-dev
   epic-1-retrospective: optional
 
-  epic-2: backlog
-  2-1-structured-cv-data-model-design-implementation: backlog
+  epic-2: contexted
+  2-1-structured-cv-data-model-design-implementation: drafted
   2-2-ai-powered-cv-parsing-from-file-upload: backlog
   2-4-user-interface-for-cv-section-editing-work-experience: backlog
   2-5-user-interface-for-cv-section-editing-education-skills-languages: backlog
   2-6-dynamic-cv-preview-template-selection: backlog
   2-7-cv-download-functionality-pdf-docx: backlog
   2-8-autosave-unsaved-changes-warning: backlog
-  2-9-cv-data-versioning: backlog
+  2-9-cv-data-versioning: backlog4
   epic-2-retrospective: optional
 
   epic-3: backlog
