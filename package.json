@@ -1,27 +1,20 @@
 {
-  "name": "cv-analyzer-api",
+  "name": "ai-cv-application-monorepo",
   "version": "1.0.0",
-  "description": "API for CV analysis and job application assistance.",
-  "main": "src/server.js",
+  "private": true,
+  "description": "Monorepo for AI CV and Job Application Assistant project.",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm -w src start",
+    "dev": "npm -w src dev & npm -w frontend dev",
+    "build": "npm -w src build && npm -w frontend build",
+    "test": "npm -w src test && npm -w frontend test",
+    "lint": "npm -w src lint && npm -w frontend lint"
   },
-  "keywords": [
-    "cv",
-    "resume",
-    "ats",
-    "job-application"
+  "workspaces": [
+    "frontend",
+    "src"
   ],
+  "keywords": [],
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "pg": "^8.16.3"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.22"
-  }
+  "license": "ISC"
 }

@@ -251,11 +251,11 @@ UI Clarity: The user interface must maintain visual clarity, predictability, and
 
 The project's implementation will be structured around the following five epics, each delivering distinct value:
 
-1.  **Platform Foundation & User Onboarding:** Establishes the core technical infrastructure, secure user authentication, and basic profile creation necessary for platform operation.
-2.  **AI-Powered CV Data Management & Preview:** Empowers users with robust control over their CV data, including structured input, editing, dynamic preview, download functionality, autosave, and crucial versioning for data integrity.
-3.  **Job Ad Analysis & Match Scoring:** Provides intelligent tools for users to analyze job descriptions, compare against their CVs, receive match scores, and pinpoint key strengths/areas for improvement.
-4.  **Tailored Application Generation:** Delivers the core AI-driven value proposition by generating highly customized CVs and cover letters, providing user review/editing capabilities, and saving application history.
-5.  **Trust & Data Governance (Cross-Cutting Concern):** Ensures the platform adheres to the highest standards of data security, user privacy (including full GDPR compliance), and ethical AI usage (sandboxing and bias mitigation).
+1.  **Platform Foundation & User Onboarding:** Establishes core infrastructure, secure authentication, and basic profile creation.
+2.  **AI-Powered CV Data Management & Preview:** Provides comprehensive control over CV data with real-time preview and download.
+3.  **Job Ad Analysis & Match Scoring:** Empowers users to interpret job descriptions and assess their alignment with roles.
+4.  **Tailored Application Generation:** Delivers core AI-driven value by crafting customized CVs and cover letters.
+5.  **Trust & Data Governance (Cross-Cutting Concern):** Ensures the highest standards of data security, user privacy, and ethical AI usage.
 
 ---
 

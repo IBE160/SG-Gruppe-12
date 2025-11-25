@@ -105,7 +105,7 @@ The following epic structure is designed to incrementally build the AI CV and Ap
 
 As a developer,
 I want to set up the project repository and core infrastructure,
-So that I can begin developing the application (FR-1.1, FR-5.2).
+So that I can begin developing the application.
 
 **Acceptance Criteria:**
 
@@ -127,7 +127,7 @@ So that I can begin developing the application (FR-1.1, FR-5.2).
 
 As a new user,
 I want to create an account,
-So that I can securely access the AI CV platform (FR-1.1, FR-6.1).
+So that I can securely access the AI CV platform.
 
 **Acceptance Criteria:**
 
@@ -147,7 +147,7 @@ So that I can securely access the AI CV platform (FR-1.1, FR-6.1).
 
 As a registered user,
 I want to log in and maintain a secure session,
-So that I can access my CV data and application tools (FR-1.1, FR-6.1).
+So that I can access my CV data and application tools.
 
 **Acceptance Criteria:**
 
@@ -168,7 +168,7 @@ So that I can access my CV data and application tools (FR-1.1, FR-6.1).
 
 As a new user,
 I want to quickly enter my name and contact information after logging in,
-So that I can start building my professional profile (FR-2.1).
+So that I can start building my professional profile.
 
 **Acceptance Criteria:**
 
@@ -197,7 +197,7 @@ So that I can start building my professional profile (FR-2.1).
 
 As a developer,
 I want a structured internal data model for CV components,
-So that user professional information can be consistently stored and managed (FR-2.1, FR-3.3).
+So that user professional information can be consistently stored and managed.
 
 **Acceptance Criteria:**
 
@@ -212,11 +212,33 @@ So that user professional information can be consistently stored and managed (FR
 **Technical Notes:** Define Mongoose/Sequelize schemas for Node.js backend. Design database tables in PostgreSQL.
 **Covers FRs:** FR-2.1, FR-3.3, FR-3.5
 
-### Story 2.2: User Interface for CV Section Editing (Work Experience) (MVP)
+### Story 2.2: AI-Powered CV Parsing from File Upload (MVP)
+
+As a user,
+I want to upload my existing CV file and have it automatically parsed,
+So that I don't have to manually re-enter all my information.
+
+**Acceptance Criteria:**
+
+1.  **Given** I have an existing CV file (PDF, DOCX, or TXT)
+2.  **When** I upload the file via the CV upload interface
+3.  **Then** The system extracts structured data including work experience, education, skills, and contact information with 95%+ accuracy.
+4.  **And** The parsed data is displayed in a confirmation screen for review.
+5.  **And** I can edit any incorrectly parsed fields before confirming.
+6.  **And** Unsupported file formats show a clear error message with supported formats listed.
+7.  **And** Parsing progress is shown with estimated time (3-5 seconds).
+8.  **And** The system handles parsing errors gracefully with retry options.
+
+**Prerequisites:** Story 2.1 (data model)
+
+**Technical Notes:** Integrate AI-powered parsing service (Google Gemini 2.5 Flash or specialized document parsing API like Docparser). Implement file upload handling with format validation. Create confirmation UI for parsed data review. Max file size: 5 MB. Supported formats: PDF, DOCX, TXT (MVP).
+**Covers FRs:** FR-2.1, FR-2.2
+
+### Story 2.3: User Interface for CV Section Editing (Work Experience) (MVP)
 
 As a user,
 I want to easily add, edit, and remove my work experience entries,
-So that my CV accurately reflects my professional history (FR-2.1, FR-2.2, FR-5.2).
+So that my CV accurately reflects my professional history.
 
 **Acceptance Criteria:**
 
@@ -227,16 +249,16 @@ So that my CV accurately reflects my professional history (FR-2.1, FR-2.2, FR-5.
 5.  **And** I can delete work experience entries.
 6.  **And** All changes are immediately reflected in a dynamic preview (if available).
 
-**Prerequisites:** Story 2.1
+**Prerequisites:** Story 2.1, Story 2.2 (parsed data available)
 
 **Technical Notes:** Develop React components for work experience form, implement API endpoints for CRUD operations on work experience.
 **Covers FRs:** FR-2.1, FR-2.2, FR-5.2
 
-### Story 2.3: User Interface for CV Section Editing (Education, Skills, Languages) (MVP)
+### Story 2.4: User Interface for CV Section Editing (Education, Skills, Languages) (MVP)
 
 As a user,
 I want to manage my education, skills, and language entries,
-So that my CV is complete and up-to-date (FR-2.1, FR-2.2, FR-5.2).
+So that my CV is complete and up-to-date.
 
 **Acceptance Criteria:**
 
@@ -248,16 +270,16 @@ So that my CV is complete and up-to-date (FR-2.1, FR-2.2, FR-5.2).
 6.  **And** For languages, I can specify the language and proficiency level.
 7.  **And** All changes are immediately reflected in a dynamic preview (if available).
 
-**Prerequisites:** Story 2.1
+**Prerequisites:** Story 2.1, Story 2.2 (parsed data available)
 
 **Technical Notes:** Develop React components for education, skills, and language forms, implement API endpoints for CRUD operations.
 **Covers FRs:** FR-2.1, FR-2.2, FR-5.2
 
-### Story 2.4: Dynamic CV Preview & Template Selection (MVP)
+### Story 2.5: Dynamic CV Preview & Template Selection (MVP)
 
 As a user,
 I want to see a live preview of my CV and choose from basic templates,
-So that I can ensure its appearance is professional and suitable (FR-2.2, FR-2.3, FR-5.2).
+So that I can ensure its appearance is professional and suitable.
 
 **Acceptance Criteria:**
 
@@ -267,16 +289,16 @@ So that I can ensure its appearance is professional and suitable (FR-2.2, FR-2.3
 4.  **And** I can select from a few basic, ATS-friendly templates.
 5.  **And** The preview updates immediately when I switch templates.
 
-**Prerequisites:** Stories 2.2, 2.3
+**Prerequisites:** Stories 2.3, 2.4
 
 **Technical Notes:** Frontend rendering engine for CVs, use Tailwind CSS for styling templates.
 **Covers FRs:** FR-2.2, FR-2.3, FR-5.2
 
-### Story 2.5: CV Download Functionality (PDF/DOCX) (MVP)
+### Story 2.6: CV Download Functionality (PDF/DOCX) (MVP)
 
 As a user,
 I want to download my generated CV in common formats (PDF, DOCX),
-So that I can easily submit it to job applications (FR-2.2, FR-2.3).
+So that I can easily submit it to job applications.
 
 **Acceptance Criteria:**
 
@@ -286,16 +308,16 @@ So that I can easily submit it to job applications (FR-2.2, FR-2.3).
 4.  **And** My CV is downloaded as a DOCX file.
 5.  **And** The downloaded files accurately reflect the content and chosen template from the preview.
 
-**Prerequisites:** Story 2.4
+**Prerequisites:** Story 2.5
 
 **Technical Notes:** Backend service for generating PDF (e.g., Puppeteer, html-pdf) and DOCX (e.g., docx) from HTML/structured data.
 **Covers FRs:** FR-2.2, FR-2.3
 
-### Story 2.6: Autosave & Unsaved Changes Warning (MVP)
+### Story 2.7: Autosave & Unsaved Changes Warning (MVP)
 
 As a user,
 I want my CV data to be automatically saved and be warned about unsaved changes,
-So that I don't accidentally lose my progress (FR-2.2).
+So that I don't accidentally lose my progress.
 
 **Acceptance Criteria:**
 
@@ -304,16 +326,16 @@ So that I don't accidentally lose my progress (FR-2.2).
 3.  **Then** My changes are automatically saved periodically (e.g., every 30-60 seconds) without explicit action.
 4.  **And** If I try to navigate away from an unsaved form, I receive a warning prompt.
 
-**Prerequisites:** Stories 2.2, 2.3
+**Prerequisites:** Stories 2.3, 2.4
 
 **Technical Notes:** Implement frontend debouncing for auto-save, browser `beforeunload` event handler for warnings.
 **Covers FRs:** FR-2.2
 
-### Story 2.7: CV Data Versioning (MVP)
+### Story 2.8: CV Data Versioning (MVP)
 
 As a user,
 I want my CV data to be versioned,
-So that I can revert to previous states if needed (FR-2.1, FR-2.2).
+So that I can revert to previous states if needed.
 
 **Acceptance Criteria:**
 
@@ -322,7 +344,7 @@ So that I can revert to previous states if needed (FR-2.1, FR-2.2).
 3.  **Then** I can see a list of saved versions of my CV.
 4.  **And** I can select a previous version to view or restore it as my current CV.
 
-**Prerequisites:** Story 2.1 (data model support), Stories 2.2, 2.3 (data modification)
+**Prerequisites:** Story 2.1 (data model support), Stories 2.3, 2.4 (data modification)
 
 **Technical Notes:** Implement a versioning strategy in the database (e.g., storing deltas or full snapshots), API endpoints for listing and restoring versions.
 **Covers FRs:** FR-2.1, FR-2.2
@@ -341,7 +363,7 @@ So that I can revert to previous states if needed (FR-2.1, FR-2.2).
 
 As a user,
 I want a simple interface to paste job description text,
-So that the system can analyze it (FR-3.1, FR-5.2).
+So that the system can analyze it.
 
 **Acceptance Criteria:**
 
@@ -359,7 +381,7 @@ So that the system can analyze it (FR-3.1, FR-5.2).
 
 As a user,
 I want the system to intelligently extract key requirements and keywords from a job description,
-So that I can understand what the employer is looking for (FR-3.1, FR-3.2).
+So that I can understand what the employer is looking for.
 
 **Acceptance Criteria:**
 
@@ -379,7 +401,7 @@ So that I can understand what the employer is looking for (FR-3.1, FR-3.2).
 
 As a user,
 I want the system to compare my CV data against the extracted job requirements,
-So that I can see how well I align with the role (FR-3.2, FR-3.3).
+So that I can see how well I align with the role.
 
 **Acceptance Criteria:**
 
@@ -398,7 +420,7 @@ So that I can see how well I align with the role (FR-3.2, FR-3.3).
 
 As a user,
 I want a clear match score and highlights of my strengths/weaknesses against a job description,
-So that I can quickly assess my fit and areas for improvement (FR-3.3, FR-5.2).
+So that I can quickly assess my fit and areas for improvement.
 
 **Acceptance Criteria:**
 
@@ -414,11 +436,31 @@ So that I can quickly assess my fit and areas for improvement (FR-3.3, FR-5.2).
 **Technical Notes:** Frontend UI for match score visualization, logic for weighting different matching criteria.
 **Covers FRs:** FR-3.3, FR-5.2
 
-### Story 3.5: Data Schema Contract Enforcement (Job Analysis Inputs/Outputs) (MVP)
+### Story 3.5: ATS Score Calculation & Display (MVP)
+
+As a user,
+I want to see an ATS (Applicant Tracking System) compatibility score for my CV,
+So that I can ensure my application will pass automated screening.
+
+**Acceptance Criteria:**
+
+1.  **Given** I have a populated CV and an analyzed job description
+2.  **When** the system calculates the ATS score
+3.  **Then** An ATS compatibility score (0-100) is displayed.
+4.  **And** The score is accompanied by a qualitative rating (Excellent, Good, Fair, Poor).
+5.  **And** Specific improvement suggestions are provided (e.g., "Use more industry-standard job titles," "Add keywords from job description").
+6.  **And** Users can view detailed scoring breakdown (keyword density, formatting compatibility, section completeness).
+
+**Prerequisites:** Story 3.3 (keyword matching), Story 3.4 (match score)
+
+**Technical Notes:** Implement ATS scoring algorithm based on: keyword presence (40%), formatting simplicity (30%), section completeness (20%), quantifiable achievements (10%). Frontend ATSScoreCard component from UX spec Section 6.7.
+**Covers FRs:** FR-3.3, FR-5.2
+
+### Story 3.6: Data Schema Contract Enforcement (Job Analysis Inputs/Outputs) (MVP)
 
 As a developer,
 I want clear data schema contracts for job analysis inputs and outputs,
-So that data consistency is maintained across the pipeline (FR-3.2).
+So that data consistency is maintained across the pipeline.
 
 **Acceptance Criteria:**
 
@@ -447,7 +489,7 @@ So that data consistency is maintained across the pipeline (FR-3.2).
 
 As a user,
 I want an AI-driven tailored CV that rephrases and emphasizes my relevant experience based on a specific job ad,
-So that my application is highly targeted (FR-4.1).
+So that my application is highly targeted.
 
 **Acceptance Criteria:**
 
@@ -467,7 +509,7 @@ So that my application is highly targeted (FR-4.1).
 
 As a user,
 I want a personalized cover letter generated by AI that addresses the specific job requirements,
-So that I can submit a complete and compelling application (FR-4.2).
+So that I can submit a complete and compelling application.
 
 **Acceptance Criteria:**
 
@@ -487,7 +529,7 @@ So that I can submit a complete and compelling application (FR-4.2).
 
 As a user,
 I want to review and edit AI-generated CV and cover letter content,
-So that I have full control and can ensure accuracy and personal voice (FR-4.1, FR-4.2, FR-5.2).
+So that I have full control and can ensure accuracy and personal voice.
 
 **Acceptance Criteria:**
 
@@ -506,7 +548,7 @@ So that I have full control and can ensure accuracy and personal voice (FR-4.1, 
 
 As a user,
 I want to save a history of my tailored applications,
-So that I can revisit them or make minor adjustments for similar roles (FR-4.1, FR-4.2, FR-4.3).
+So that I can revisit them or make minor adjustments for similar roles.
 
 **Acceptance Criteria:**
 
@@ -525,7 +567,7 @@ So that I can revisit them or make minor adjustments for similar roles (FR-4.1, 
 
 As a user,
 I want clear feedback during long AI processing times and options to retry,
-So that I understand the system's status and can recover from issues (FR-4.1, FR-4.2, FR-5.1).
+So that I understand the system's status and can recover from issues.
 
 **Acceptance Criteria:**
 
@@ -554,7 +596,7 @@ So that I understand the system's status and can recover from issues (FR-4.1, FR
 
 As a user,
 I want clear and granular control over my data consent preferences, including how my data is processed by AI,
-So that I can ensure my privacy is respected (FR-6.1).
+So that I can ensure my privacy is respected.
 
 **Acceptance Criteria:**
 
@@ -573,7 +615,7 @@ So that I can ensure my privacy is respected (FR-6.1).
 
 As a user,
 I want to easily export my personal data and permanently delete my account and all associated data,
-So that I can exercise my right to data portability and deletion under GDPR (FR-6.1).
+So that I can exercise my right to data portability and deletion under GDPR.
 
 **Acceptance Criteria:**
 
@@ -593,7 +635,7 @@ So that I can exercise my right to data portability and deletion under GDPR (FR-
 
 As a user,
 I want assurance that all my sensitive personal data is encrypted both when being transferred and when stored,
-So that my data is protected from unauthorized access (FR-6.1).
+So that my data is protected from unauthorized access.
 
 **Acceptance Criteria:**
 
@@ -613,7 +655,7 @@ So that my data is protected from unauthorized access (FR-6.1).
 
 As a developer,
 I want strong, role-based authentication and authorization mechanisms,
-So that only authorized users can access sensitive data and functionality (FR-1.1, FR-6.1).
+So that only authorized users can access sensitive data and functionality.
 
 **Acceptance Criteria:**
 
@@ -632,7 +674,7 @@ So that only authorized users can access sensitive data and functionality (FR-1.
 
 As a user,
 I want strict guarantees that my personal data is never used for AI model training by third-party providers,
-So that my privacy is fully protected when using AI features (FR-6.1).
+So that my privacy is fully protected when using AI features.
 
 **Acceptance Criteria:**
 
@@ -650,7 +692,7 @@ So that my privacy is fully protected when using AI features (FR-6.1).
 
 As a developer,
 I want a logging system that records necessary events for auditing and debugging but minimizes the collection of personal data,
-So that compliance requirements are met without compromising privacy (FR-6.1).
+So that compliance requirements are met without compromising privacy.
 
 **Acceptance Criteria:**
 
@@ -669,7 +711,7 @@ So that compliance requirements are met without compromising privacy (FR-6.1).
 
 As a user,
 I want the AI outputs to be fair and unbiased, without amplifying biases related to protected characteristics,
-So that my job applications are evaluated purely on merit (FR-6.1).
+So that my job applications are evaluated purely on merit.
 
 **Acceptance Criteria:**
 

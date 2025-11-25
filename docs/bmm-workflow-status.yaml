@@ -32,14 +32,15 @@ workflow_status:
 
   # Phase 1: Planning
   prd: docs/PRD.md # agent: pm
-  validate-prd: docs/validation-report-20251122173016.md # agent: pm
+  validate-prd: optional # agent: pm
   create-design: docs/ux-design-specification-COMPLETE.md # agent: ux-designer
+  ux-critical-gaps-resolved: docs/ux-gdpr-screens.md # Resolved Epic 5 blocker + mobile AC + ATS story
+  ux-supplemental-designs: docs/ux-application-history.md # Application history wireframes
 
   # Phase 2: Solutioning
-  create-epics-and-stories: docs/epics.md # agent: pm
-  create-architecture: recommended # agent: architect
+  create-architecture: docs/architecture-frontend.md # agent: architect (5 docs created)
   validate-architecture: optional # agent: architect
-  solutioning-gate-check: required # agent: architect
+  solutioning-gate-check: docs/SOLUTIONING-GATE-CHECK.md # agent: architect (APPROVED)
 
   # Phase 3: Implementation
-  sprint-planning: required # agent: sm
+  sprint-planning: ready # agent: sm (Phase 2 complete, ready to start Sprint 1)

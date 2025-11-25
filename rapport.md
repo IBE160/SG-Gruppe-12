@@ -1,7 +1,7 @@
 # Rapport – SG-Gruppe-12
 
 Dette dokumentet beskriver arbeidet i prosjektet **"AI CV and Application"** i faget *IBE160 Programmering med KI*.  
-Prosjektet er delt inn i flere deler, og hvert gruppemedlem har hatt ansvar for en spesifik del av fase 1.
+Prosjektet er delt inn i flere deler, og hvert gruppemedlem har hatt ansvar for en spesifikk del av fase 1.
 
 ---
 
@@ -220,67 +220,350 @@ A comprehensive `docs/PRD.md` document that serves as the definitive guide for t
 
 ---
 
-## Phase 2 – Epic and Story Breakdown and Validation *(Kaylee Floden / BIP, with Gemini)*
+## Phase 2 – Product Requirements Document (PRD) *(Kaylee Floden, with Gemini)*
+
+
 
 ### Goal
-The primary goal was to break down the high-level requirements from the Product Requirements Document (PRD) into detailed epics and bite-sized user stories, suitable for a 200k context development agent. Following this, a comprehensive validation was performed to ensure the completeness, quality, and traceability of the generated epics and stories against the PRD and established best practices.
+
+To define the comprehensive Product Requirements Document for the "AI CV and Application" platform, formalizing the product vision, scope, and detailed requirements that will guide development.
+
+
 
 ### What We Did
 
-We collaborated with the Gemini agent, acting as "John, the Product Manager," through a structured workflow to first create the epic breakdown and then validate it.
+We collaborated with the Gemini agent, acting as "John, the Product Manager," through a structured PRD workflow.
 
-1.  **Initiated Epic and Story Creation:** We started the process by selecting the `*create-epics-and-stories` command from the agent's menu.
-2.  **PRD Analysis and Epic Generation:** The agent loaded and analyzed the `PRD.md` and `product-brief.md` documents. Based on the requirements and context, it proposed an initial epic structure.
-3.  **Advanced Elicitation (Critique and Refine, Graph of Thoughts, Tree of Thoughts, Thread of Thought):**
-    *   Throughout the epic and story creation, the agent used advanced elicitation techniques to refine the epic structure and individual stories. For instance, "Critique and Refine" was applied to the initial epic breakdown, leading to clearer value statements and a reframing of the "Security, Privacy & Compliance" epic to "Trust & Data Governance (Cross-Cutting Concern)".
-    *   "Graph of Thoughts" helped identify crucial interdependencies and led to the addition of explicit versioning for CV data and AI prompt templates, and the standardization of data schema contracts within relevant epics.
-    *   "Tree of Thoughts" further refined Epic 4 stories by emphasizing consistency between tailored CV and cover letter narratives.
-    *   "Thread of Thought" confirmed the strong coherence and logical flow of stories within Epic 5.
-4.  **Detailed Story Decomposition:** For each of the five defined epics, the agent generated a set of small, implementable stories, each following a BDD-style acceptance criteria format with prerequisites and technical notes.
-5.  **Validation Workflow Initiation:** After completing the epic and story breakdown, we initiated the `*validate-prd` command to perform a comprehensive quality check.
-6.  **Checklist-Driven Validation:** The agent loaded a detailed `checklist.md` and systematically validated the `PRD.md` and the newly created `epics.md` against numerous criteria, including:
-    *   PRD Document Completeness
-    *   Functional Requirements Quality (format, structure, completeness, organization)
-    *   Epics Document Completeness and Quality
-    *   **CRITICAL FR Coverage Validation:** This identified critical failures due to unnumbered Functional Requirements in the `PRD.md` and lack of explicit FR references in stories.
-    *   Story Sequencing Validation
-    *   Scope Management
-    *   Research and Context Integration
-    *   Cross-Document Consistency
-    *   Readiness for Implementation
-    *   Quality and Polish
-7.  **Addressing Critical Failures:** Based on the validation report, we instructed the agent to improve all identified "Must Fix" and "Partial" items.
-    *   **Must Fix:** A high-level list of epics was added to `PRD.md` to ensure it aligns with `epics.md`, making the PRD more self-contained.
-    *   The agent also re-formatted the "Functional Requirements" section in `PRD.md` into a numbered, grouped list with explicit dependencies (e.g., FR-1.1, FR-2.1).
-    *   The agent then updated `epics.md` by adding a "Functional Requirements (FR) to Story Traceability Matrix" to explicitly map FRs to stories, resolving the traceability issues.
-8.  **Refining Partial Items:**
-    *   **Should Improve:** Story descriptions in `epics.md` were enhanced to include direct references to FR numbers, improving clarity and reducing cross-referencing.
-    *   **Consider:** A placeholder was added to `PRD.md` to formalize DevOps and Testing Strategies in a suitable documentation (e.g., architecture document) later.
-    *   **PRD.md:** The agent refined "Success Criteria" and "FR-5.2 (Visually Clear Interface)" with measurable metrics. Rationale was added for MVP features, and reasons for deferral for Growth/Vision features. A "Technical Unknowns & Research Spikes" section was added.
-    *   **epics.md:** All Acceptance Criteria within stories were numerically numbered, and each story title was marked with its phase (MVP/Growth/Vision) for enhanced clarity.
-9.  **Final Validation:** A final validation run confirmed that all critical issues and partial items were successfully addressed, resulting in a 100% pass rate for the documentation.
+
+
+1.  **Workflow Initiation:** We initiated the PRD creation process using the `*create-prd` command. The agent verified the workflow readiness and loaded existing project context.
+
+2.  **Vision & Discovery:** We articulated the core problem, solution, target users, and the "magic moment" of the product. The agent confirmed alignment with the product vision.
+
+    *   **User Prompt:** "My goal is to build an AI-powered CV and job application platform that removes the biggest frustrations job seekers struggle with today. Most people spend hours rewriting the same information over and over..." (followed by detailed vision).
+
+    *   **Agent Confirmation:** "yes, it correspondents with my vission, lets continue"
+
+3.  **Success Definition:** We elaborated on what "winning" looks like for the platform, focusing on user transformation (from stressed to confident), workflow efficiency, user trust, organic growth, and real-world impact (interviews, job offers).
+
+    *   **User Prompt:** "Winning for our platform means that users go from feeling lost and stressed in their job searches to feeling organised, confident, and empowered..." (followed by detailed success criteria).
+
+    *   **Elicitation:** The agent proposed "Critique and Refine" and other methods to strengthen the definition.
+
+    *   **User Prompt:** (Detailed response to refinement questions, providing measurable criteria for AI parser, edge cases, and NFRs).
+
+4.  **Scope Definition:** We meticulously defined the Minimum Viable Product (MVP) with core features like frictionless onboarding, AI parsing, real-time CV preview, job-matcher, and tailored document generation. We also identified growth and vision features for future phases.
+
+    *   **User Prompt:** "The essential features that must work for this platform to be genuinely useful to a job seeker are a frictionless onboarding flow, a simple way to enter or paste their CV information..." (followed by detailed MVP scope).
+
+    *   **Elicitation:** The agent applied "Critique and Refine" to the scope, leading to a detailed refinement of AI parser reliability and critical non-functional requirements.
+
+5.  **Domain-Specific Exploration:** We outlined critical GDPR compliance requirements, AI fairness considerations (bias mitigation, user control), and transparency needs, which are paramount for a platform handling sensitive data.
+
+    *   **User Prompt:** "The platform must comply with GDPR because it processes sensitive personal data such as work history, education, names, contact information..." (followed by detailed GDPR and AI ethics requirements).
+
+6.  **Innovation Discovery:** We articulated the core innovations, including inverting traditional job search assumptions, eliminating guesswork through automation, the fairness-driven AI design, and the long-term vision of transforming the applicant-employer relationship.
+
+    *   **User Prompt:** "The core innovation of my AI CV and Application platform is that it fundamentally rethinks how job seekers interact with the job market..." (followed by detailed innovation patterns).
+
+7.  **Project-Specific Deep Dive:** We detailed specific requirements for both the API/Backend (security, GDPR support, LLM integration) and the Web Application (reliability, UX, accessibility, AI transparency).
+
+    *   **User Prompt:** "For the API and backend the core requirements are clear, strict, and privacy-first. We need a well-defined set of endpoints for authentication..." (followed by detailed backend and frontend requirements).
+
+8.  **Functional Requirements Synthesis:** We provided a comprehensive list of functional requirements, covering user management, CV data management, generation, job analysis, application history, system feedback, data privacy, and UI aspects.
+
+    *   **User Prompt:** "The core functional requirements translate directly from the UX principles, scope definition, and MVP vision and define exactly what the system must do..." (followed by comprehensive functional requirements).
+
+9.  **Non-Functional Requirements Discovery:** We synthesized critical NFRs across performance, security, data privacy, scalability, accessibility, and reliability based on previous discussions.
+
+    *   **User Prompt:** (Confirmed synthesized NFRs).
+
+10. **Finalization:** The agent compiled all the gathered information into `docs/PRD.md` and updated `docs/bmm-workflow-status.yaml` to reflect the completion of the PRD workflow.
+
+
 
 ### Prompts & Interaction Used
-- Selected `*create-epics-and-stories` from the agent's menu.
-- Responded to "Continue [c] or Edit [e]?" with `c`.
-- Selected `1` (Critique and Refine) during the first advanced elicitation for epics.
-- Responded "y" to apply changes.
-- Selected `1` (Critique and Refine) again during the second advanced elicitation for epics.
-- Responded "y" to apply changes.
-- Selected `x` to proceed from advanced elicitation for epics.
-- Repeated the advanced elicitation process (selecting `x` or `1` and `y`) for each epic's stories (Epic 1, Epic 2, Epic 3, Epic 4, Epic 5).
-- Selected `*validate-prd` from the agent's menu.
-- Responded to "Which document should I validate?" by implicitly indicating `PRD.md` and `epics.md` were the targets.
-- Responded "yess" to "Would you like me to proceed with any of the recommended fixes or improvements?"
-- Followed through with the agent's step-by-step updates for both `PRD.md` and `epics.md`.
+
+- Selected `*create-prd` from the agent's menu.
+
+- Responded to a series of agent prompts regarding project vision, success criteria, scope, domain considerations, innovation, project-specific requirements, functional requirements, and non-functional requirements.
+
+- Utilized advanced elicitation methods (Critique and Refine) to deepen the understanding of scope.
+
+- Confirmed accuracy of summarized content at various stages.
+
+- Confirmed the final PRD output.
+
+
 
 ### How Gemini Helped
-Gemini, as the Product Manager, was indispensable in this phase by:
--   **Guiding Complex Decomposition:** Systematically breaking down high-level PRD into detailed epics and stories, a task prone to errors and omissions.
--   **Applying Advanced Elicitation:** Utilizing techniques like "Critique and Refine," "Graph of Thoughts," "Tree of Thoughts," and "Thread of Thought" to ensure high quality, consistency, and robustness of the epic and story breakdown.
--   **Ensuring Traceability and Quality:** Performing a thorough, checklist-driven validation of both `PRD.md` and `epics.md`, identifying critical gaps and suggesting precise improvements.
--   **Automating Document Refinement:** Executing numerous targeted modifications across both documents to address identified issues, including reformatting, adding detail, and establishing traceability.
--   **Maintaining Project Integrity:** Ensuring that the planning artifacts are complete, consistent, and ready for the next phases of development.
+
+Gemini, as the Product Manager, played a pivotal role by:
+
+- **Structuring the Planning Process:** Guiding us through the complex stages of PRD creation, ensuring a comprehensive and systematic approach.
+
+- **Eliciting Detailed Information:** Employing probing questions and advanced elicitation techniques to extract granular details and critical considerations for each section of the PRD.
+
+- **Synthesizing Diverse Inputs:** Collating disparate pieces of information into a cohesive and well-organized document, ensuring all aspects of the product vision and requirements were captured.
+
+- **Maintaining Project Context:** Continuously referencing previous discussions and project artifacts to build a holistic understanding.
+
+- **Automating Document Generation:** Creating the `PRD.md` file based on the collaborative input.
+
+- **Managing Workflow Status:** Updating the `bmm-workflow-status.yaml` to reflect the completion of the PRD.
+
+
 
 ### Result
+
+A comprehensive `docs/PRD.md` document that serves as the definitive guide for the "AI CV and Application" project. This document provides a shared understanding across all stakeholders and is now ready to be used for the next phase of development: breaking down requirements into epics and stories.
+
+
+
+---
+
+
+
+## Phase 2 – Epic and Story Breakdown and Validation *(Kaylee Floden / BIP, with Gemini)*
+
+
+
+### Goal
+
+The primary goal was to break down the high-level requirements from the Product Requirements Document (PRD) into detailed epics and bite-sized user stories, suitable for a 200k context development agent. Following this, a comprehensive validation was performed to ensure the completeness, quality, and traceability of the generated epics and stories against the PRD and established best practices.
+
+
+
+### What We Did
+
+
+
+We collaborated with the Gemini agent, acting as "John, the Product Manager," through a structured workflow to first create the epic breakdown and then validate it.
+
+
+
+1.  **Initiated Epic and Story Creation:** We started the process by selecting the `*create-epics-and-stories` command from the agent's menu.
+
+2.  **PRD Analysis and Epic Generation:** The agent loaded and analyzed the `PRD.md` and `product-brief.md` documents. Based on the requirements and context, it proposed an initial epic structure.
+
+3.  **Advanced Elicitation (Critique and Refine, Graph of Thoughts, Tree of Thoughts, Thread of Thought):**
+
+    *   Throughout the epic and story creation, the agent used advanced elicitation techniques to refine the epic structure and individual stories. For instance, "Critique and Refine" was applied to the initial epic breakdown, leading to clearer value statements and a reframing of the "Security, Privacy & Compliance" epic to "Trust & Data Governance (Cross-Cutting Concern)".
+
+    *   "Graph of Thoughts" helped identify crucial interdependencies and led to the addition of explicit versioning for CV data and AI prompt templates, and the standardization of data schema contracts within relevant epics.
+
+    *   "Tree of Thoughts" further refined Epic 4 stories by emphasizing consistency between tailored CV and cover letter narratives.
+
+    *   "Thread of Thought" confirmed the strong coherence and logical flow of stories within Epic 5.
+
+4.  **Detailed Story Decomposition:** For each of the five defined epics, the agent generated a set of small, implementable stories, each following a BDD-style acceptance criteria format with prerequisites and technical notes.
+
+5.  **Validation Workflow Initiation:** After completing the epic and story breakdown, we initiated the `*validate-prd` command to perform a comprehensive quality check.
+
+6.  **Checklist-Driven Validation:** The agent loaded a detailed `checklist.md` and systematically validated the `PRD.md` and the newly created `epics.md` against numerous criteria, including:
+
+    *   PRD Document Completeness
+
+    *   Functional Requirements Quality (format, structure, completeness, organization)
+
+    *   Epics Document Completeness and Quality
+
+    *   **CRITICAL FR Coverage Validation (Traceability):** This identified critical failures due to unnumbered Functional Requirements in the `PRD.md` and lack of explicit FR references in stories.
+
+    *   Story Sequencing Validation
+
+    *   Scope Management
+
+    *   Research and Context Integration
+
+    *   Cross-Document Consistency
+
+    *   Readiness for Implementation
+
+    *   Quality and Polish
+
+7.  **Addressing Critical Failures:** Based on the validation report, we instructed the agent to improve all identified "Must Fix" and "Partial" items.
+
+    *   **Must Fix:** A high-level list of epics was added to `PRD.md` to ensure it aligns with `epics.md`, making the PRD more self-contained.
+
+    *   The agent also re-formatted the "Functional Requirements" section in `PRD.md` into a numbered, grouped list with explicit dependencies (e.g., FR-1.1, FR-2.1).
+
+    *   The agent then updated `epics.md` by adding a "Functional Requirements (FR) to Story Traceability Matrix" to explicitly map FRs to stories, resolving the traceability issues.
+
+8.  **Refining Partial Items:**
+
+    *   **Should Improve:** Story descriptions in `epics.md` were enhanced to include direct references to FR numbers, improving clarity and reducing cross-referencing.
+
+    *   **Consider:** A placeholder was added to `PRD.md` to formalize DevOps and Testing Strategies in a suitable documentation (e.g., architecture document) later.
+
+    *   **PRD.md:** The agent refined "Success Criteria" and "FR-5.2 (Visually Clear Interface)" with measurable metrics. Rationale was added for MVP features, and reasons for deferral for Growth/Vision features. A "Technical Unknowns & Research Spikes" section was added.
+
+    *   **epics.md:** All Acceptance Criteria within stories were numerically numbered, and each story title was marked with its phase (MVP/Growth/Vision) for enhanced clarity.
+
+9.  **Final Validation:** A final validation run confirmed that all critical issues and partial items were successfully addressed, resulting in a 100% pass rate for the documentation.
+
+
+
+### Prompts & Interaction Used
+
+- Selected `*create-epics-and-stories` from the agent's menu.
+
+- Responded to "Continue [c] or Edit [e]?" with `c`.
+
+- Selected `1` (Critique and Refine) during the first advanced elicitation for epics.
+
+- Responded "y" to apply changes.
+
+- Selected `1` (Critique and Refine) again during the second advanced elicitation for epics.
+
+- Responded "y" to apply changes.
+
+- Selected `x` to proceed from advanced elicitation for epics.
+
+- Repeated the advanced elicitation process (selecting `x` or `1` and `y`) for each epic's stories (Epic 1, Epic 2, Epic 3, Epic 4, Epic 5).
+
+- Selected `*validate-prd` from the agent's menu.
+
+- Responded to "Which document should I validate?" by implicitly indicating `PRD.md` and `epics.md` were the targets.
+
+- Responded "yess" to "Would you like me to proceed with any of the recommended fixes or improvements?"
+
+- Followed through with the agent's step-by-step updates for both `PRD.md` and `epics.md`.
+
+
+
+### How Gemini Helped
+
+Gemini, as the Product Manager, was indispensable in this phase by:
+
+-   **Guiding Complex Decomposition:** Systematically breaking down high-level PRD into detailed epics and stories, a task prone to errors and omissions.
+
+-   **Applying Advanced Elicitation:** Utilizing techniques like "Critique and Refine," "Graph of Thoughts," "Tree of Thoughts," and "Thread of Thought" to ensure high quality, consistency, and robustness of the epic and story breakdown.
+
+-   **Ensuring Traceability and Quality:** Performing a thorough, checklist-driven validation of both `PRD.md` and `epics.md`, identifying critical gaps and suggesting precise improvements.
+
+-   **Automating Document Refinement:** Executing numerous targeted modifications across both documents to address identified issues, including reformatting, adding detail, and establishing traceability.
+
+-   **Maintaining Project Integrity:** Ensuring that the planning artifacts are complete, consistent, and ready for the next phases of development.
+
+
+
+### Result
+
 Following the implementation of all recommended improvements, the `PRD.md` and `epics.md` documents are now fully refined, structured, and validated, achieving a 100% pass rate on the comprehensive checklist. This robust set of planning artifacts ensures clear traceability from high-level requirements to implementable stories, providing a solid foundation for the architecture and implementation phases of the "AI CV and Application" project.
+
+
+
+---
+
+
+
+## Phase 2 – Story Context Generation and Drafting *(Kaylee Floden / BIP, with Gemini)*
+
+
+
+### Goal
+
+To generate comprehensive technical context documents for individual user stories and to draft new user stories, ensuring they are well-defined, validated, and ready for development.
+
+
+
+### What We Did
+
+
+
+We collaborated with the Gemini agent, acting as a "Scrum Master," to process several user stories:
+
+
+
+1.  **Story Context Generation (Story 1.2: User Registration & Account Creation):**
+
+    *   Initiated the `*create-story-context` workflow for Story 1.2.
+
+    *   Gemini identified and loaded all relevant project documents (PRD, tech spec, architecture, UX design, epics, project docs).
+
+    *   Extracted key information, including story details, acceptance criteria, tasks, code references, API contracts, constraints, and dependencies.
+
+    *   Generated a detailed `1-2-user-registration-account-creation.context.xml` file.
+
+    *   The generated context file was validated against a checklist, achieving a 100% pass rate.
+
+    *   The story file `1-2-user-registration-account-creation.md` was updated to `ready-for-dev` status and linked to its context file.
+
+    *   `sprint-status.yaml` was updated to reflect Story 1.2's `ready-for-dev` status.
+
+
+
+2.  **Story Drafting (Story 1.3: User Login & Session Management):**
+
+    *   Initiated the `*create-story` workflow for Story 1.3.
+
+    *   Gemini (in YOLO mode) autonomously drafted the story, leveraging learnings from the previous Story 1.2 (User Registration & Account Creation).
+
+    *   The story draft included detailed acceptance criteria, tasks/subtasks, and comprehensive Dev Notes citing relevant architectural and technical documents.
+
+    *   The drafted story was validated against a quality checklist. Initially, minor issues were found (e.g., in documentation of previous learnings, naming conventions), which Gemini offered to remediate.
+
+    *   Upon user approval, Gemini automatically fixed these minor issues in the story file.
+
+    *   A re-validation confirmed a 100% pass rate for the improved story draft.
+
+    *   `sprint-status.yaml` was updated to reflect Story 1.3's `drafted` status.
+
+
+
+3.  **Story Drafting (Story 1.4: Basic Profile Creation (Name & Contact Info)):**
+
+    *   Initiated the `*create-story` workflow for Story 1.4.
+
+    *   Gemini (in YOLO mode) autonomously drafted the story, leveraging learnings from the previous Story 1.3 (User Login & Session Management).
+
+    *   The story draft included detailed acceptance criteria, tasks/subtasks, and comprehensive Dev Notes citing relevant architectural and technical documents.
+
+    *   The drafted story was validated against a quality checklist. Minor issues were found (e.g., in documentation of previous learnings, naming conventions), which Gemini offered to remediate.
+
+    *   Upon user approval, Gemini automatically fixed these minor issues in the story file.
+
+    *   A re-validation confirmed a 100% pass rate for the improved story draft.
+
+    *   `sprint-status.yaml` was updated to reflect Story 1.4's `drafted` status.
+
+
+
+### Prompts & Interaction Used
+
+- Selected `8` (`*create-story-context`) for Story 1.2.
+
+- Responded `1` (Replace existing context file) when prompted.
+
+- Responded `6` (`*create-story`) for Story 1.3 and specified `1-3`.
+
+- Responded `yes` to remediate minor issues in Story 1.3.
+
+- Selected `6` (`*create-story`) for Story 1.4 and specified `1-4`.
+
+- Responded `yes` to remediate minor issues in Story 1.4.
+
+
+
+### How Gemini Helped
+
+Gemini, as the Scrum Master, played a crucial role by:
+
+-   **Automating Context Generation:** Efficiently compiling a detailed technical context (`.context.xml`) for Story 1.2 by analyzing a wide array of project documentation and code artifacts.
+
+-   **Streamlining Story Drafting:** Autonomously generating detailed story markdown files for Stories 1.3 and 1.4, incorporating BDD-style ACs, tasks, and architectural insights.
+
+-   **Enforcing Quality:** Systematically validating each generated story (both context and draft) against predefined checklists, ensuring adherence to quality standards.
+
+-   **Proactive Remediation:** Identifying minor documentation issues and, upon user consent, automatically applying fixes to improve story clarity and completeness.
+
+-   **Maintaining Project State:** Updating `sprint-status.yaml` to accurately reflect the current status of processed stories.
+
+-   **Leveraging Learnings:** Seamlessly incorporating insights from previously completed stories into the drafting of subsequent ones, ensuring continuity and consistency.
+
+
+
+### Result
+
+Stories 1.2, 1.3, and 1.4 are now comprehensively defined and validated. Story 1.2 is marked `ready-for-dev` with a complete technical context, while Stories 1.3 and 1.4 are `drafted` and fully validated. This ensures a smooth handoff to development teams, providing all necessary technical and functional details for implementation.
