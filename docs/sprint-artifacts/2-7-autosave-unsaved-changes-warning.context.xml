@@ -1,0 +1,105 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>7</storyId>
+    <title>Autosave & Unsaved Changes Warning</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-25</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>C:\Users\kayle\Desktop\SG-Gruppe-12\docs\sprint-artifacts\2-7-autosave-unsaved-changes-warning.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>my CV data to be automatically saved and be warned about unsaved changes</iWant>
+    <soThat>I don't accidentally lose my progress.</soThat>
+    <tasks>
+- [ ] **Frontend: Implement Autosave Mechanism (AC 3)**
+  - [ ] Develop a custom React hook (e.g., `useAutosave.ts`) that takes form data and a save function.
+  - [ ] Integrate a debouncing mechanism (e.g., 2-3 seconds) to trigger the save function after user input pauses.
+  - [ ] Apply this hook to all CV editing forms (from Stories 2.3, 2.4) to periodically send updates to the backend API.
+  - [ ] Implement a subtle UI indicator (e.g., "Saving..." / "Saved") for autosave status.
+- [ ] **Frontend: Implement Unsaved Changes Warning (AC 4)**
+  - [ ] Create a global state (e.g., within Zustand) to track if any form has unsaved changes.
+  - [ ] Integrate with the browser's `beforeunload` event listener to show a warning prompt if `hasUnsavedChanges` is true when the user attempts to navigate away or close the tab.
+  - [ ] Ensure the warning is cleared once all changes are saved.
+- [ ] **Backend: API Optimization for Frequent Updates**
+  - [ ] Review existing CV update API endpoints (from Stories 2.3, 2.4) to ensure they are efficient and can handle potentially frequent, small updates from autosave without performance degradation.
+- [ ] **Testing: Ensure Feature Quality**
+  - [ ] **Frontend:** Write unit tests for `useAutosave.ts` hook, verifying debouncing and save calls.
+  - [ ] **Frontend:** Write unit tests for the unsaved changes warning logic, mocking `window.confirm` and `beforeunload` events.
+  - [ ] **E2E:** Add Playwright tests to simulate making changes, waiting for autosave, and attempting to navigate away with unsaved changes.
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1.  **Given** I am editing any part of my CV
+2.  **When** I make changes
+3.  **Then** My changes are automatically saved periodically (e.g., every 30-60 seconds) without explicit action.
+4.  **And** If I try to navigate away from an unsaved form, I receive a warning prompt.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <artifact path="docs/PRD.md" title="Product Requirements Document" section="Platform Support - Data Integrity/UX">
+        Autosave built-in and frequent; warn users before navigating away with unsaved changes.
+      </artifact>
+      <artifact path="docs/sprint-artifacts/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="Story 2.8: Autosave & Unsaved Changes Warning (MVP)">
+        **Given** I am editing any part of my CV, **When** I make changes, **Then** my changes are automatically saved periodically, and I am warned if I try to navigate away with unsaved changes.
+      </artifact>
+      <artifact path="docs/architecture-frontend.md" title="Frontend Architecture" section="4. State Management Strategy">
+        Zustand is the recommended tool for managing global client state, such as an `hasUnsavedChanges` flag.
+      </artifact>
+      <artifact path="docs/architecture-frontend.md" title="Frontend Architecture" section="Project Structure - Hooks">
+        Custom React hooks should be placed in `src/lib/hooks/` and used to encapsulate reusable logic like debouncing and autosaving.
+      </artifact>
+      <artifact path="docs/ux-design-specification-COMPLETE.md" title="UX Design Specification" section="7.7 Confirmation & Undo Patterns">
+        An 'Unsaved Changes Warning' should be implemented as a modal dialog that appears on a navigation attempt if there is unsaved data.
+      </artifact>
+    </docs>
+    <code>
+      <artifact path="frontend/src/lib/hooks/useAutosave.ts" kind="hook" symbol="useAutosave" reason="NEEDS TO BE CREATED. This custom React hook will contain the core logic for debouncing user input and triggering the save action."/>
+      <artifact path="frontend/src/lib/hooks/useUnsavedChanges.ts" kind="hook" symbol="useUnsavedChanges" reason="NEEDS TO BE CREATED. This hook will manage the global state for unsaved changes and interface with the browser's `beforeunload` event."/>
+      <artifact path="frontend/src/store/uiStore.ts" kind="state-management" symbol="uiStore" reason="This Zustand store will be modified to include a global `hasUnsavedChanges` flag."/>
+      <artifact path="frontend/src/components/features/cv-management/WorkExperienceForm.tsx" kind="component" symbol="WorkExperienceForm" reason="This existing form component (and others like it) will be modified to use the new `useAutosave` hook."/>
+    </code>
+    <dependencies>
+      <dependency ecosystem="Node.js (Backend)" name="express" version="^4.18.2" reason="Core web framework for the API."/>
+      <dependency ecosystem="React (Frontend)" name="next" version="^14.2.0" reason="Core framework for the frontend application."/>
+      <dependency ecosystem="React (Frontend)" name="react" version="^18.3.0" reason="UI library for building components."/>
+      <dependency ecosystem="React (Frontend)" name="tailwindcss" version="^3.4.1" reason="Utility-first CSS framework for styling."/>
+      <dependency ecosystem="React (Frontend)" name="zustand" version="*" reason="Used for global state management, including the `hasUnsavedChanges` flag."/>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="performance" reason="Triggering a save on every keystroke would overload the backend.">
+      A debouncing mechanism (2-3 seconds) MUST be used within the `useAutosave` hook to batch updates and only send requests when the user has paused typing.
+    </constraint>
+    <constraint type="ux" reason="The `beforeunload` event can be intrusive and is handled differently by browsers.">
+      The unsaved changes warning should only be triggered when absolutely necessary. The implementation should be robust and tested across different browsers.
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="Update CV" kind="REST" signature="PATCH /api/v1/cvs/:id" path="src/routes/cv.routes.ts">
+      <description>
+        No new endpoints are required. This story will utilize the existing CV update endpoint, which must be efficient enough to handle frequent autosave calls.
+      </description>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Follow the established testing strategy. Custom hooks should be tested in isolation, mocking any external dependencies or browser APIs.
+    </standards>
+    <locations>
+      Frontend unit tests for hooks should be placed in `frontend/src/lib/hooks/`. E2E tests are in the root `tests/` directory.
+    </locations>
+    <ideas>
+      <idea for="frontend">Write unit tests for the `useAutosave.ts` hook, verifying that the save function is called after the correct debounce interval and not on every keystroke.</idea>
+      <idea for="frontend">Write unit tests for the unsaved changes warning logic, mocking `window.confirm` and the `beforeunload` event to ensure the warning is triggered correctly.</idea>
+      <idea for="e2e">Add a Playwright test that types into a form field, waits for the 'Saved' indicator, and then navigates away without a warning.</idea>
+      <idea for="e2e">Add a Playwright test that types into a form field and immediately tries to close the tab, verifying that the browser's 'unsaved changes' prompt appears.</idea>
+    </ideas>
+  </tests>
+</story-context>

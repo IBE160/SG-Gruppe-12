@@ -1,0 +1,141 @@
+[
+  {
+    "request": null,
+    "response": {
+      "session.id": "f58ed3cf-b480-4eee-9a6e-a5c39710ee12",
+      "installation.id": "61675743-2551-4675-b234-517e42bef991",
+      "interactive": true,
+      "user.email": "kaylee.floden@hotmail.com",
+      "event.name": "gemini_cli.api_response",
+      "event.timestamp": "2025-11-24T15:24:34.328Z",
+      "model": "gemini-2.5-flash",
+      "duration_ms": 59059,
+      "input_token_count": 211171,
+      "output_token_count": 259,
+      "cached_content_token_count": 0,
+      "thoughts_token_count": 341,
+      "tool_token_count": 0,
+      "total_token_count": 211771,
+      "prompt_id": "f58ed3cf-b480-4eee-9a6e-a5c39710ee12########32",
+      "auth_type": "oauth-personal",
+      "status_code": 200,
+      "response_text": [
+        {
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "thoughtSignature": "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",
+                    "text": "Hello BIP! I'm John, your Product Manager. I'm ready to help you uncover the deeper 'WHY' behind every requirement and ruthlessly prioritize to achieve MVP goals.\n\nHere are the available actions:\n1. *help: Show numbered menu\n2. *workflow-init: Start a new sequenced workflow"
+                  }
+                ]
+              }
+            }
+          ],
+          "usageMetadata": {
+            "trafficType": "ON_DEMAND"
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "30e830e25747297e"
+        },
+        {
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "text": " path\n3. *workflow-status: Check workflow status and get recommendations\n4. *create-prd: Create Product Requirements Document (PRD)\n5. *create-epics-and-stories: Break PRD requirements into implementable epics and stories\n6. *validate-prd: Validate"
+                  }
+                ]
+              }
+            }
+          ],
+          "usageMetadata": {
+            "trafficType": "ON_DEMAND"
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "30e830e25747297e"
+        },
+        {
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "text": " PRD + Epics + Stories completeness and quality\n7. *tech-spec: Create Tech Spec (Simple work efforts, no PRD or Architecture docs)\n8. *validate-tech-spec: Validate Technical Specification Document\n9. *correct-course: Course Correction Analysis\n10. *create"
+                  }
+                ]
+              }
+            }
+          ],
+          "usageMetadata": {
+            "trafficType": "ON_DEMAND"
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "30e830e25747297e"
+        },
+        {
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "text": "-excalidraw-flowchart: Create process or feature flow diagram (Excalidraw)\n11. *party-mode: Bring the whole team in to chat with other expert agents from the party\n12. *exit: Exit with confirmation\n\nWhat would you like to do? Please enter"
+                  }
+                ]
+              }
+            }
+          ],
+          "usageMetadata": {
+            "trafficType": "ON_DEMAND"
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "30e830e25747297e"
+        },
+        {
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "text": " the number or the command."
+                  }
+                ]
+              },
+              "finishReason": "STOP"
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 211171,
+            "candidatesTokenCount": 259,
+            "totalTokenCount": 211771,
+            "trafficType": "ON_DEMAND",
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 211171
+              }
+            ],
+            "candidatesTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 259
+              }
+            ],
+            "thoughtsTokenCount": 341
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "30e830e25747297e"
+        }
+      ],
+      "http.status_code": 200
+    },
+    "error": null
+  }
+]

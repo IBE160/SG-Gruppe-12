@@ -1,0 +1,24 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                    String   @id @default(uuid())
+  email                 String   @unique
+  password_hash         String
+  name                  String?
+  consent_essential     Boolean  @default(true)
+  consent_ai_training   Boolean  @default(false)
+  consent_marketing     Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  emailVerified         Boolean  @default(false)
+  emailVerificationToken String?
+  passwordResetToken    String?
+}

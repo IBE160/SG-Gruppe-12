@@ -1,0 +1,121 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>4</storyId>
+    <title>User Interface for CV Section Editing (Education, Skills, Languages)</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-25</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>C:\Users\kayle\Desktop\SG-Gruppe-12\docs\sprint-artifacts\2-4-user-interface-for-cv-section-editing-education-skills-languages.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>to manage my education, skills, and language entries</iWant>
+    <soThat>my CV is complete and up-to-date.</soThat>
+    <tasks>
+- [ ] **Backend: Implement Education, Skills, & Languages CRUD API (AC 3, 4, 5, 6)**
+  - [ ] Extend `cv.routes.ts` with routes for `POST`, `PATCH`, `DELETE` operations for education, skills, and language entries. Consider nested routes or specific endpoints (e.g., `/cv/education`, `/cv/skills`, `/cv/languages`).
+  - [ ] In `cv.controller.ts`, create handlers for adding, updating, and deleting education, skills, and language entries.
+  - [ ] In `cv.service.ts`, implement the business logic for managing education, skills, and language entries, ensuring proper interaction with the CV versioning service (Story 2.8).
+  - [ ] In `cv.repository.ts`, implement the database queries to persist education, skills, and language data.
+- [ ] **Frontend: Develop Education, Skills, & Languages Management UI (AC 3, 4, 5, 6, 7)**
+  - [ ] In `frontend/src/components/features/cv-management/`, create separate form components for adding/editing `EducationForm.tsx`, `SkillsForm.tsx`, and `LanguagesForm.tsx`.
+  - [ ] Create corresponding list components `EducationList.tsx`, `SkillsList.tsx`, and `LanguagesList.tsx` to display entries with edit and delete buttons.
+  - [ ] Integrate these form and list components into the main CV management page.
+  - [ ] Implement API calls in the frontend to connect the UI to the backend endpoints.
+  - [ ] Ensure the UI updates in real-time when changes are made, reflecting in the main CV preview (Story 2.5).
+- [ ] **Testing: Ensure Feature Quality**
+  - [ ] **Backend:** Write unit tests for `cv.service.ts` education, skills, and language methods.
+  - [ ] **Backend:** Write integration tests for the new API endpoints using Supertest.
+  - [ ] **Frontend:** Write component tests for `EducationForm.tsx`, `SkillsForm.tsx`, `LanguagesForm.tsx`, and their respective list components using React Testing Library.
+  - [ ] **E2E:** Add Playwright tests to simulate a user managing education, skills, and language entries.
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1.  **Given** I am logged in and viewing my CV data management section
+2.  **When** I navigate to the "Education," "Skills," or "Languages" sections
+3.  **Then** I can add, edit, and delete entries for each category.
+4.  **And** For education, fields include institution, degree, and dates.
+5.  **And** For skills, I can add and remove individual skills.
+6.  **And** For languages, I can specify the language and proficiency level.
+7.  **And** All changes are immediately reflected in a dynamic preview (if available).
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <artifact path="docs/PRD.md" title="Product Requirements Document" section="FR-2.2: CV Data Editing">
+        The system must allow the user to edit any CV entry instantly, including education, skills, and languages.
+      </artifact>
+      <artifact path="docs/sprint-artifacts/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="Story 2.5: User Interface for CV Section Editing (Education, Skills, Languages)">
+        **Given** I am logged in and viewing my CV data management section, **When** I navigate to the 'Education,' 'Skills,' or 'Languages' sections, **Then** I can add, edit, and delete entries for each category.
+      </artifact>
+      <artifact path="docs/sprint-artifacts/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="Frontend Modules/Components">
+        Create separate components for `EducationForm.tsx`, `SkillsForm.tsx`, and `LanguagesForm.tsx`. State will be managed by `cvStore.ts` (Zustand).
+      </artifact>
+      <artifact path="docs/architecture-backend.md" title="Backend Architecture" section="4. API Layer Architecture">
+        The `cv.service.ts` and `cv.repository.ts` will be extended to handle CRUD operations for education, skills, and languages, exposed via the main CV update endpoint.
+      </artifact>
+      <artifact path="docs/architecture-frontend.md" title="Frontend Architecture" section="6. Component Architecture">
+        New components should be created inside `src/components/features/cv-management/` and should be composed on the main CV management page.
+      </artifact>
+      <artifact path="docs/ux-design-specification-COMPLETE.md" title="UX Design Specification" section="7.3 Form Patterns & Validation">
+        All form inputs must have labels positioned above them and display validation errors onBlur. A red asterisk should indicate required fields.
+      </artifact>
+    </docs>
+    <code>
+      <artifact path="src/models/cv.model.js" kind="model" symbol="Cv" reason="Provides the main data access methods for a CV, which will be extended."/>
+      <artifact path="src/models/cvComponent.model.js" kind="model" symbol="CvComponent" reason="This model will be used to store education, skills, and language data as distinct component types."/>
+      <artifact path="frontend/src/types/cv.ts" kind="types" symbol="Education, Skills" reason="Defines the frontend data structures for education and skill entries."/>
+      <artifact path="src/services/cv.service.ts" kind="service" symbol="cvService" reason="NEEDS TO BE CREATED. Will be extended with methods to handle CRUD operations for education, skills, and languages."/>
+      <artifact path="frontend/src/components/features/cv-management/EducationForm.tsx" kind="component" symbol="EducationForm" reason="NEEDS TO BE CREATED. A new React component for the education section."/>
+      <artifact path="frontend/src/components/features/cv-management/SkillsForm.tsx" kind="component" symbol="SkillsForm" reason="NEEDS TO BE CREATED. A new React component for the skills section."/>
+      <artifact path="frontend/src/components/features/cv-management/LanguagesForm.tsx" kind="component" symbol="LanguagesForm" reason="NEEDS TO BE CREATED. A new React component for the languages section."/>
+    </code>
+    <dependencies>
+      <dependency ecosystem="Node.js (Backend)" name="express" version="^4.18.2" reason="Core web framework for the API."/>
+      <dependency ecosystem="Node.js (Backend)" name="pg" version="^8.16.3" reason="PostgreSQL client for database interaction."/>
+      <dependency ecosystem="React (Frontend)" name="next" version="^14.2.0" reason="Core framework for the frontend application."/>
+      <dependency ecosystem="React (Frontend)" name="react" version="^18.3.0" reason="UI library for building components."/>
+      <dependency ecosystem="React (Frontend)" name="tailwindcss" version="^3.4.1" reason="Utility-first CSS framework for styling."/>
+      <dependency ecosystem="React (Frontend)" name="@radix-ui/react-*" version="*" reason="Provides accessible, unstyled primitives for building UI components (used by shadcn/ui)."/>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architectural" reason="The backend's layered architecture (routes, controllers, services) must be implemented as it does not yet exist.">
+      Implement the layered architecture on the backend.
+    </constraint>
+    <constraint type="data-model" reason="The `cv.service.ts` must transform data between the `cv_components` table representation and the structured arrays expected by the frontend.">
+      The backend service layer is responsible for data model transformation.
+    </constraint>
+    <constraint type="frontend" reason="New UI components must be created following the established project structure and conventions.">
+      New UI components should be placed in `frontend/src/components/features/cv-management/`.
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="Update CV Section" kind="REST" signature="PATCH /api/v1/cvs/:id" path="src/routes/cv.routes.ts">
+      <description>
+        The main CV update endpoint will be extended. The request body will contain a payload identifying the section to update (e.g., 'education', 'skills') and the new data for that section.
+      </description>
+      <request body="{ section: 'education' | 'skills' | 'languages', data: Education[] | string[] }"/>
+      <response body="{ success: boolean, data: CVData }"/>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Follow the established testing strategy. Backend tests should mock the database repository layer for services and use an in-memory database for integration tests if possible. Frontend tests should mock API calls.
+    </standards>
+    <locations>
+      Backend unit and integration tests should be placed in `src/tests/`. Frontend component tests should be co-located with the components they are testing. E2E tests are in the root `tests/` directory.
+    </locations>
+    <ideas>
+      <idea for="backend">Write unit tests for the new methods in `cv.service.ts` that handle education, skills, and languages.</idea>
+      <idea for="backend">Write integration tests for the API endpoints that will be extended to manage these new CV sections.</idea>
+      <idea for="frontend">Write component tests for `EducationForm.tsx`, `SkillsForm.tsx`, and `LanguagesForm.tsx` using React Testing Library.</idea>
+      <idea for="e2e">Add a Playwright test to simulate a user adding, editing, and deleting entries in the education, skills, and languages sections.</idea>
+    </ideas>
+  </tests>
+</story-context>

@@ -1,0 +1,98 @@
+[
+  {
+    "request": null,
+    "response": {
+      "session.id": "f58ed3cf-b480-4eee-9a6e-a5c39710ee12",
+      "installation.id": "61675743-2551-4675-b234-517e42bef991",
+      "interactive": true,
+      "user.email": "kaylee.floden@hotmail.com",
+      "event.name": "gemini_cli.api_response",
+      "event.timestamp": "2025-11-24T16:04:54.200Z",
+      "model": "gemini-2.5-flash",
+      "duration_ms": 26295,
+      "input_token_count": 239879,
+      "output_token_count": 18,
+      "cached_content_token_count": 228974,
+      "thoughts_token_count": 22,
+      "tool_token_count": 0,
+      "total_token_count": 239919,
+      "prompt_id": "f58ed3cf-b480-4eee-9a6e-a5c39710ee12########38",
+      "auth_type": "oauth-personal",
+      "status_code": 200,
+      "response_text": [
+        {
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "thought": true,
+                    "text": "**Initiating the Push**\n\n\\n\\n\n\nI've just finished committing the changes. My next step is to push these committed modifications to the remote repository. \n\n\n"
+                  }
+                ]
+              }
+            }
+          ],
+          "usageMetadata": {
+            "trafficType": "ON_DEMAND"
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "c02ec8f9a28865c8"
+        },
+        {
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "thoughtSignature": "CiIB4/H/Xn+feLE6XFElrZJ2LcyqHaEGShq4iqOdfnT7sq+4CnEB4/H/XlJWO0ylhsmGoaeY7GT0l6h4fcDr2Qq34UTX9M+TIFv4NBMbzItV+xQm21XBFgCTyXsAnrVF2eIq9t6sYexdvNfJ3/DlOYtkdtB3RRukIjFeB6XeOYD33ADBceldEf9WDq6RhF3Q3djUaMf4tQo0AePx/17A34YGqiE4AZPk7cdkZVijZ9CottH/Eq3DEbMvUVBBIgiApKi9caE47WSZ8f2M0g==",
+                    "functionCall": {
+                      "name": "run_shell_command",
+                      "args": {
+                        "command": "git push",
+                        "description": "Push the committed changes to the remote repository."
+                      }
+                    }
+                  }
+                ]
+              },
+              "finishReason": "STOP"
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 239879,
+            "candidatesTokenCount": 18,
+            "totalTokenCount": 239919,
+            "cachedContentTokenCount": 228974,
+            "trafficType": "ON_DEMAND",
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 239879
+              }
+            ],
+            "cacheTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 228974
+              }
+            ],
+            "candidatesTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 18
+              }
+            ],
+            "thoughtsTokenCount": 22
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "c02ec8f9a28865c8"
+        }
+      ],
+      "http.status_code": 200
+    },
+    "error": null
+  }
+]

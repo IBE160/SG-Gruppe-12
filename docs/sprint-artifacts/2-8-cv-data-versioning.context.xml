@@ -1,0 +1,118 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>8</storyId>
+    <title>CV Data Versioning</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-25</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>C:\Users\kayle\Desktop\SG-Gruppe-12\docs\sprint-artifacts\2-8-cv-data-versioning.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>my CV data to be versioned</iWant>
+    <soThat>I can revert to previous states if needed.</soThat>
+    <tasks>
+- [ ] **Backend: Implement CV Versioning Strategy (AC 1, 2, 3, 4)**
+  - [ ] Update `prisma/schema.prisma` to include a `CVVersion` model to store historical versions of CV data. Consider a delta-based versioning approach as recommended in `docs/ARCHITECTURE-REVIEW.md` (Section 1.1) to optimize storage.
+  - [ ] Modify `cv.service.ts` to automatically create a new CV version whenever the active CV data is updated (e.g., from Stories 2.3, 2.4, 2.7).
+  - [ ] Implement new methods in `cv.service.ts` for retrieving a list of CV versions for a user's CV and for restoring a selected version.
+  - [ ] In `cv.repository.ts`, implement database interactions for creating, listing, and retrieving `CVVersion` records.
+- [ ] **Backend: Create CV Version API Endpoints (AC 2, 3, 4)**
+  - [ ] Extend `cv.routes.ts` with API endpoints:
+    - `GET /api/v1/cvs/:id/versions`: To list all versions for a specific CV.
+    - `GET /api/v1/cvs/:id/versions/:versionId`: To retrieve details of a specific CV version.
+    - `POST /api/v1/cvs/:id/restore-version/:versionId`: To restore a previous version as the current active CV.
+- [ ] **Frontend: Develop CV Version History UI (AC 2, 3, 4)**
+  - [ ] Create a `CVVersionHistory.tsx` component in `frontend/src/components/features/cv-management/` to display a list of CV versions, their timestamps, and options to "View" or "Restore."
+  - [ ] Integrate this component into the CV management page.
+  - [ ] Implement frontend logic to fetch version lists, display selected versions in the `CVPreview` component (from Story 2.5), and trigger version restoration.
+- [ ] **Testing: Ensure Feature Quality**
+  - [ ] **Backend:** Write unit tests for `cv.service.ts` versioning and restoration logic.
+  - [ ] **Backend:** Write integration tests for the new CV version API endpoints.
+  - [ ] **Frontend:** Write component tests for `CVVersionHistory.tsx` to verify correct display and interaction.
+  - [ ] **E2E:** Add Playwright tests to simulate creating multiple CV versions, viewing the history, and restoring a previous version.
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1.  **Given** I have made multiple changes to my CV over time
+2.  **When** I view my CV history
+3.  **Then** I can see a list of saved versions of my CV.
+4.  **And** I can select a previous version to view or restore it as my current CV.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <artifact path="docs/ARCHITECTURE-REVIEW.md" title="Architecture Review" section="1.1 CV Versioning Strategy (HIGH PRIORITY)">
+        CRITICAL: A full snapshot versioning strategy creates storage bloat. A delta-based versioning approach is the preferred recommendation to optimize storage and performance.
+      </artifact>
+      <artifact path="docs/sprint-artifacts/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="Data Models and Contracts">
+        A `CVVersion` model should be created in `prisma/schema.prisma` to store historical snapshots or deltas of a CV.
+      </artifact>
+      <artifact path="docs/architecture-backend.md" title="Backend Architecture" section="4. API Layer Architecture">
+        New endpoints like `GET /api/v1/cvs/:id/versions` and `POST /api/v1/cvs/:id/restore-version/:versionId` are required to manage CV versions.
+      </artifact>
+      <artifact path="docs/architecture-frontend.md" title="Frontend Architecture" section="3. Project Structure">
+        A `CVVersionHistory.tsx` component should be created in `src/components/features/cv-management/`.
+      </artifact>
+      <artifact path="docs/epics.md" title="Epics Breakdown" section="Story 2.8: CV Data Versioning">
+        This story requires significant changes across both backend and frontend to introduce the versioning model, API endpoints, and UI component.
+      </artifact>
+    </docs>
+    <code>
+      <artifact path="prisma/schema.prisma" kind="schema" symbol="CVVersion" reason="NEEDS TO BE CREATED/MODIFIED. A new model for `CVVersion` must be added to the database schema to store version history."/>
+      <artifact path="src/services/cv.service.ts" kind="service" symbol="cvService" reason="NEEDS TO BE CREATED/MODIFIED. Will be extended with logic to create version deltas, list versions, and restore a version."/>
+      <artifact path="src/repositories/cv.repository.ts" kind="repository" symbol="cvRepository" reason="NEEDS TO BE CREATED/MODIFIED. Will be extended with methods to save and retrieve `CVVersion` records from the database."/>
+      <artifact path="src/routes/cv.routes.ts" kind="route" symbol="cvRouter" reason="NEEDS TO BE CREATED/MODIFIED to add the new endpoints for version history and restoration."/>
+      <artifact path="frontend/src/components/features/cv-management/CVVersionHistory.tsx" kind="component" symbol="CVVersionHistory" reason="NEEDS TO BE CREATED. This new React component will display the version history to the user."/>
+    </code>
+    <dependencies>
+      <dependency ecosystem="Node.js (Backend)" name="express" version="^4.18.2" reason="Core web framework for the API."/>
+      <dependency ecosystem="Node.js (Backend)" name="pg" version="^8.16.3" reason="PostgreSQL client for database interaction."/>
+      <dependency ecosystem="Node.js (Backend)" name="prisma" version="*" reason="ORM for database access and schema management."/>
+      <dependency ecosystem="React (Frontend)" name="next" version="^14.2.0" reason="Core framework for the frontend application."/>
+      <dependency ecosystem="React (Frontend)" name="react" version="^18.3.0" reason="UI library for building components."/>
+      <dependency ecosystem="React (Frontend)" name="tailwindcss" version="^3.4.1" reason="Utility-first CSS framework for styling."/>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="performance" reason="The Architecture Review identified full snapshot versioning as a high-priority risk for storage bloat and performance degradation.">
+      A delta-based versioning strategy MUST be implemented instead of storing full snapshots of the CV data for each version.
+    </constraint>
+    <constraint type="backend" reason="The versioning logic should be triggered automatically by existing update operations.">
+      The `cv.service.ts` must be modified so that any update to the CV data automatically creates a new `CVVersion` record (delta).
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="List CV Versions" kind="REST" signature="GET /api/v1/cvs/:id/versions" path="src/routes/cv.routes.ts">
+      <description>
+        Retrieves a list of all available versions for a specific CV, including timestamps and version numbers. This endpoint needs to be created.
+      </description>
+      <response body="{ versions: [{ versionId: string, createdAt: string, versionNumber: int }] }"/>
+    </interface>
+    <interface name="Restore CV Version" kind="REST" signature="POST /api/v1/cvs/:id/restore-version/:versionId" path="src/routes/cv.routes.ts">
+      <description>
+        Restores a specific version of a CV as the current active version. This endpoint needs to be created.
+      </description>
+      <response body="{ success: boolean, data: CVData }"/>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Follow the established testing strategy. Backend service tests for versioning should focus on the correctness of delta creation and application logic.
+    </standards>
+    <locations>
+      Backend unit and integration tests should be placed in `src/tests/`. Frontend component tests should be co-located with the components. E2E tests are in the root `tests/` directory.
+    </locations>
+    <ideas>
+      <idea for="backend">Write unit tests for the delta creation and restoration logic in `cv.service.ts`.</idea>
+      <idea for="backend">Write integration tests for the `GET /api/v1/cvs/:id/versions` and `POST /api/v1/cvs/:id/restore-version/:versionId` endpoints.</idea>
+      <idea for="frontend">Write component tests for `CVVersionHistory.tsx` to ensure it correctly displays a list of versions and handles user interactions like 'View' and 'Restore'.</idea>
+      <idea for="e2e">Add a Playwright test that modifies a CV multiple times, navigates to the version history, restores a previous version, and verifies that the CV data is correctly reverted.</idea>
+    </ideas>
+  </tests>
+</story-context>

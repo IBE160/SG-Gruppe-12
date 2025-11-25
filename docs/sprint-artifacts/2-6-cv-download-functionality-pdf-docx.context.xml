@@ -1,0 +1,118 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>6</storyId>
+    <title>CV Download Functionality (PDF/DOCX)</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-25</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>C:\Users\kayle\Desktop\SG-Gruppe-12\docs\sprint-artifacts\2-6-cv-download-functionality-pdf-docx.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>to download my generated CV in common formats (PDF, DOCX)</iWant>
+    <soThat>I can easily submit it to job applications.</soThat>
+    <tasks>
+- [ ] **Backend: Implement PDF Generation Service (AC 3, 5)**
+  - [ ] Create a `document-generation.service.ts` to encapsulate PDF generation logic using Puppeteer (recommended by `architecture-backend.md`) or a lightweight alternative.
+  - [ ] The service should accept structured CV data and a template identifier, returning a PDF buffer.
+  - [ ] Implement an API endpoint (e.g., `GET /api/cv/:id/download/pdf`) that triggers PDF generation and returns the file.
+  - [ ] (Optional) Integrate with Bull queue for background PDF generation if processing times are significant.
+- [ ] **Backend: Implement DOCX Generation Service (AC 4, 5)**
+  - [ ] Extend `document-generation.service.ts` with DOCX generation logic using the `docx` library (recommended by `architecture-backend.md`).
+  - [ ] Implement an API endpoint (e.g., `GET /api/cv/:id/download/docx`) that triggers DOCX generation and returns the file.
+  - [ ] (Optional) Integrate with Bull queue for background DOCX generation.
+- [ ] **Frontend: Integrate Download Functionality (AC 2)**
+  - [ ] Add "Download PDF" and "Download DOCX" buttons to the CV preview section (developed in Story 2.5).
+  - [ ] Implement frontend logic to call the respective backend API endpoints and initiate file downloads in the browser.
+- [ ] **Testing: Ensure Feature Quality**
+  - [ ] **Backend:** Write unit tests for `document-generation.service.ts` covering both PDF and DOCX generation, mocking external library calls.
+  - [ ] **Backend:** Write integration tests for the download API endpoints to ensure files are correctly generated and returned.
+  - [ ] **Frontend:** Write component tests for the download buttons and their interaction with the backend.
+  - [ ] **E2E:** Add Playwright tests to verify the end-to-end flow of generating and downloading both PDF and DOCX files from the UI.
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1.  **Given** I have a populated CV and a selected template in the preview
+2.  **When** I click the "Download" button
+3.  **Then** My CV is downloaded as a PDF file.
+4.  **And** My CV is downloaded as a DOCX file.
+5.  **And** The downloaded files accurately reflect the content and chosen template from the preview.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <artifact path="docs/PRD.md" title="Product Requirements Document" section="FR-2.3: CV Generation & Download">
+        The platform must allow the user to download the generated CV in PDF format and DOCX format.
+      </artifact>
+      <artifact path="docs/sprint-artifacts/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="APIs and Interfaces">
+        The backend will expose `GET /api/v1/cvs/:id/download` with a query parameter for format (pdf or docx) to trigger file generation and download.
+      </artifact>
+      <artifact path="docs/architecture-backend.md" title="Backend Architecture" section="9. Document Generation">
+        PDFs should be generated with Puppeteer for high fidelity. DOCX files should be generated with the `docx` library.
+      </artifact>
+      <artifact path="docs/architecture-backend.md" title="Backend Architecture" section="10. Background Job Processing">
+        Consider using a Bull queue for document generation to avoid blocking HTTP requests for a long time.
+      </artifact>
+      <artifact path="docs/ARCHITECTURE-REVIEW.md" title="Architecture Review" section="2.1 Puppeteer Cold Start Latency (CRITICAL - MUST FIX)">
+        Puppeteer has a 3-5 second cold start time which is a critical performance risk. Mitigation strategies include a pre-warmed browser pool or using a lighter library like `html-pdf-node`.
+      </artifact>
+    </docs>
+    <code>
+      <artifact path="src/services/document-generation.service.ts" kind="service" symbol="documentGenerationService" reason="NEEDS TO BE CREATED. This service will contain the core logic for generating PDF and DOCX files from CV data."/>
+      <artifact path="src/routes/cv.routes.ts" kind="route" symbol="cvRouter" reason="NEEDS TO BE CREATED or modified to include the new download endpoints."/>
+      <artifact path="src/jobs/document-generation.job.ts" kind="job" symbol="documentGenerationQueue" reason="NEEDS TO BE CREATED. A Bull queue job processor is highly recommended to handle the potentially long-running document generation tasks."/>
+      <artifact path="frontend/src/components/features/cv-management/CVPreview.tsx" kind="component" symbol="CVPreview" reason="This existing component will need to be modified to include the download buttons."/>
+    </code>
+    <dependencies>
+      <dependency ecosystem="Node.js (Backend)" name="express" version="^4.18.2" reason="Core web framework for the API."/>
+      <dependency ecosystem="Node.js (Backend)" name="pg" version="^8.16.3" reason="PostgreSQL client for database interaction."/>
+      <dependency ecosystem="React (Frontend)" name="next" version="^14.2.0" reason="Core framework for the frontend application."/>
+      <dependency ecosystem="React (Frontend)" name="react" version="^18.3.0" reason="UI library for building components."/>
+      <dependency ecosystem="React (Frontend)" name="tailwindcss" version="^3.4.1" reason="Utility-first CSS framework for styling."/>
+      <dependency ecosystem="Node.js (Backend)" name="puppeteer" version="*" reason="Required for generating PDF documents."/>
+      <dependency ecosystem="Node.js (Backend)" name="docx" version="*" reason="Required for generating DOCX documents."/>
+      <dependency ecosystem="Node.js (Backend)" name="bull" version="*" reason="Recommended for background job processing."/>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="performance" reason="Puppeteer has a critical cold-start latency issue (3-5 seconds) that will block the HTTP request thread and lead to a poor user experience.">
+      Document generation MUST be handled asynchronously. Use a Bull background job queue to process PDF and DOCX generation requests to avoid request timeouts.
+    </constraint>
+    <constraint type="backend" reason="The document generation service should be self-contained and only responsible for creating files from data.">
+      The service will accept structured CV data and a template identifier, and return a file buffer. It should not contain business logic for fetching CVs.
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="Download CV as PDF" kind="REST" signature="GET /api/v1/cvs/:id/download/pdf" path="src/routes/cv.routes.ts">
+      <description>
+        Triggers a job to generate a PDF for the specified CV and returns the file for download. This endpoint needs to be created.
+      </description>
+      <response body="File (application/pdf)"/>
+    </interface>
+    <interface name="Download CV as DOCX" kind="REST" signature="GET /api/v1/cvs/:id/download/docx" path="src/routes/cv.routes.ts">
+      <description>
+        Triggers a job to generate a DOCX file for the specified CV and returns the file for download. This endpoint needs to be created.
+      </description>
+      <response body="File (application/vnd.openxmlformats-officedocument.wordprocessingml.document)"/>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Follow the established testing strategy. Backend tests for the document generation service should mock the actual file creation libraries (Puppeteer, docx) to test the service logic in isolation.
+    </standards>
+    <locations>
+      Backend unit and integration tests should be placed in `src/tests/`. Frontend component tests should be co-located with the components. E2E tests are in the root `tests/` directory.
+    </locations>
+    <ideas>
+      <idea for="backend">Write unit tests for `document-generation.service.ts`, ensuring it correctly handles data and calls the appropriate generation library for both PDF and DOCX.</idea>
+      <idea for="backend">Write integration tests for the `GET /api/v1/cvs/:id/download/pdf` and `.../docx` endpoints to verify that a file is returned with the correct content type.</idea>
+      <idea for="frontend">Write a component test for the download buttons in `CVPreview.tsx` to ensure they trigger the correct API calls.</idea>
+      <idea for="e2e">Add a Playwright test that clicks the 'Download PDF' and 'Download DOCX' buttons and verifies that files are successfully downloaded.</idea>
+    </ideas>
+  </tests>
+</story-context>
