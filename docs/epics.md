@@ -234,7 +234,7 @@ So that I don't have to manually re-enter all my information.
 **Technical Notes:** Integrate AI-powered parsing service (Google Gemini 2.5 Flash or specialized document parsing API like Docparser). Implement file upload handling with format validation. Create confirmation UI for parsed data review. Max file size: 5 MB. Supported formats: PDF, DOCX, TXT (MVP).
 **Covers FRs:** FR-2.1, FR-2.2
 
-### Story 2.4: User Interface for CV Section Editing (Work Experience) (MVP)
+### Story 2.3: User Interface for CV Section Editing (Work Experience) (MVP)
 
 As a user,
 I want to easily add, edit, and remove my work experience entries,
@@ -254,7 +254,7 @@ So that my CV accurately reflects my professional history.
 **Technical Notes:** Develop React components for work experience form, implement API endpoints for CRUD operations on work experience.
 **Covers FRs:** FR-2.1, FR-2.2, FR-5.2
 
-### Story 2.5: User Interface for CV Section Editing (Education, Skills, Languages) (MVP)
+### Story 2.4: User Interface for CV Section Editing (Education, Skills, Languages) (MVP)
 
 As a user,
 I want to manage my education, skills, and language entries,
@@ -275,7 +275,7 @@ So that my CV is complete and up-to-date.
 **Technical Notes:** Develop React components for education, skills, and language forms, implement API endpoints for CRUD operations.
 **Covers FRs:** FR-2.1, FR-2.2, FR-5.2
 
-### Story 2.6: Dynamic CV Preview & Template Selection (MVP)
+### Story 2.5: Dynamic CV Preview & Template Selection (MVP)
 
 As a user,
 I want to see a live preview of my CV and choose from basic templates,
@@ -289,12 +289,12 @@ So that I can ensure its appearance is professional and suitable.
 4.  **And** I can select from a few basic, ATS-friendly templates.
 5.  **And** The preview updates immediately when I switch templates.
 
-**Prerequisites:** Stories 2.4, 2.5
+**Prerequisites:** Stories 2.3, 2.4
 
 **Technical Notes:** Frontend rendering engine for CVs, use Tailwind CSS for styling templates.
 **Covers FRs:** FR-2.2, FR-2.3, FR-5.2
 
-### Story 2.7: CV Download Functionality (PDF/DOCX) (MVP)
+### Story 2.6: CV Download Functionality (PDF/DOCX) (MVP)
 
 As a user,
 I want to download my generated CV in common formats (PDF, DOCX),
@@ -308,12 +308,12 @@ So that I can easily submit it to job applications.
 4.  **And** My CV is downloaded as a DOCX file.
 5.  **And** The downloaded files accurately reflect the content and chosen template from the preview.
 
-**Prerequisites:** Story 2.6
+**Prerequisites:** Story 2.5
 
 **Technical Notes:** Backend service for generating PDF (e.g., Puppeteer, html-pdf) and DOCX (e.g., docx) from HTML/structured data.
 **Covers FRs:** FR-2.2, FR-2.3
 
-### Story 2.8: Autosave & Unsaved Changes Warning (MVP)
+### Story 2.7: Autosave & Unsaved Changes Warning (MVP)
 
 As a user,
 I want my CV data to be automatically saved and be warned about unsaved changes,
@@ -326,12 +326,12 @@ So that I don't accidentally lose my progress.
 3.  **Then** My changes are automatically saved periodically (e.g., every 30-60 seconds) without explicit action.
 4.  **And** If I try to navigate away from an unsaved form, I receive a warning prompt.
 
-**Prerequisites:** Stories 2.4, 2.5
+**Prerequisites:** Stories 2.3, 2.4
 
 **Technical Notes:** Implement frontend debouncing for auto-save, browser `beforeunload` event handler for warnings.
 **Covers FRs:** FR-2.2
 
-### Story 2.9: CV Data Versioning (MVP)
+### Story 2.8: CV Data Versioning (MVP)
 
 As a user,
 I want my CV data to be versioned,
@@ -344,7 +344,7 @@ So that I can revert to previous states if needed.
 3.  **Then** I can see a list of saved versions of my CV.
 4.  **And** I can select a previous version to view or restore it as my current CV.
 
-**Prerequisites:** Story 2.1 (data model support), Stories 2.4, 2.5 (data modification)
+**Prerequisites:** Story 2.1 (data model support), Stories 2.3, 2.4 (data modification)
 
 **Technical Notes:** Implement a versioning strategy in the database (e.g., storing deltas or full snapshots), API endpoints for listing and restoring versions.
 **Covers FRs:** FR-2.1, FR-2.2

@@ -1,6 +1,6 @@
 # Story 2.1: Structured CV Data Model Design & Implementation
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -99,7 +99,7 @@ This story will lay the foundational data structure, impacting both backend and 
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- `docs/sprint-artifacts/2-1-structured-cv-data-model-design-implementation.context.xml`
 
 ### Agent Model Used
 
