@@ -1,0 +1,174 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>1</storyId>
+    <title>Structured CV Data Model Design &amp; Implementation</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-25</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-1-structured-cv-data-model-design-implementation.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a developer</asA>
+    <iWant>a structured internal data model for CV components</iWant>
+    <soThat>user professional information can be consistently stored and managed</soThat>
+    <tasks>
+1.  **Backend: Define Prisma Schema for CV Data Model**
+    *   Create `CV` and `CVVersion` models in `prisma/schema.prisma`.
+    *   Define `personal_info` as JSONB.
+    *   Define `education`, `experience`, `skills`, `languages` as JSONB arrays.
+    *   Establish relation between `CV` and `User` (FK to Epic 1).
+    *   Implement `Prisma Migrate` to apply schema changes to PostgreSQL.
+    *   **Testing:** Verify `prisma db pull` and `prisma generate` work correctly. Unit test model creation/reading via Prisma Client.
+
+2.  **Backend: Implement CV Repository and Service Stubs**
+    *   Create `src/repositories/cv.repository.ts` with basic CRUD method signatures for `CV` and `CVVersion`.
+    *   Create `src/services/cv.service.ts` with basic business logic stubs for CV management, utilizing `cv.repository.ts`.
+    *   Implement initial Zod validation in `cv.service.ts` for incoming CV data before persistence.
+    *   **Testing:** Unit tests for repository methods (mocking Prisma Client). Integration tests for service layer (mocking repository).
+
+3.  **Frontend: Define Data Structures and Schemas**
+    *   Create `frontend/src/types/cv.ts` to mirror backend CV data structures and ensure type safety.
+    *   Create `frontend/src/lib/schemas/cv.ts` with Zod schemas for client-side validation of CV data components.
+    *   **Testing:** Unit tests for Zod schemas (validation rules).
+
+4.  **Backend: Enhance Data Model with JSONB Schema Validation (Consideration for future iteration)**
+    *   *Subtask (Research/Optional):* Investigate and potentially implement PostgreSQL `CHECK` constraints or triggers for `JSONB` fields to enforce schema at the database level, addressing the concern raised in `ARCHITECTURE-REVIEW.md` regarding missing JSONB schema validation.
+    *   **Testing:** Test database behavior with invalid `JSONB` inserts if constraints are implemented.
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+*   **Given** the diverse types of professional data (experience, education, skills)
+*   **When** the data model is designed and implemented
+*   **Then** It supports structured storage for work experience (company, title, dates, description), education (institution, degree, dates), skills, and languages.
+*   **And** The model allows for relationships between different CV sections (e.g., skills linked to experience).
+*   **And** It is robust enough to handle various international formats.
+  </acceptanceCriteria>
+
+<artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>2. Technology Stack</section>
+        <snippet>The backend will use Prisma 5.x as the ORM for its type-safe queries and modern migration system, and PostgreSQL 15+ (via Supabase) as the database.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>3. Project Structure</section>
+        <snippet>The database schema is defined in `prisma/schema.prisma`. The business logic for CVs is in `cv.service.ts` and database access is in `cv.repository.ts`.</snippet>
+      </doc>
+      <doc>
+        <path>docs/data-models-backend.md</path>
+        <title>Backend Data Models</title>
+        <section>Tables</section>
+        <snippet>The schema includes `users`, `cvs`, and `cv_components`. The `cv_components` table uses a JSONB column to store flexible content for experience, education, etc.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ARCHITECTURE-REVIEW.md</path>
+        <title>Architecture Review &amp; Risk Analysis</title>
+        <section>1.4 JSONB Schema Validation Missing</section>
+        <snippet>The review recommends adding PostgreSQL CHECK constraints or robust application-level Zod validation to enforce the structure of JSONB columns.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ARCHITECTURE-REVIEW.md</path>
+        <title>Architecture Review &amp; Risk Analysis</title>
+        <section>1.1 CV Versioning Strategy</section>
+        <snippet>The current full snapshot versioning is inefficient. Delta-based versioning is recommended to reduce storage bloat by 80-90%.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>AI CV and Application - Product Requirements Document</title>
+        <section>FR-2.1: CV Data Intake</section>
+        <snippet>The platform must allow the user to enter all core CV data through a clean, guided, step-by-step intake flow. Each section (personal details, work experience, education, skills, and languages) must be captured in a structured format.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/2-1-structured-cv-data-model-design-implementation.md</path>
+        <title>Story 2.1: Structured CV Data Model Design &amp; Implementation</title>
+        <section>Technical Context &amp; Constraints</section>
+        <snippet>The data model will be defined in `prisma/schema.prisma` and will involve the `CV` model and its related components (personal info, education, experience, skills, languages), likely using JSONB fields for flexibility, as per `docs/architecture-backend.md`.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/models/cv.model.js</path>
+        <kind>model</kind>
+        <symbol>Cv</symbol>
+        <reason>Defines the existing database access logic for CVs. This will be replaced by a Prisma-based repository, but shows the current data structure.</reason>
+      </artifact>
+      <artifact>
+        <path>src/models/cvComponent.model.js</path>
+        <kind>model</kind>
+        <symbol>CvComponent</symbol>
+        <reason>Defines the existing database access logic for reusable CV components using JSONB. The new Prisma schema will need to model this relationship.</reason>
+      </artifact>
+      <artifact>
+        <path>src/models/user.model.js</path>
+        <kind>model</kind>
+        <symbol>User</symbol>
+        <reason>Defines the existing User model which the new CV model will have a foreign key relationship to.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="Node.js (Backend - src)">
+        <dependency name="express" version="^4.18.2" type="production" />
+        <dependency name="pg" version="^8.16.3" type="production" />
+        <dependency name="dotenv" version="^16.0.3" type="production" />
+        <dependency name="nodemon" version="^2.0.22" type="development" />
+      </ecosystem>
+      <ecosystem name="Node.js (Frontend - frontend)">
+        <dependency name="next" version="^14.2.0" type="production" />
+        <dependency name="react" version="^18.3.0" type="production" />
+        <dependency name="tailwindcss" version="^3.4.1" type="development" />
+        <dependency name="typescript" version="^5.4.3" type="development" />
+        <dependency name="@radix-ui/react-accordion" version="^1.1.2" type="production" />
+        <dependency name="lucide-react" version="^0.365.0" type="production" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+      <constraint>The new data model must be implemented using Prisma ORM in `prisma/schema.prisma`.</constraint>
+      <constraint>New models required are `CV` and `CVVersion`.</constraint>
+      <constraint>The fields `personal_info`, `education`, `experience`, `skills`, and `languages` should be defined as JSONB arrays.</constraint>
+      <constraint>The service layer (`cv.service.ts`) must use a repository pattern (`cv.repository.ts`) for data access.</constraint>
+      <constraint>Zod validation must be used for incoming data before persistence.</constraint>
+      <constraint>The design should address the lack of JSONB schema validation, as noted in the architecture review, by considering PostgreSQL CHECK constraints or robust Zod validation.</constraint>
+      <constraint>The versioning strategy should be reconsidered to be more efficient (e.g., delta-based) to avoid storage bloat from full snapshots.</constraint>
+  </constraints>
+  <interfaces>
+      <interface>
+        <name>Cv.create</name>
+        <kind>function signature</kind>
+        <signature>create({ userId, title, componentIds })</signature>
+        <path>src/models/cv.model.js</path>
+      </interface>
+      <interface>
+        <name>Cv.findByUserId</name>
+        <kind>function signature</kind>
+        <signature>findByUserId(userId)</signature>
+        <path>src/models/cv.model.js</path>
+      </interface>
+      <interface>
+        <name>CvComponent.create</name>
+        <kind>function signature</kind>
+        <signature>create({ userId, componentType, content })</signature>
+        <path>src/models/cvComponent.model.js</path>
+      </interface>
+  </interfaces>
+  <tests>
+    <standards>The backend uses Jest for unit testing and Supertest for API/integration tests. The frontend uses Jest and React Testing Library for component tests, and Playwright for end-to-end tests. The story requires unit tests for the new Prisma model, repository methods (mocking Prisma Client), service layer (mocking the repository), and Zod validation schemas.</standards>
+    <locations>Backend tests should be placed in the `src/tests/` directory, following the existing structure (unit/, integration/). Frontend tests for components and schemas should be co-located with the source files.</locations>
+    <ideas>
+- Unit test for `CV` model: Can a CV be created, read, updated, and deleted through the Prisma client?
+- Unit test for `CVVersion` model: Does creating/updating a CV correctly create a new version entry?
+- Repository tests: Mock the Prisma client (`$transaction`, `cv.create`, etc.) and verify that repository methods for `CV` and `CVVersion` call the correct Prisma methods with the correct arguments.
+- Service tests: Mock the repository layer and test the service-level business logic (e.g., does updating a CV correctly increment the version number?).
+- Zod schema tests: Test the validation rules for the `personal_info`, `education`, and `experience` JSONB structures to ensure they reject invalid data and accept valid data.
+- Integration test: An integration test for the (to-be-created) CV creation API endpoint to ensure the data flows correctly from the controller to the service and repository layers.
+    </ideas>
+  </tests>
+</story-context>

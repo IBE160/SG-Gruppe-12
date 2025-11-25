@@ -1,0 +1,201 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Project Setup & Core Infrastructure Initialization</title>
+    <status>drafted</status>
+    <generatedAt>{{date}}</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>{{story_path}}</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>set up the project repository and core infrastructure</iWant>
+    <soThat>I can begin developing the application</soThat>
+    <tasks>
+*   **Initialize Monorepo Structure:**
+    *   [ ] Create root `package.json` and `README.md`.
+    *   [ ] Create `src/` directory for backend.
+    *   [ ] Create `frontend/` directory for frontend.
+    *   [ ] Create `docs/` directory for documentation.
+    *   [ ] Create `.github/workflows/` directory for CI/CD.
+*   **Backend Setup (Node.js/Express.js):**
+    *   [ ] Initialize `src/package.json` with `express`, `pg`, `dotenv` dependencies. (AC: 4)
+    *   [ ] Create basic `src/server.js` and `src/app.js` files. (AC: 4)
+    *   [ ] Configure `src/config/db.config.js` for PostgreSQL connection. (AC: 7)
+    *   [ ] Add `nodemon` for development.
+*   **Frontend Setup (Next.js/React/Tailwind CSS):**
+    *   [ ] Initialize `frontend/package.json` with `next`, `react`, `react-dom` dependencies. (AC: 5)
+    *   [ ] Install `tailwindcss`, `postcss`, `autoprefixer` and configure `tailwind.config.ts`, `postcss.config.js`. (AC: 5)
+    *   [ ] Configure `shadcn/ui` and `lucide-react` for UI components and icons. (AC: 5)
+    *   [ ] Create basic Next.js page structure (e.g., `frontend/src/app/page.tsx`). (AC: 5)
+*   **Database Integration (PostgreSQL):**
+    *   [ ] Ensure local PostgreSQL instance is accessible.
+    *   [ ] Configure database connection string in `src/config/db.config.js`. (AC: 7)
+    *   [ ] Implement basic database connection test. (AC: 7)
+*   **CI/CD Pipeline Configuration (GitHub Actions):**
+    *   [ ] Create `.github/workflows/ci.yml` for basic build and lint checks (e.g., run `npm install` and `npm run lint` for both frontend and backend). (AC: 8)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1.  **Given** a new project environment
+2.  **When** I execute the setup script/commands
+3.  **Then** The project repository is initialized with a standard structure (frontend, backend, docs, etc.)
+4.  **And** Node.js and Express.js for backend are configured
+5.  **And** React.js and Tailwind CSS for frontend are configured
+6.  **And** Basic build and development scripts are in `package.json`
+7.  **And** A local PostgreSQL database is integrated (e.g., via Supabase config)
+8.  **And** A basic CI/CD pipeline configuration is in place (e.g., `.github/workflows/ci.yml` for linting/testing)
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Project Classification</section>
+        <snippet>Defines the project as a web_app with api_backend components, outlining the high-level technical nature of the system.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>System Architecture Alignment</section>
+        <snippet>Confirms the epic's scope includes setting up frontend (React/Tailwind) and backend (Node/Express) components, and PostgreSQL integration.</snippet>
+      </doc>
+	  <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Dependencies and Integrations</section>
+        <snippet>Lists the specific npm packages for frontend and backend, such as express, pg, next, react, and tailwindcss.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture</title>
+        <section>Project Structure</section>
+        <snippet>Provides the target directory hierarchy for the backend, including folders like /src/controllers, /src/services, and /src/routes.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-frontend.md</path>
+        <title>Frontend Architecture</title>
+        <section>Project Structure</section>
+        <snippet>Defines the frontend project structure within the /frontend directory, including the Next.js App Router layout in /src/app.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics Breakdown</title>
+        <section>Story 1.1: Project Setup & Core Infrastructure Initialization</section>
+        <snippet>Authoritative source for the story's acceptance criteria, which dictates the core setup tasks for the monorepo, frontend, backend, and CI/CD.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification-COMPLETE.md</path>
+        <title>UX Design Specification</title>
+        <section>Visual Design System</section>
+        <snippet>Specifies the use of Tailwind CSS and shadcn/ui, which are foundational for the frontend setup.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>package.json</path>
+        <kind>configuration</kind>
+        <symbol>scripts</symbol>
+        <reason>Defines the top-level dev and start scripts. Needs to be updated for monorepo workspaces.</reason>
+      </artifact>
+      <artifact>
+        <path>src/app.js</path>
+        <kind>server</kind>
+        <symbol>app</symbol>
+        <reason>The main Express application file. Will need to be expanded with more routes and middleware.</reason>
+      </artifact>
+      <artifact>
+        <path>src/server.js</path>
+        <kind>server</kind>
+        <symbol>server</symbol>
+        <reason>The entry point for the backend server.</reason>
+      </artifact>
+	  <artifact>
+        <path>frontend/package.json</path>
+        <kind>configuration</kind>
+        <symbol>scripts</symbol>
+        <reason>Defines frontend-specific scripts for Next.js development.</reason>
+      </artifact>
+      <artifact>
+        <path>.github/workflows/ci.yml</path>
+        <kind>ci/cd</kind>
+        <symbol>verify job</symbol>
+        <reason>Existing basic CI workflow. Needs to be updated to run linting and tests for both frontend and backend.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <dependency>
+        <path>package.json</path>
+		<ecosystem>Node.js</ecosystem>
+        <packages>
+          <package name="dotenv" version="^16.0.3" />
+          <package name="express" version="^4.18.2" />
+          <package name="pg" version="^8.16.3" />
+        </packages>
+		<devDependencies>
+		  <package name="nodemon" version="^2.0.22" />
+		</devDependencies>
+      </dependency>
+      <dependency>
+        <path>frontend/package.json</path>
+		<ecosystem>Node.js</ecosystem>
+        <packages>
+		  <package name="next" version="^14.2.0" />
+          <package name="react" version="^18.3.0" />
+          <package name="react-dom" version="^18.3.0" />
+		  <package name="@radix-ui/*" version="^1.0.0" />
+		  <package name="class-variance-authority" version="^0.7.0" />
+		  <package name="clsx" version="^2.1.0" />
+		  <package name="lucide-react" version="^0.365.0" />
+		  <package name="tailwind-merge" version="^2.2.2" />
+		  <package name="tailwindcss-animate" version="^1.0.7" />
+        </packages>
+		<devDependencies>
+		  <package name="@types/node" version="^20.11.30" />
+		  <package name="@types/react" version="^18.2.73" />
+		  <package name="@types/react-dom" version="^18.2.22" />
+		  <package name="autoprefixer" version="^10.4.19" />
+		  <package name="eslint" version="^8.57.0" />
+		  <package name="eslint-config-next" version="^14.2.0" />
+		  <package name="postcss" version="^8.4.38" />
+		  <package name="tailwindcss" version="^3.4.1" />
+		  <package name="typescript" version="^5.4.3" />
+		</devDependencies>
+      </dependency>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>The project must be structured as a monorepo with `frontend/` and `src/` (backend) directories.</constraint>
+    <constraint>The backend must use Node.js and Express.js.</constraint>
+    <constraint>The frontend must use Next.js, React, and Tailwind CSS.</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>Health Check</name>
+      <kind>REST endpoint</kind>
+      <signature>GET /</signature>
+      <path>src/app.js</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      The test strategy includes unit tests for backend (services, utils) and frontend (React components), integration tests for API-database interaction, and End-to-End (E2E) tests using a framework like Playwright or Cypress to simulate complete user journeys. Basic security, performance, and accessibility checks are also required.
+    </standards>
+    <locations>
+      <location type="unit">tests/unit</location>
+      <location type="integration">tests/integration</location>
+      <location type="e2e">tests/e2e (to be created)</location>
+    </locations>
+    <ideas>
+      <idea for="AC.3, AC.4, AC.5">Write a basic unit test to verify the project structure exists as expected (e.g., `frontend` and `src` directories are present).</idea>
+      <idea for="AC.6">Create a test script in package.json that runs successfully, even if it just echoes a success message.</idea>
+      <idea for="AC.7">Implement an integration test that attempts a basic connection to the PostgreSQL database and asserts a successful connection.</idea>
+      <idea for="AC.8">The CI workflow in `.github/workflows/ci.yml` should be updated to run `npm install` and `npm run lint` for both the root, frontend, and backend, failing the build if any step fails.</idea>
+    </ideas>
+  </tests>
+</story-context>

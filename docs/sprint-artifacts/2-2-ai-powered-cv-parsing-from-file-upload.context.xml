@@ -1,0 +1,151 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>2</storyId>
+    <title>AI-Powered CV Parsing from File Upload</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-25</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-2-ai-powered-cv-parsing-from-file-upload.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>to upload my existing CV file and have it automatically parsed</iWant>
+    <soThat>I don't have to manually re-enter all my information</soThat>
+    <tasks>
+      <task description="Backend: Implement File Upload Endpoint (AC 1, 2, 6)">
+        <subtask description="Create /api/cv/upload endpoint using Express."/>
+        <subtask description="Implement Multer middleware for file handling."/>
+        <subtask description="Configure Multer with file type filter (PDF, DOCX, TXT) and size limit (5MB)."/>
+        <subtask description="Testing: Unit test Multer configuration for correct file type/size validation."/>
+      </task>
+      <task description="Backend: Integrate AI Parsing Service (AC 3, 7)">
+        <subtask description="Set up Vercel AI SDK with Google Gemini 2.5 Flash."/>
+        <subtask description="Create a `parsing.service.ts` to encapsulate AI calls."/>
+        <subtask description="Implement AI call to extract structured data from uploaded file content."/>
+        <subtask description="Map extracted data to the `CV` data model (from Story 2.1)."/>
+        <subtask description="Handle AI processing time feedback (loading states)."/>
+        <subtask description="Testing: Unit test `parsing.service.ts` with mock AI responses. Integration test AI endpoint with sample files."/>
+      </task>
+      <task description="Backend: Enhance File Upload Validation (AC 6)">
+        <subtask description="Implement MIME type verification based on file content (beyond just extension)."/>
+        <subtask description="Integrate this enhanced validation into the file upload middleware."/>
+        <subtask description="Testing: Unit test MIME type verification for various file types (valid and invalid)."/>
+      </task>
+      <task description="Backend: Implement CV Creation from Parsed Data (AC 3)">
+        <subtask description="Extend `cv.service.ts` to create or update CV entries using the parsed structured data from the AI."/>
+        <subtask description="Integrate with `cv.repository.ts` to persist the data."/>
+        <subtask description="Testing: Unit test the service logic for creating/updating CVs from parsed data."/>
+      </task>
+      <task description="Frontend: Create CV Upload &amp; Review UI (AC 2, 4, 5)">
+        <subtask description="Develop a React component for file upload (drag-and-drop or button)."/>
+        <subtask description="Implement UI for displaying parsing progress and estimated time."/>
+        <subtask description="Create a confirmation screen to display parsed CV data."/>
+        <subtask description="Implement editable fields for user review and correction of parsed data."/>
+        <subtask description="Integrate client-side validation using Zod schemas (from Story 2.1 context)."/>
+        <subtask description="Testing: Component tests for upload, progress, and review UI. Unit tests for Zod validation schemas."/>
+      </task>
+      <task description="Error Handling: Implement Graceful Error Recovery (AC 8)">
+        <subtask description="Define error messages and user-friendly prompts for parsing failures, unsupported formats, and timeout issues."/>
+        <subtask description="Implement retry mechanisms for transient errors."/>
+        <subtask description="Testing: Integration tests for various error scenarios."/>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+      <criterion id="1">**Given** I have an existing CV file (PDF, DOCX, or TXT)</criterion>
+      <criterion id="2">**When** I upload the file via the CV upload interface</criterion>
+      <criterion id="3">**Then** The system extracts structured data including work experience, education, skills, and contact information with 95%+ accuracy.</criterion>
+      <criterion id="4">**And** The parsed data is displayed in a confirmation screen for review.</criterion>
+      <criterion id="5">**And** I can edit any incorrectly parsed fields before confirming.</criterion>
+      <criterion id="6">**And** Unsupported file formats show a clear error message with supported formats listed.</criterion>
+      <criterion id="7">**And** Parsing progress is shown with estimated time (3-5 seconds).</criterion>
+      <criterion id="8">**And** The system handles parsing errors gracefully with retry options.</criterion>
+    </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="#FR-2.1" snippet="FR-2.1: CV Data Intake (MVP) - The platform must allow the user to enter all core CV data through a clean, guided, step-by-step intake flow."/>
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="#MVP---Minimum-Viable-Product" snippet="Reliable AI parser to extract and structure experience accurately is a foundational MVP requirement."/>
+      <doc path="docs/epics.md" title="Epics Breakdown" section="#Story-2.2" snippet="Story 2.2: AI-Powered CV Parsing from File Upload - As a user, I want to upload my existing CV file and have it automatically parsed, so that I don't have to manually re-enter all my information."/>
+      <doc path="docs/architecture-backend.md" title="Backend Architecture" section="#8-file-upload-handling" snippet="File Upload Handling will use Multer for multipart/form-data. Configuration should include file filters for PDF, DOCX, TXT and a 5MB size limit."/>
+      <doc path="docs/architecture-backend.md" title="Backend Architecture" section="#7-ai-service-integration" snippet="AI Service Integration will use the Vercel AI SDK with Google Gemini 2.5 Flash as the primary provider for CV parsing, encapsulated in a dedicated parsing.service.ts."/>
+      <doc path="docs/ARCHITECTURE-REVIEW.md" title="Architecture Review" section="#3.4-file-upload-validation-insufficient-high-priority" snippet="File upload validation based on extension only is insufficient. Recommends implementing MIME type verification based on file content."/>
+      <doc path="docs/architecture-frontend.md" title="Frontend Architecture" section="#3-project-structure" snippet="The CV upload UI is located at `app/(dashboard)/cv/upload/page.tsx` and uses the `CVUploadForm.tsx` and `CVParseConfirmation.tsx` components."/>
+      <doc path="docs/ux-design-specification-COMPLETE.md" title="UX Design Specification" section="#Phase-2-CV-Intake" snippet="The user journey for CV intake involves uploading a file, AI parsing, and reviewing the extracted information on a confirmation screen before saving."/>
+      <doc path="docs/ux-mobile-and-error-states.md" title="Mobile &amp; Error States" section="#2.1-CV-Parsing-Failure" snippet="Defines the error state for a CV parsing failure, including a helpful message, the reason for the failure, and actionable next steps like trying manual entry."/>
+    </docs>
+    <code>
+      <file path="src/middleware/upload.middleware.ts" kind="middleware" reason="To handle multipart/form-data file uploads using Multer, including file type and size validation."/>
+      <file path="src/services/parsing.service.ts" kind="service" reason="To encapsulate the AI logic for parsing CV file content using Google Gemini 2.5 Flash via the Vercel AI SDK."/>
+      <file path="src/controllers/cv.controller.ts" kind="controller" reason="To handle the incoming HTTP request for CV parsing, orchestrate the upload and AI parsing services, and manage the background job."/>
+      <file path="src/routes/cv.routes.ts" kind="route" reason="To define the POST /api/v1/cvs/parse endpoint and apply the necessary authentication and upload middleware."/>
+      <file path="src/jobs/cv-parsing.job.ts" kind="job" reason="To process CV parsing asynchronously in the background, preventing long-running requests from blocking the server."/>
+      <file path="frontend/src/app/(dashboard)/cv/upload/page.tsx" kind="page" reason="The main page component for the CV upload user interface."/>
+      <file path="frontend/src/components/features/cv-upload/CVUploadForm.tsx" kind="component" reason="The React component containing the form for file selection and submission."/>
+      <file path="frontend/src/components/features/cv-upload/CVParseConfirmation.tsx" kind="component" reason="The React component for displaying the parsed data to the user for review and editing."/>
+    </code>
+    <dependencies>
+      <ecosystem name="Node.js (backend)">
+        <dependency name="express" version="^4.18.2"/>
+        <dependency name="pg" version="^8.16.3"/>
+        <dependency name="dotenv" version="^16.0.3"/>
+        <dependency name="multer" version="^1.4.5-lts.1" reason="Planned for file uploads"/>
+        <dependency name="bull" version="^4.12.2" reason="Planned for background jobs"/>
+        <dependency name="@google/generative-ai" version="^0.1.3" reason="Planned for AI integration"/>
+      </ecosystem>
+      <ecosystem name="Frontend">
+        <dependency name="next" version="^14.2.0"/>
+        <dependency name="react" version="^18.3.0"/>
+        <dependency name="tailwindcss" version="^3.4.1"/>
+        <dependency name="@radix-ui/react-*" reason="Provides accessible, unstyled UI primitives."/>
+        <dependency name="lucide-react" version="^0.365.0" reason="Provides the icon set."/>
+        <dependency name="typescript" version="^5.4.3"/>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+      <constraint type="file-type">Supported file formats are PDF, DOCX, and TXT.</constraint>
+      <constraint type="file-size">Maximum file size is 5 MB.</constraint>
+      <constraint type="technology">File uploads must be handled by the Multer middleware.</constraint>
+      <constraint type="technology">AI integration must use the Vercel AI SDK with Google Gemini 2.5 Flash as the primary model.</constraint>
+      <constraint type="security">File validation must include MIME type verification, not just file extension checks.</constraint>
+      <constraint type="performance">File uploads should be streamed directly to storage instead of being held in memory to prevent OOM errors.</constraint>
+    </constraints>
+  <interfaces>
+      <interface name="CV Parsing" kind="REST" path="src/routes/cv.routes.ts">
+        <signature>POST /api/v1/cvs/parse</signature>
+        <purpose>Accepts a CV file, starts an asynchronous parsing job, and returns a job ID.</purpose>
+        <request>
+          - Method: POST
+          - Content-Type: multipart/form-data
+          - Body:
+            - cv_file: The CV file to be parsed (PDF, DOCX, or TXT).
+        </request>
+        <response>
+          - Status: 202 Accepted
+          - Body: { success: true, data: { cvId: &lt;string&gt; }, message: "CV parsing started..." }
+        </response>
+      </interface>
+    </interfaces>
+  <tests>
+      <standards>The project uses Jest for backend unit tests, React Testing Library for frontend component tests, and Playwright for end-to-end tests. API integration tests are written with Supertest. All new code should be accompanied by corresponding tests.</standards>
+      <locations>
+        - Backend unit/integration tests: `src/tests/`
+        - Frontend component/unit tests: `frontend/src/components/` or `frontend/src/lib/` alongside the tested files.
+        - Frontend E2E tests: `frontend/tests/` (or similar top-level directory).
+      </locations>
+      <ideas>
+        <idea for="AC 1, 2, 6">Unit test the Multer middleware configuration to ensure it correctly accepts valid file types (PDF, DOCX, TXT) and rejects invalid ones.</idea>
+        <idea for="AC 1, 2, 6">Unit test the Multer middleware for file size limits, ensuring it rejects files larger than 5MB.</idea>
+        <idea for="AC 6">Unit test the MIME type verification logic to ensure it correctly identifies file types from content, not just extension.</idea>
+        <idea for="AC 3, 7">Unit test the `parsing.service.ts` by mocking the Vercel AI SDK to ensure it handles successful and failed AI responses correctly.</idea>
+        <idea for="AC 3">Integration test the `/api/cv/upload` endpoint with actual sample files (valid and invalid) to verify the end-to-end parsing flow.</idea>
+        <idea for="AC 4, 5">Component test the `CVParseConfirmation.tsx` component to ensure it correctly displays parsed data and allows for user edits.</idea>
+        <idea for="AC 8">Integration test various error scenarios, such as uploading a corrupted file, an unsupported file type, or the AI service returning an error.</idea>
+      </ideas>
+    </tests>
+</story-context>

@@ -1,0 +1,107 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>5</storyId>
+    <title>Dynamic CV Preview & Template Selection</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-25</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>C:\Users\kayle\Desktop\SG-Gruppe-12\docs\sprint-artifacts\2-5-dynamic-cv-preview-template-selection.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>to see a live preview of my CV and choose from basic templates</iWant>
+    <soThat>I can ensure its appearance is professional and suitable.</soThat>
+    <tasks>
+- [ ] **Frontend: Implement Dynamic CV Preview Component (AC 3, 5)**
+  - [ ] Create a `CVPreview.tsx` component in `frontend/src/components/features/cv-management/` that renders structured CV data into a formatted HTML view.
+  - [ ] Ensure the `CVPreview.tsx` component can dynamically update its rendering based on changes to the underlying CV data.
+  - [ ] Implement a mechanism (e.g., React Context, Zustand store) to provide real-time CV data to the preview component.
+- [ ] **Frontend: Implement Template Selection UI (AC 4, 5)**
+  - [ ] Create a `TemplateSelector.tsx` component that displays available basic CV templates.
+  - [ ] Allow users to select a template, and ensure this selection is passed to the `CVPreview.tsx` component.
+  - [ ] Ensure the `CVPreview.tsx` component uses the selected template for rendering.
+- [ ] **Backend (Optional, if templates stored on backend): Define Template API**
+  - [ ] If templates are stored dynamically, create an API endpoint (`GET /api/templates/cv`) to fetch available CV templates.
+  - [ ] Implement a service and repository to retrieve template data.
+- [ ] **Testing: Ensure Feature Quality**
+  - [ ] **Frontend:** Write component tests for `CVPreview.tsx` and `TemplateSelector.tsx` using React Testing Library, verifying dynamic updates and template switching.
+  - [ ] **E2E:** Add Playwright tests to simulate a user modifying CV data and changing templates, ensuring the preview updates correctly.
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1.  **Given** I have entered CV data
+2.  **When** I view the CV preview section
+3.  **Then** A formatted, modern representation of my CV is displayed in real-time.
+4.  **And** I can select from a few basic, ATS-friendly templates.
+5.  **And** The preview updates immediately when I switch templates.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <artifact path="docs/PRD.md" title="Product Requirements Document" section="FR-2.2: CV Data Editing">
+        Changes must be immediately reflected in the live preview.
+      </artifact>
+      <artifact path="docs/sprint-artifacts/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="Story 2.6: Dynamic CV Preview & Template Selection (MVP)">
+        **Given** I have entered CV data, **When** I view the CV preview section, **Then** a formatted, modern representation of my CV is displayed in real-time, and I can select from basic templates.
+      </artifact>
+      <artifact path="docs/architecture-frontend.md" title="Frontend Architecture" section="4. State Management Strategy">
+        Global state related to the user's CV will be managed by `cvStore.ts` (Zustand), which is critical for providing real-time data to the preview component.
+      </artifact>
+      <artifact path="docs/architecture-frontend.md" title="Frontend Architecture" section="3. Project Structure">
+        The `CVPreview.tsx` and `TemplateSelector.tsx` components should be created in `src/components/features/cv-management/`.
+      </artifact>
+      <artifact path="docs/ux-design-specification-COMPLETE.md" title="UX Design Specification" section="5. Visual Design System">
+        The preview must adhere to the 'Confident Professional' theme, using Inter for typography and the defined color palette for a clean, modern look.
+      </artifact>
+    </docs>
+    <code>
+      <artifact path="frontend/src/types/cv.ts" kind="types" symbol="CVData" reason="The preview component will consume data that conforms to this type."/>
+      <artifact path="frontend/src/components/features/cv-management/CVPreview.tsx" kind="component" symbol="CVPreview" reason="NEEDS TO BE CREATED. This is the core component for this story, responsible for rendering the CV data."/>
+      <artifact path="frontend/src/components/features/cv-management/TemplateSelector.tsx" kind="component" symbol="TemplateSelector" reason="NEEDS TO be CREATED. This component will allow users to switch between different CV templates."/>
+      <artifact path="frontend/src/store/cvStore.ts" kind="state-management" symbol="cvStore" reason="The preview component will subscribe to this Zustand store to get real-time updates of the CV data."/>
+    </code>
+    <dependencies>
+      <dependency ecosystem="Node.js (Backend)" name="express" version="^4.18.2" reason="Core web framework for the API."/>
+      <dependency ecosystem="Node.js (Backend)" name="pg" version="^8.16.3" reason="PostgreSQL client for database interaction."/>
+      <dependency ecosystem="React (Frontend)" name="next" version="^14.2.0" reason="Core framework for the frontend application."/>
+      <dependency ecosystem="React (Frontend)" name="react" version="^18.3.0" reason="UI library for building components."/>
+      <dependency ecosystem="React (Frontend)" name="tailwindcss" version="^3.4.1" reason="Utility-first CSS framework for styling."/>
+      <dependency ecosystem="React (Frontend)" name="@radix-ui/react-*" version="*" reason="Provides accessible, unstyled primitives for building UI components (used by shadcn/ui)."/>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="frontend" reason="The CV preview must update in real-time as the user edits their CV data in other components.">
+      The `CVPreview.tsx` component must be connected to the `cvStore.ts` (Zustand) to receive live data updates.
+    </constraint>
+    <constraint type="frontend" reason="The initial implementation will use hardcoded templates on the frontend to simplify the MVP.">
+      CV templates should be defined as components or configuration objects within the frontend codebase.
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="Get CV Templates" kind="REST" signature="GET /api/templates/cv" path="src/routes/template.routes.ts">
+      <description>
+        (Optional) If templates are to be stored on the backend in the future, this endpoint would be created to fetch them. For the MVP, this is not required.
+      </description>
+      <response body="{ templates: Template[] }"/>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Follow the established testing strategy. Frontend tests should mock any data stores or services to test components in isolation.
+    </standards>
+    <locations>
+      Frontend component tests should be co-located with the components they are testing. E2E tests are in the root `tests/` directory.
+    </locations>
+    <ideas>
+      <idea for="frontend">Write component tests for `CVPreview.tsx` using React Testing Library. Verify that it correctly renders CV data passed as props.</idea>
+      <idea for="frontend">Write component tests for `TemplateSelector.tsx`. Verify that it correctly displays template options and handles selection events.</idea>
+      <idea for="frontend">Write a component test for the parent CV management page to ensure that selecting a new template in `TemplateSelector.tsx` correctly updates the props passed to `CVPreview.tsx`.</idea>
+      <idea for="e2e">Add a Playwright test to simulate a user modifying a piece of CV data (e.g., a job title) and verifying that the change is reflected in the CV preview in real-time.</idea>
+    </ideas>
+  </tests>
+</story-context>

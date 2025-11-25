@@ -1,0 +1,274 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>User Registration & Account Creation</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-24</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>C:\Users\kayle\Desktop\SG-Gruppe-12\docs\sprint-artifacts/1-2-user-registration-account-creation.md</sourceStoryPath>
+  </metadata>
+  <story>
+    <asA>a new user</asA>
+    <iWant>to create an account</iWant>
+    <soThat>I can securely access the AI CV platform</soThat>
+    <tasks>
+-   [ ] **Backend: Create User Model & Repository** (AC: 3)
+    -   [ ] Define `User` schema in `prisma/schema.prisma` including fields for `email`, `password_hash`, `name`, `consent_essential`, `consent_ai_training`, `consent_marketing`.
+    -   [ ] Implement `user.repository.ts` with a `create` method using Prisma client.
+-   [ ] **Backend: Implement Registration Service & Controller** (AC: 3, 6)
+    -   [ ] Create `auth.service.ts` with a `register` function.
+    -   [ ] Implement password hashing using `bcrypt` in `password.util.ts`.
+    -   [ ] Ensure the service hashes the password before calling the repository.
+    -   [ ] Create `auth.controller.ts` to handle the registration request.
+-   [ ] **Backend: Create Registration API Endpoint** (AC: 3)
+    -   [ ] Define `POST /api/v1/auth/register` route in `auth.routes.ts`.
+    -   [ ] Add Zod validation (`auth.validator.ts`) for email and password fields.
+    -   [ ] Apply rate limiting (`rate-limit.middleware.ts`) to the endpoint.
+-   [ ] **Backend: Email Verification** (AC: 4)
+    -   [ ] Integrate an email service (e.g., SendGrid, SES) in `email.service.ts`.
+    -   [ ] Trigger a verification email upon successful registration. (Can be mocked for MVP).
+-   [ ] **Frontend: Create Signup Form Component** (AC: 2)
+    -   [ ] Develop `SignupForm.tsx` component in `components/features/auth/`.
+    -   [ ] Use `React Hook Form` for form state management.
+    -   [ ] Implement client-side validation using `Zod` from `schemas/auth.ts`.
+-   [ ] **Frontend: Implement API Integration** (AC: 2, 5)
+    -   [ ] Create `auth.ts` API client in `lib/api/` to call the backend registration endpoint.
+    -   [ ] Implement `useAuth` hook in `hooks/` to handle registration logic.
+    -   [ ] Use `Zustand` (`authStore.ts`) to manage authentication state.
+    -   [ ] On successful registration, redirect the user to the `/login` page or `/dashboard`.
+-   [ ] **Security: Implement Strong Password Policy** (AC: 2)
+    -   [ ] Enforce password policy on both frontend (Zod schema) and backend.
+    -   [ ] Policy: min 12 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character.
+    </tasks>
+  </story>
+  <acceptanceCriteria>
+1.  **Given** I am on the platform's registration page
+2.  **When** I enter a unique email address and a strong password
+3.  **Then** My account is successfully created and stored in the database
+4.  **And** I receive a confirmation email to verify my account (or similar verification mechanism)
+5.  **And** I am redirected to a login page or dashboard
+6.  **And** Password hashing and salting are used for security
+  </acceptanceCriteria>
+  <artifacts>
+<docs>
+      <entry>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Functional Requirements</section>
+        <snippet>References FR-1.1 (Account Creation & Authentication) and FR-6.1 (Strict Data Privacy), both central to this story.</snippet>
+      </entry>
+      <entry>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Platform Foundation & User Onboarding</title>
+        <section>Detailed Design</section>
+        <snippet>Defines the User Model, Authentication API endpoints (`POST /api/auth/register`), and the User Registration Flow.</snippet>
+      </entry>
+      <entry>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Platform Foundation & User Onboarding</title>
+        <section>Non-Functional Requirements</section>
+        <snippet>Specifies security requirements for Password Storage, Session Management, and Input Validation relevant to registration.</snippet>
+      </entry>
+      <entry>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Story 1.2: User Registration & Account Creation (MVP)</section>
+        <snippet>Provides the full BDD story, acceptance criteria, and technical notes for the user registration feature.</snippet>
+      </entry>
+      <entry>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>Authentication & Authorization</section>
+        <snippet>Details the JWT token strategy (Access and Refresh tokens) and password hashing with bcrypt, which are core to this story.</snippet>
+      </entry>
+      <entry>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>API Layer Architecture</section>
+        <snippet>Outlines the RESTful design principles and the specific `POST /api/v1/auth/register` endpoint.</snippet>
+      </entry>
+      <entry>
+        <path>docs/architecture-frontend.md</path>
+        <title>Frontend Architecture Specification</title>
+        <section>Authentication Flow</section>
+        <snippet>Describes the frontend authentication flow, including JWT storage in HTTP-only cookies and protected routes middleware.</snippet>
+      </entry>
+      <entry>
+        <path>docs/architecture-frontend.md</path>
+        <title>Frontend Architecture Specification</title>
+        <section>Project Structure</section>
+        <snippet>Shows the location for auth-related frontend files: `(auth)/signup/page.tsx`, `components/features/auth/SignupForm.tsx`, `lib/api/auth.ts`, `store/authStore.ts`.</snippet>
+      </entry>
+      <entry>
+        <path>docs/ARCHITECTURE-REVIEW.md</path>
+        <title>Architecture Review & Risk Analysis</title>
+        <section>3. Security Risks</section>
+        <snippet>Highlights high-priority security risks directly related to registration: Weak Password Policy and lack of rate limiting on auth endpoints.</snippet>
+      </entry>
+      <entry>
+        <path>docs/ux-design-specification-COMPLETE.md</path>
+        <title>Complete UX Design Specification</title>
+        <section>User Personas</section>
+        <snippet>Provides context on the target users (Emma, Marcus, Aisha) and their need for a secure and straightforward registration process.</snippet>
+      </entry>
+    </docs>
+    <code>
+      <entry>
+        <path>src/routes/auth.routes.ts</path>
+        <kind>backend-route</kind>
+        <symbol>POST /api/v1/auth/register</symbol>
+        <reason>Defines the API endpoint for user registration.</reason>
+      </entry>
+      <entry>
+        <path>src/controllers/auth.controller.ts</path>
+        <kind>backend-controller</kind>
+        <symbol>register</symbol>
+        <reason>Handles the incoming HTTP request for registration and calls the auth service.</reason>
+      </entry>
+      <entry>
+        <path>src/services/auth.service.ts</path>
+        <kind>backend-service</kind>
+        <symbol>register</symbol>
+        <reason>Contains the core business logic for creating a new user, including password hashing.</reason>
+      </entry>
+      <entry>
+        <path>src/repositories/user.repository.ts</path>
+        <kind>backend-repository</kind>
+        <symbol>create</symbol>
+        <reason>Provides the database access method to create a new user record in the `users` table.</reason>
+      </entry>
+      <entry>
+        <path>src/utils/password.util.ts</path>
+        <kind>backend-utility</kind>
+        <symbol>hashPassword</symbol>
+        <reason>Utility function for hashing passwords using bcrypt.</reason>
+      </entry>
+      <entry>
+        <path>src/validators/auth.validator.ts</path>
+        <kind>backend-validator</kind>
+        <symbol>registerSchema</symbol>
+        <reason>Zod schema for validating the registration request body (email, password).</reason>
+      </entry>
+      <entry>
+        <path>src/app/(auth)/signup/page.tsx</path>
+        <kind>frontend-page</kind>
+        <symbol>SignupPage</symbol>
+        <reason>The main page component for the user registration form.</reason>
+      </entry>
+      <entry>
+        <path>src/components/features/auth/SignupForm.tsx</path>
+        <kind>frontend-component</kind>
+        <symbol>SignupForm</symbol>
+        <reason>The React component containing the UI and logic for the registration form.</reason>
+      </entry>
+      <entry>
+        <path>src/lib/api/auth.ts</path>
+        <kind>frontend-library</kind>
+        <symbol>registerUser</symbol>
+        <reason>API client function for making the `fetch` call to the backend's registration endpoint.</reason>
+      </entry>
+      <entry>
+        <path>src/store/authStore.ts</path>
+        <kind>frontend-store</kind>
+        <symbol>authStore</symbol>
+        <reason>Zustand store for managing global authentication state, though primarily used after login.</reason>
+      </entry>
+    </code>
+    <dependencies>
+      <dependency>
+        <ecosystem>npm (backend)</ecosystem>
+        <package>express</package>
+        <version>^4.18.2</version>
+        <reason>Core web framework for the backend API.</reason>
+      </dependency>
+      <dependency>
+        <ecosystem>npm (backend)</ecosystem>
+        <package>pg</package>
+        <version>^8.16.3</version>
+        <reason>PostgreSQL client for Node.js, used for database interaction.</reason>
+      </dependency>
+      <dependency>
+        <ecosystem>npm (backend)</ecosystem>
+        <package>bcrypt</package>
+        <version>N/A (to be added)</version>
+        <reason>Required for password hashing as per security requirements.</reason>
+      </dependency>
+      <dependency>
+        <ecosystem>npm (backend)</ecosystem>
+        <package>jsonwebtoken</package>
+        <version>N/A (to be added)</version>
+        <reason>Will be used for session management in the subsequent story.</reason>
+      </dependency>
+      <dependency>
+        <ecosystem>npm (frontend)</ecosystem>
+        <package>next</package>
+        <version>^14.2.0</version>
+        <reason>Core framework for the frontend application.</reason>
+      </dependency>
+      <dependency>
+        <ecosystem>npm (frontend)</ecosystem>
+        <package>react</package>
+        <version>^18.3.0</version>
+        <reason>UI library for building components.</reason>
+      </dependency>
+      <dependency>
+        <ecosystem>npm (frontend)</ecosystem>
+        <package>react-hook-form</package>
+        <version>N/A (to be added)</version>
+        <reason>Required for managing form state in the SignupForm component.</reason>
+      </dependency>
+      <dependency>
+        <ecosystem>npm (frontend)</ecosystem>
+        <package>zod</package>
+        <version>N/A (to be added)</version>
+        <reason>Required for client-side and backend validation.</reason>
+      </dependency>
+    </dependencies>
+  </artifacts>
+  <constraints>
+    <constraint>
+      <type>Security</type>
+      <description>Passwords must be hashed and salted using a strong algorithm (bcrypt) before being stored in the database.</description>
+    </constraint>
+    <constraint>
+      <type>Security</type>
+      <description>The registration endpoint must be protected against brute-force attacks with rate limiting.</description>
+    </constraint>
+    <constraint>
+      <type>Security</type>
+      <description>Password policy (min 12 characters, uppercase, lowercase, number, special character) must be enforced on both client and server.</description>
+    </constraint>
+    <constraint>
+      <type>Validation</type>
+      <description>Server-side validation must ensure the email is unique and the password meets complexity requirements.</description>
+    </constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>POST /api/v1/auth/register</name>
+      <kind>REST Endpoint</kind>
+      <signature>Request: { email: string, password: string }, Response: { message: string, userId: string }</signature>
+      <path>src/routes/auth.routes.ts</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      - Unit tests for password hashing utility.
+      - Integration test for the registration API endpoint, ensuring a user is created in the database.
+      - E2E test simulating a user filling out and submitting the registration form successfully.
+    </standards>
+    <locations>
+      - `src/services/__tests__/auth.service.test.ts`
+      - `src/controllers/__tests__/auth.controller.test.ts`
+      - `frontend/src/components/features/auth/__tests__/SignupForm.test.tsx`
+      - `tests/e2e/auth.spec.ts`
+    </locations>
+    <ideas>
+      - Test that a user cannot register with an existing email.
+      - Test that the password is correctly hashed and not stored in plain text.
+      - Test that the frontend form shows validation errors for weak passwords or invalid emails.
+      - Test that a successful registration redirects the user to the correct page.
+    </ideas>
+  </tests>
+</story-context>

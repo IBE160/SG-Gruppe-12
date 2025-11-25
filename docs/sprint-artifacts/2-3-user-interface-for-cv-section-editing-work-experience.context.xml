@@ -1,0 +1,119 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>3</storyId>
+    <title>User Interface for CV Section Editing (Work Experience)</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-25</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>C:\Users\kayle\Desktop\SG-Gruppe-12\docs\sprint-artifacts\2-3-user-interface-for-cv-section-editing-work-experience.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>to easily add, edit, and remove my work experience entries</iWant>
+    <soThat>my CV accurately reflects my professional history.</soThat>
+    <tasks>
+- [ ] **Backend: Implement Work Experience CRUD API (AC 3, 4, 5)**
+  - [ ] Create `cv.routes.ts` if it doesn't exist, and add routes for `POST /cv/experience`, `PATCH /cv/experience/:id`, `DELETE /cv/experience/:id`.
+  - [ ] In `cv.controller.ts`, create handlers for adding, updating, and deleting work experience.
+  - [ ] In `cv.service.ts`, implement the business logic for creating, updating, and deleting work experience entries, ensuring it interacts with the CV versioning service (Story 2.8).
+  - [ ] In `cv.repository.ts`, implement the database queries to persist work experience data.
+- [ ] **Frontend: Develop Work Experience Management UI (AC 3, 4, 5, 6)**
+  - [ ] In `frontend/src/components/features/cv-management/`, create a `WorkExperienceForm.tsx` component for adding and editing entries.
+  - [ ] Create a `WorkExperienceList.tsx` component to display existing entries with edit and delete buttons.
+  - [ ] In the main CV management page, integrate the form and list components.
+  - [ ] Implement API calls in the frontend to connect the UI to the backend endpoints.
+  - [ ] Ensure the UI updates in real-time when changes are made, reflecting in the main CV preview (Story 2.5).
+- [ ] **Testing: Ensure Feature Quality**
+  - [ ] **Backend:** Write unit tests for `cv.service.ts` work experience methods.
+  - [ ] **Backend:** Write integration tests for the new API endpoints using Supertest.
+  - [ ] **Frontend:** Write component tests for `WorkExperienceForm.tsx` and `WorkExperienceList.tsx` using React Testing Library.
+  - [ ] **E2E:** Add a Playwright test to simulate a user adding, editing, and deleting a work experience entry.
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1.  **Given** I am logged in and viewing my CV data management section
+2.  **When** I navigate to the "Work Experience" section
+3.  **Then** I can add a new work experience entry with fields for company, title, start date, end date, and description.
+4.  **And** I can edit existing work experience entries.
+5.  **And** I can delete work experience entries.
+6.  **And** All changes are immediately reflected in a dynamic preview (if available).
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <artifact path="docs/PRD.md" title="Product Requirements Document" section="FR-2.2: CV Data Editing">
+        The system must allow the user to edit any CV entry instantly. Changes must be immediately reflected in the live preview.
+      </artifact>
+      <artifact path="docs/sprint-artifacts/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="Story 2.4: User Interface for CV Section Editing (Work Experience)">
+        **Given** I am logged in and viewing my CV data management section, **When** I navigate to the "Work Experience" section, **Then** I can add, edit, and delete work experience entries.
+      </artifact>
+      <artifact path="docs/sprint-artifacts/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="Frontend Modules/Components">
+        Key components for this feature are `WorkExperienceForm.tsx` and `WorkExperienceList.tsx` for managing entries, with state managed by `cvStore.ts` (Zustand).
+      </artifact>
+      <artifact path="docs/architecture-backend.md" title="Backend Architecture" section="4. API Layer Architecture">
+        The `PATCH /api/v1/cvs/:id` endpoint is used to update CV data. The business logic is handled by `cv.service.ts` and data access by `cv.repository.ts`.
+      </artifact>
+      <artifact path="docs/architecture-frontend.md" title="Frontend Architecture" section="3. Project Structure">
+        The main page for this feature is located at `src/app/(dashboard)/cv/manage/page.tsx`. The UI components, like `WorkExperienceForm.tsx`, are in `src/components/features/cv-management/`.
+      </artifact>
+      <artifact path="docs/ux-design-specification-COMPLETE.md" title="UX Design Specification" section="6.3 Input Component Specifications">
+        Inputs should have a default gray border, which turns blue on focus and red on error. They should have a border-radius of 8px (rounded-md).
+      </artifact>
+    </docs>
+    <code>
+      <artifact path="src/models/cv.model.js" kind="model" symbol="Cv" reason="Provides database methods for the main CV table. Will be used by the yet-to-be-created cv.repository.ts."/>
+      <artifact path="src/models/cvComponent.model.js" kind="model" symbol="CvComponent" reason="Model for individual CV sections like 'work_experience'. The service layer will need to aggregate these into a single CV object."/>
+      <artifact path="frontend/src/types/cv.ts" kind="types" symbol="Experience" reason="Defines the frontend data structure for a work experience entry. The form will be built based on this type."/>
+      <artifact path="src/controllers/cv.controller.ts" kind="controller" symbol="cvController" reason="NEEDS TO BE CREATED. Will handle incoming HTTP requests for CV-related actions."/>
+      <artifact path="src/services/cv.service.ts" kind="service" symbol="cvService" reason="NEEDS TO BE CREATED. Will contain the business logic for updating work experience and transforming data between the repository and controller."/>
+      <artifact path="frontend/src/components/features/cv-management/WorkExperienceForm.tsx" kind="component" symbol="WorkExperienceForm" reason="NEEDS TO BE CREATED. This will be the main React component for the user to add, edit, and delete work experience entries."/>
+    </code>
+    <dependencies>
+      <dependency ecosystem="Node.js (Backend)" name="express" version="^4.18.2" reason="Core web framework for the API."/>
+      <dependency ecosystem="Node.js (Backend)" name="pg" version="^8.16.3" reason="PostgreSQL client for database interaction."/>
+      <dependency ecosystem="React (Frontend)" name="next" version="^14.2.0" reason="Core framework for the frontend application."/>
+      <dependency ecosystem="React (Frontend)" name="react" version="^18.3.0" reason="UI library for building components."/>
+      <dependency ecosystem="React (Frontend)" name="tailwindcss" version="^3.4.1" reason="Utility-first CSS framework for styling."/>
+      <dependency ecosystem="React (Frontend)" name="@radix-ui/react-*" version="*" reason="Provides accessible, unstyled primitives for building UI components (used by shadcn/ui)."/>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architectural" reason="The backend currently lacks the documented layered structure. The developer must create the `routes`, `controllers`, and `services` directories and files as per the architecture specification.">
+      Implement the layered architecture on the backend.
+    </constraint>
+    <constraint type="data-model" reason="The frontend expects a 'CVData' object with an 'experience' array, while the backend stores experience as separate rows in 'cv_components'. The `cv.service.ts` must handle this transformation.">
+      The backend service layer is responsible for transforming data between the database representation and the API response structure.
+    </constraint>
+    <constraint type="frontend" reason="The frontend must follow the established component-based architecture.">
+      New UI components should be placed in the `frontend/src/components/features/cv-management/` directory.
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="Update Work Experience" kind="REST" signature="PATCH /api/v1/cvs/:id/experience/:exp_id" path="src/routes/cv.routes.ts">
+      <description>
+        Updates a specific work experience entry for a given CV. The request body should contain the fields of the 'Experience' type to be updated. This endpoint needs to be created.
+      </description>
+      <request body="Partial<Experience>"/>
+      <response body="{ success: boolean, data: Experience }"/>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Follow the established testing strategy. Backend tests should mock the database repository layer for services and use an in-memory database for integration tests if possible. Frontend tests should mock API calls.
+    </standards>
+    <locations>
+      Backend unit and integration tests should be placed in `src/tests/`. Frontend component tests should be co-located with the components they are testing. E2E tests are located in the `tests/` directory at the project root.
+    </locations>
+    <ideas>
+      <idea for="backend">Write unit tests for `cv.service.ts` work experience methods.</idea>
+      <idea for="backend">Write integration tests for the new API endpoints (`POST /cv/experience`, `PATCH /cv/experience/:id`, `DELETE /cv/experience/:id`) using Supertest.</idea>
+      <idea for="frontend">Write component tests for `WorkExperienceForm.tsx` and `WorkExperienceList.tsx` using React Testing Library.</idea>
+      <idea for="e2e">Add a Playwright test to simulate a user adding, editing, and deleting a work experience entry from end to end.</idea>
+    </ideas>
+  </tests>
+</story-context>
