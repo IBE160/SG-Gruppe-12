@@ -1,6 +1,6 @@
 # Story 2.2: AI-Powered CV Parsing from File Upload
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -125,6 +125,7 @@ Story 2.1 (`Structured CV Data Model Design & Implementation`) laid the foundati
 ### Context Reference
 
 <!-- Path(s) to story context XML will be added here by context workflow -->
+- docs/sprint-artifacts/2-2-ai-powered-cv-parsing-from-file-upload.context.xml
 
 ### Agent Model Used
 
