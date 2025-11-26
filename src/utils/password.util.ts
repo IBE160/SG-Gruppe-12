@@ -1,7 +1,7 @@
 // src/utils/password.util.ts
 import bcrypt from 'bcrypt';
 
-const SALT_ROUNDS = 10; // Recommended value for bcrypt
+const SALT_ROUNDS = 12; // OWASP 2024 standard for production security
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, SALT_ROUNDS);

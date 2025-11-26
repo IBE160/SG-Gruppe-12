@@ -106,4 +106,3 @@ model CVVersion {
   @@unique([cv_id, version_number]) // Ensure unique version numbers per CV
   @@map("cv_versions")
 }
-
