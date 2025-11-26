@@ -1,260 +1,216 @@
 // src/tests/cv.service.test.ts
 import { cvService } from '../services/cv.service';
 import { cvRepository } from '../repositories/cv.repository';
-import { createCVSchema, updateCVSchema } from '../validators/cv.validator';
-import { NotFoundError, UnauthorizedError } from '../utils/errors.util'; // Assuming these exist
+import { NotFoundError, UnauthorizedError } from '../utils/errors.util';
+import { experienceEntrySchema, educationEntrySchema, skillEntrySchema, languageEntrySchema } from '../validators/cv.validator';
+import { CV, CVComponent } from '@prisma/client';
+import * as jsonpatch from 'fast-json-patch';
 
-// Mock the cvRepository
-jest.mock('../repositories/cv.repository', () => ({
-  cvRepository: {
-    create: jest.fn(),
-    findById: jest.fn(),
-    findByUserId: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    createVersion: jest.fn(),
-    getLatestVersion: jest.fn(),
-    addWorkExperience: jest.fn(), // New mock
-    updateWorkExperience: jest.fn(), // New mock
-    deleteWorkExperience: jest.fn(), // New mock
-  },
-}));
+// Mock the repository
+jest.mock('../repositories/cv.repository');
 
-// Mock the cv.validator.ts module
+// Mock the validator
 jest.mock('../validators/cv.validator', () => ({
-  createCVSchema: {
-    parse: jest.fn(),
-  },
-  updateCVSchema: {
-    parse: jest.fn(),
-  },
+  experienceEntrySchema: { parse: jest.fn(data => data) },
+  educationEntrySchema: { parse: jest.fn(data => data) },
+  skillEntrySchema: { parse: jest.fn(data => data) },
+  languageEntrySchema: { parse: jest.fn(data => data) },
 }));
 
-describe('CV Service', () => {
-  const mockUserId = 'user123';
-  const mockCVId = 'cv123';
+describe('CV Service (Normalized)', () => {
+  const mockUserId = 1;
+  const mockCvId = 101;
 
-  const mockCVData = {
+  const mockExperienceComponent: CVComponent = { id: 201, user_id: mockUserId, component_type: 'work_experience', content: { title: 'Software Engineer', company: 'Tech Corp' }, created_at: new Date(), updated_at: new Date() };
+  const mockEducationComponent: CVComponent = { id: 202, user_id: mockUserId, component_type: 'education', content: { degree: 'B.S. CS' }, created_at: new Date(), updated_at: new Date() };
+  const mockSkillComponent: CVComponent = { id: 203, user_id: mockUserId, component_type: 'skill', content: 'TypeScript', created_at: new Date(), updated_at: new Date() };
+  const mockLanguageComponent: CVComponent = { id: 204, user_id: mockUserId, component_type: 'language', content: { name: 'English', level: 'Native' }, created_at: new Date(), updated_at: new Date() };
+  
+  const mockCvShell: CV = { id: mockCvId, user_id: mockUserId, title: 'My CV', component_ids: [mockExperienceComponent.id], created_at: new Date(), updated_at: new Date() };
+  const mockCvShellWithAll: CV = { ...mockCvShell, component_ids: [mockExperienceComponent.id, mockEducationComponent.id, mockSkillComponent.id, mockLanguageComponent.id]};
+
+  // Base CV Data for versioning tests
+  const baseCvData = {
     personal_info: { firstName: 'John', lastName: 'Doe' },
-    education: [],
     experience: [],
+    education: [],
     skills: [],
     languages: [],
   };
 
-  const mockCV = {
-    id: mockCVId,
-    userId: mockUserId,
-    ...mockCVData,
-    created_at: new Date(),
-    updated_at: new Date(),
-  };
-
-  const mockCVVersion = {
-    id: 'cvVer123',
-    cvId: mockCVId,
-    version_number: 1,
-    snapshot: mockCV,
-    created_at: new Date(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
-    // Ensure parse methods return the data they receive for simplicity in tests
-    (createCVSchema.parse as jest.Mock).mockImplementation((data) => data);
-    (updateCVSchema.parse as jest.Mock).mockImplementation((data) => data);
-  });
-
-  describe('createCV', () => {
-    it('should create a CV and an initial version', async () => {
-      (cvRepository.create as jest.Mock).mockResolvedValue(mockCV);
-      (cvRepository.createVersion as jest.Mock).mockResolvedValue(mockCVVersion);
-
-      const result = await cvService.createCV(mockUserId, mockCVData);
-
-      expect(createCVSchema.parse).toHaveBeenCalledWith(mockCVData);
-      expect(cvRepository.create).toHaveBeenCalledWith({
-        userId: mockUserId,
-        ...mockCVData,
-      });
-      expect(cvRepository.createVersion).toHaveBeenCalledWith(mockCVId, mockCVData, 1);
-      expect(result).toEqual(mockCV);
-    });
+    // Mock the versioning repository methods
+    (cvRepository.getLatestVersionNumber as jest.Mock).mockResolvedValue(0);
+    (cvRepository.createVersion as jest.Mock).mockResolvedValue({});
+    (cvRepository.getVersions as jest.Mock).mockResolvedValue([]);
+    (cvRepository.getVersionByNumber as jest.Mock).mockResolvedValue(null);
   });
 
   describe('getCVById', () => {
-    it('should return a CV if found and authorized', async () => {
-      (cvRepository.findById as jest.Mock).mockResolvedValue(mockCV);
+    it('should fetch a CV and its components and assemble them', async () => {
+      (cvRepository.findById as jest.Mock).mockResolvedValue(mockCvShell);
+      (cvRepository.findComponentsByIds as jest.Mock).mockResolvedValue([mockExperienceComponent]);
 
-      const result = await cvService.getCVById(mockUserId, mockCVId);
+      const result = await cvService.getCVById(mockUserId, mockCvId);
 
-      expect(cvRepository.findById).toHaveBeenCalledWith(mockCVId);
-      expect(result).toEqual(mockCV);
+      expect(cvRepository.findById).toHaveBeenCalledWith(mockCvId);
+      expect(cvRepository.findComponentsByIds).toHaveBeenCalledWith([mockExperienceComponent.id]);
+      expect(result.experience).toHaveLength(1);
+      expect(result.experience[0].title).toBe('Software Engineer');
     });
 
-    it('should throw NotFoundError if CV is not found', async () => {
-      (cvRepository.findById as jest.Mock).mockResolvedValue(null);
+    it('should throw UnauthorizedError if user is not the owner', async () => {
+        const otherUserCvShell = { ...mockCvShell, user_id: 999 };
+        (cvRepository.findById as jest.Mock).mockResolvedValue(otherUserCvShell);
 
-      await expect(cvService.getCVById(mockUserId, mockCVId)).rejects.toThrow(NotFoundError);
-    });
-
-    it('should throw UnauthorizedError if user is not authorized', async () => {
-      const unauthorizedCV = { ...mockCV, userId: 'otherUser' };
-      (cvRepository.findById as jest.Mock).mockResolvedValue(unauthorizedCV);
-
-      await expect(cvService.getCVById(mockUserId, mockCVId)).rejects.toThrow(UnauthorizedError);
+        await expect(cvService.getCVById(mockUserId, mockCvId)).rejects.toThrow(UnauthorizedError);
     });
   });
 
-  describe('updateCV', () => {
-    const updates = { personal_info: { firstName: 'Jane' } };
-    const updatedCV = { ...mockCV, personal_info: { ...mockCV.personal_info, firstName: 'Jane' } };
+  describe('Work Experience CRUD', () => {
+    const newExperience = { title: 'New Role', company: 'NewCo' };
+    const updatedExperience = { ...newExperience, company: 'UpdatedCo' };
+    const mockUpdatedCvShell: CV = { ...mockCvShell, component_ids: [...mockCvShell.component_ids, 205] };
+    const mockComponentAfterAdd: CVComponent = { id: 205, user_id: mockUserId, component_type: 'work_experience', content: newExperience, created_at: new Date(), updated_at: new Date() };
 
-    it('should update a CV and create a new version', async () => {
-      (cvRepository.findById as jest.Mock).mockResolvedValue(mockCV);
-      (cvRepository.getLatestVersion as jest.Mock).mockResolvedValue(mockCVVersion);
-      (cvRepository.update as jest.Mock).mockResolvedValue(updatedCV);
-      // Need to mock findById again for the snapshot retrieval in service
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(mockCV).mockResolvedValueOnce(updatedCV);
+    it('should add a work experience component and create a new version', async () => {
+      (cvRepository.findById as jest.Mock).mockResolvedValue(mockCvShell);
+      (cvRepository.addComponent as jest.Mock).mockResolvedValue(mockUpdatedCvShell);
+      (cvRepository.findComponentsByIds as jest.Mock)
+        .mockResolvedValueOnce([mockExperienceComponent]) // For initial assembleCvData
+        .mockResolvedValueOnce([mockExperienceComponent, mockComponentAfterAdd]); // For current assembleCvData
 
+      const result = await cvService.addWorkExperience(mockUserId, mockCvId, newExperience);
 
-      const result = await cvService.updateCV(mockUserId, mockCVId, updates);
-
-      expect(updateCVSchema.parse).toHaveBeenCalledWith(updates);
-      expect(cvRepository.findById).toHaveBeenCalledWith(mockCVId); // For auth check
-      expect(cvRepository.getLatestVersion).toHaveBeenCalledWith(mockCVId);
-      expect(cvRepository.update).toHaveBeenCalledWith(mockCVId, updates);
-      expect(cvRepository.createVersion).toHaveBeenCalledWith(mockCVId, updatedCV, mockCVVersion.version_number + 1);
-      expect(result).toEqual(updatedCV);
+      expect(cvRepository.addComponent).toHaveBeenCalledWith(mockCvId, mockUserId, 'work_experience', newExperience);
+      expect(cvRepository.createVersion).toHaveBeenCalledTimes(1);
+      expect(result.experience).toHaveLength(2);
     });
 
-    it('should throw NotFoundError if CV is not found during update (initial check)', async () => {
-      (cvRepository.findById as jest.Mock).mockResolvedValue(null);
-
-      await expect(cvService.updateCV(mockUserId, mockCVId, updates)).rejects.toThrow(NotFoundError);
+    it('should update a specific work experience component and create a new version', async () => {
+        const updates = { company: 'Mega Corp' };
+        (cvRepository.findById as jest.Mock).mockResolvedValue(mockCvShell);
+        (cvRepository.findComponentsByIds as jest.Mock).mockResolvedValue([mockExperienceComponent]);
+        (cvRepository.updateComponent as jest.Mock).mockResolvedValue({
+            ...mockExperienceComponent,
+            content: { ...mockExperienceComponent.content, ...updates }
+        });
+        
+        await cvService.updateWorkExperience(mockUserId, mockCvId, 0, updates);
+        
+        expect(cvRepository.updateComponent).toHaveBeenCalledWith(mockExperienceComponent.id, updates);
+        expect(cvRepository.createVersion).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw UnauthorizedError if user is not authorized during update', async () => {
-      const unauthorizedCV = { ...mockCV, userId: 'otherUser' };
-      (cvRepository.findById as jest.Mock).mockResolvedValue(unauthorizedCV);
+    it('should delete a specific work experience component and create a new version', async () => {
+        (cvRepository.findById as jest.Mock).mockResolvedValue(mockCvShell);
+        (cvRepository.findComponentsByIds as jest.Mock).mockResolvedValue([mockExperienceComponent]);
+        (cvRepository.deleteComponent as jest.Mock).mockResolvedValue({ ...mockCvShell, component_ids: [] });
 
-      await expect(cvService.updateCV(mockUserId, mockCVId, updates)).rejects.toThrow(UnauthorizedError);
-    });
+        const result = await cvService.deleteWorkExperience(mockUserId, mockCvId, 0);
 
-    it('should handle no previous version by starting from version 1', async () => {
-      (cvRepository.findById as jest.Mock).mockResolvedValue(mockCV);
-      (cvRepository.getLatestVersion as jest.Mock).mockResolvedValue(null); // No previous version
-      (cvRepository.update as jest.Mock).mockResolvedValue(updatedCV);
-      // Need to mock findById again for the snapshot retrieval in service
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(mockCV).mockResolvedValueOnce(updatedCV);
-
-
-      const result = await cvService.updateCV(mockUserId, mockCVId, updates);
-
-      expect(cvRepository.createVersion).toHaveBeenCalledWith(mockCVId, updatedCV, 1);
-      expect(result).toEqual(updatedCV);
-    });
-
-    it('should throw NotFoundError if updated CV not found for snapshotting', async () => {
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(mockCV).mockResolvedValueOnce(null); // Initial check passes, but updated CV not found for snapshot
-      (cvRepository.getLatestVersion as jest.Mock).mockResolvedValue(mockCVVersion);
-      (cvRepository.update as jest.Mock).mockResolvedValue(updatedCV);
-
-      await expect(cvService.updateCV(mockUserId, mockCVId, updates)).rejects.toThrow(NotFoundError);
+        expect(cvRepository.deleteComponent).toHaveBeenCalledWith(mockCvId, mockExperienceComponent.id);
+        expect(cvRepository.createVersion).toHaveBeenCalledTimes(1);
+        expect(result.experience).toHaveLength(0);
     });
   });
 
-  describe('addWorkExperience', () => {
-    const newExperience = {
-      title: 'Software Engineer', company: 'Tech Corp', startDate: '2020-01-01', endDate: '2022-12-31'
-    };
-    const updatedCVAfterAdd = { ...mockCV, experience: [newExperience] };
+  describe('Education CRUD', () => {
+    const newEducation = { degree: 'M.S. CS', institution: 'Grad School' };
+    const mockUpdatedCvShell: CV = { ...mockCvShell, component_ids: [...mockCvShell.component_ids, 206] };
+    const mockComponentAfterAdd: CVComponent = { id: 206, user_id: mockUserId, component_type: 'education', content: newEducation, created_at: new Date(), updated_at: new Date() };
+    
+    it('should add an education component and create a new version', async () => {
+      (cvRepository.findById as jest.Mock).mockResolvedValue(mockCvShell);
+      (cvRepository.addComponent as jest.Mock).mockResolvedValue(mockUpdatedCvShell);
+      (cvRepository.findComponentsByIds as jest.Mock)
+        .mockResolvedValueOnce([mockExperienceComponent]) // initial
+        .mockResolvedValueOnce([mockExperienceComponent, mockComponentAfterAdd]); // current
 
-    it('should add a new work experience and create a new version', async () => {
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(mockCV); // For auth check
-      (cvRepository.addWorkExperience as jest.Mock).mockResolvedValueOnce(updatedCVAfterAdd);
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(updatedCVAfterAdd); // For snapshot
-      (cvRepository.getLatestVersion as jest.Mock).mockResolvedValueOnce(mockCVVersion);
+      const result = await cvService.addEducation(mockUserId, mockCvId, newEducation);
 
-      const result = await cvService.addWorkExperience(mockUserId, mockCVId, newExperience);
-
-      expect(cvRepository.findById).toHaveBeenCalledWith(mockCVId);
-      expect(cvRepository.addWorkExperience).toHaveBeenCalledWith(mockCVId, newExperience);
-      expect(cvRepository.createVersion).toHaveBeenCalledWith(
-        mockCVId, updatedCVAfterAdd, mockCVVersion.version_number + 1
-      );
-      expect(result).toEqual(updatedCVAfterAdd);
-    });
-
-    it('should throw UnauthorizedError if user is not authorized', async () => {
-      const unauthorizedCV = { ...mockCV, userId: 'otherUser' };
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(unauthorizedCV);
-
-      await expect(cvService.addWorkExperience(mockUserId, mockCVId, newExperience)).rejects.toThrow(UnauthorizedError);
+      expect(cvRepository.addComponent).toHaveBeenCalledWith(mockCvId, mockUserId, 'education', newEducation);
+      expect(cvRepository.createVersion).toHaveBeenCalledTimes(1);
+      expect(result.education).toHaveLength(1);
     });
   });
 
-  describe('updateWorkExperience', () => {
-    const existingExperience = {
-      title: 'Junior Dev', company: 'StartUp', startDate: '2019-01-01', endDate: '2019-12-31'
-    };
-    const mockCVWithExperience = { ...mockCV, experience: [existingExperience] };
-    const updates = { title: 'Senior Developer' };
-    const updatedExperience = { ...existingExperience, ...updates };
-    const updatedCVAfterUpdate = { ...mockCV, experience: [updatedExperience] };
+  describe('Skills CRUD', () => {
+    const newSkill = 'TypeScript';
+    const mockUpdatedCvShell: CV = { ...mockCvShell, component_ids: [...mockCvShell.component_ids, 207] };
+    const mockComponentAfterAdd: CVComponent = { id: 207, user_id: mockUserId, component_type: 'skill', content: newSkill, created_at: new Date(), updated_at: new Date() };
 
-    it('should update an existing work experience and create a new version', async () => {
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(mockCVWithExperience); // For auth check
-      (cvRepository.updateWorkExperience as jest.Mock).mockResolvedValueOnce(updatedCVAfterUpdate);
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(updatedCVAfterUpdate); // For snapshot
-      (cvRepository.getLatestVersion as jest.Mock).mockResolvedValueOnce(mockCVVersion);
+    it('should add a skill component and create a new version', async () => {
+      (cvRepository.findById as jest.Mock).mockResolvedValue(mockCvShell);
+      (cvRepository.addComponent as jest.Mock).mockResolvedValue(mockUpdatedCvShell);
+      (cvRepository.findComponentsByIds as jest.Mock)
+        .mockResolvedValueOnce([mockExperienceComponent])
+        .mockResolvedValueOnce([mockExperienceComponent, mockComponentAfterAdd]);
 
-      const result = await cvService.updateWorkExperience(mockUserId, mockCVId, 0, updates);
-
-      expect(cvRepository.findById).toHaveBeenCalledWith(mockCVId);
-      expect(cvRepository.updateWorkExperience).toHaveBeenCalledWith(mockCVId, 0, updates);
-      expect(cvRepository.createVersion).toHaveBeenCalledWith(
-        mockCVId, updatedCVAfterUpdate, mockCVVersion.version_number + 1
-      );
-      expect(result).toEqual(updatedCVAfterUpdate);
-    });
-
-    it('should throw UnauthorizedError if user is not authorized', async () => {
-      const unauthorizedCV = { ...mockCV, userId: 'otherUser' };
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(unauthorizedCV);
-
-      await expect(cvService.updateWorkExperience(mockUserId, mockCVId, 0, updates)).rejects.toThrow(UnauthorizedError);
+      const result = await cvService.addSkill(mockUserId, mockCvId, newSkill);
+      
+      expect(cvRepository.addComponent).toHaveBeenCalledWith(mockCvId, mockUserId, 'skill', newSkill);
+      expect(cvRepository.createVersion).toHaveBeenCalledTimes(1);
+      expect(result.skills).toHaveLength(1);
     });
   });
 
-  describe('deleteWorkExperience', () => {
-    const existingExperience = {
-      title: 'Junior Dev', company: 'StartUp', startDate: '2019-01-01', endDate: '2019-12-31'
-    };
-    const mockCVWithExperience = { ...mockCV, experience: [existingExperience] };
-    const updatedCVAfterDelete = { ...mockCV, experience: [] };
+  describe('Languages CRUD', () => {
+    const newLanguage = { name: 'Spanish', level: 'Fluent' };
+    const mockUpdatedCvShell: CV = { ...mockCvShell, component_ids: [...mockCvShell.component_ids, 208] };
+    const mockComponentAfterAdd: CVComponent = { id: 208, user_id: mockUserId, component_type: 'language', content: newLanguage, created_at: new Date(), updated_at: new Date() };
 
-    it('should delete a work experience and create a new version', async () => {
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(mockCVWithExperience); // For auth check
-      (cvRepository.deleteWorkExperience as jest.Mock).mockResolvedValueOnce(updatedCVAfterDelete);
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(updatedCVAfterDelete); // For snapshot
-      (cvRepository.getLatestVersion as jest.Mock).mockResolvedValueOnce(mockCVVersion);
+    it('should add a language component and create a new version', async () => {
+        (cvRepository.findById as jest.Mock).mockResolvedValue(mockCvShell);
+        (cvRepository.addComponent as jest.Mock).mockResolvedValue(mockUpdatedCvShell);
+        (cvRepository.findComponentsByIds as jest.Mock)
+            .mockResolvedValueOnce([mockExperienceComponent])
+            .mockResolvedValueOnce([mockExperienceComponent, mockComponentAfterAdd]);
 
-      const result = await cvService.deleteWorkExperience(mockUserId, mockCVId, 0);
+        const result = await cvService.addLanguage(mockUserId, mockCvId, newLanguage);
 
-      expect(cvRepository.findById).toHaveBeenCalledWith(mockCVId);
-      expect(cvRepository.deleteWorkExperience).toHaveBeenCalledWith(mockCVId, 0);
-      expect(cvRepository.createVersion).toHaveBeenCalledWith(
-        mockCVId, updatedCVAfterDelete, mockCVVersion.version_number + 1
-      );
-      expect(result).toEqual(updatedCVAfterDelete);
+        expect(cvRepository.addComponent).toHaveBeenCalledWith(mockCvId, mockUserId, 'language', newLanguage);
+        expect(cvRepository.createVersion).toHaveBeenCalledTimes(1);
+        expect(result.languages).toHaveLength(1);
+    });
+  });
+
+  describe('Versioning', () => {
+    const mockVersions = [
+      { cv_id: mockCvId, version_number: 1, delta: [{ op: 'add', path: '/experience/0', value: { title: 'Exp 1' } }], created_at: new Date('2023-01-01') },
+      { cv_id: mockCvId, version_number: 2, delta: [{ op: 'replace', path: '/experience/0/title', value: 'Exp 1 Updated' }], created_at: new Date('2023-01-02') },
+    ];
+
+    it('should list CV versions', async () => {
+      (cvRepository.getVersions as jest.Mock).mockResolvedValue(mockVersions);
+
+      const result = await cvService.listVersions(mockUserId, mockCvId);
+
+      expect(cvRepository.getVersions).toHaveBeenCalledWith(mockCvId);
+      expect(result).toHaveLength(2);
+      expect(result[0].versionNumber).toBe(1);
     });
 
-    it('should throw UnauthorizedError if user is not authorized', async () => {
-      const unauthorizedCV = { ...mockCV, userId: 'otherUser' };
-      (cvRepository.findById as jest.Mock).mockResolvedValueOnce(unauthorizedCV);
+    it('should reconstruct CV data for a specific version', async () => {
+      (cvRepository.findById as jest.Mock).mockResolvedValue(mockCvShell); // For auth check
+      (cvRepository.getVersions as jest.Mock).mockResolvedValue(mockVersions);
 
-      await expect(cvService.deleteWorkExperience(mockUserId, mockCVId, 0)).rejects.toThrow(UnauthorizedError);
+      const result = await cvService.getVersionDetails(mockUserId, mockCvId, 2);
+
+      expect(result.experience).toHaveLength(1);
+      expect(result.experience[0].title).toBe('Exp 1 Updated');
+    });
+
+    it('should reconstruct and return CV data for restoreVersion', async () => {
+        (cvRepository.findById as jest.Mock).mockResolvedValue(mockCvShell); // For auth check
+        (cvRepository.getVersions as jest.Mock).mockResolvedValue(mockVersions);
+
+        const result = await cvService.restoreVersion(mockUserId, mockCvId, 1);
+
+        expect(result.experience).toHaveLength(1);
+        expect(result.experience[0].title).toBe('Exp 1');
+        // Note: As per implementation, this test only checks reconstruction, not database write.
     });
   });
 });

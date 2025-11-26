@@ -1,6 +1,7 @@
+// src/utils/password.util.ts
 import bcrypt from 'bcrypt';
 
-const SALT_ROUNDS = 10; // As per Dev Notes
+const SALT_ROUNDS = 10; // Recommended value for bcrypt
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, SALT_ROUNDS);

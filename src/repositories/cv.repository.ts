@@ -1,206 +1,138 @@
 // src/repositories/cv.repository.ts
 import { prisma } from '../config/database';
-import { CV, CVVersion } from '@prisma/client'; // Import generated types from Prisma Client
-import { ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '../validators/cv.validator'; // Import all entry types
+import { CV, CVComponent, CVVersion } from '@prisma/client';
+import { ExperienceEntry } from '../types/cv.types'; // Using types for content
 
 export const cvRepository = {
-  async create(data: {
-    userId: string;
-    personal_info: any;
-    education: any[];
-    experience: any[];
-    skills: any[];
-    languages: any[];
-  }): Promise<CV> {
+  // Creates a CV shell. Components are added separately.
+  async create(userId: number, title: string): Promise<CV> {
     return prisma.cV.create({
       data: {
-        userId: data.userId,
-        personal_info: data.personal_info,
-        education: data.education,
-        experience: data.experience,
-        skills: data.skills,
-        languages: data.languages,
+        user_id: userId,
+        title: title,
+        component_ids: [],
       },
     });
   },
 
-  async findById(id: string): Promise<CV | null> {
+  // Finds a CV shell by its ID.
+  async findById(id: number): Promise<CV | null> {
     return prisma.cV.findUnique({
       where: { id },
     });
   },
 
-  async findByUserId(userId: string): Promise<CV[]> {
+  // Finds all CV shells for a user.
+  async findByUserId(userId: number): Promise<CV[]> {
     return prisma.cV.findMany({
-      where: { userId },
+      where: { user_id: userId },
       orderBy: { created_at: 'desc' },
     });
   },
+  
+  // --- Component-based Methods ---
 
-  async update(id: string, data: Partial<{
-    personal_info: any;
-    education: any[];
-    experience: any[];
-    skills: any[];
-    languages: any[];
-  }>): Promise<CV> {
-    return prisma.cV.update({
-      where: { id },
-      data,
-    });
-  },
-
-  async delete(id: string): Promise<CV> {
-    return prisma.cV.delete({
+  async findComponentById(id: number): Promise<CVComponent | null> {
+    return prisma.cVComponent.findUnique({
       where: { id },
     });
   },
 
-  async createVersion(
-    cvId: string,
-    snapshot: any,
-    versionNumber: number
-  ): Promise<CVVersion> {
-    return prisma.cVVersion.create({
+  async findComponentsByIds(ids: number[]): Promise<CVComponent[]> {
+    return prisma.cVComponent.findMany({
+      where: {
+        id: { in: ids }
+      }
+    });
+  },
+
+  // Adds a new component (e.g., work experience) and links it to a CV
+  async addComponent(cvId: number, userId: number, type: string, content: any): Promise<CV> {
+    const newComponent = await prisma.cVComponent.create({
       data: {
-        cvId: cvId,
-        version_number: versionNumber,
-        snapshot: snapshot,
+        user_id: userId,
+        component_type: type,
+        content: content,
+      },
+    });
+
+    return prisma.cV.update({
+      where: { id: cvId },
+      data: {
+        component_ids: {
+          push: newComponent.id,
+        },
       },
     });
   },
 
-  async getLatestVersion(cvId: string): Promise<CVVersion | null> {
-    return prisma.cVVersion.findFirst({
-      where: { cvId },
-      orderBy: { version_number: 'desc' },
+  // Updates the content of a specific component
+  async updateComponent(componentId: number, content: any): Promise<CVComponent> {
+    // First, fetch the existing component to merge the content
+    const existingComponent = await this.findComponentById(componentId);
+    if (!existingComponent) {
+      throw new Error('Component not found');
+    }
+    const newContent = { ...existingComponent.content as object, ...content };
+
+    return prisma.cVComponent.update({
+      where: { id: componentId },
+      data: {
+        content: newContent,
+      },
     });
   },
 
-  async getVersionById(id: string): Promise<CVVersion | null> {
-    return prisma.cVVersion.findUnique({
-      where: { id },
+  // Deletes a component and removes its ID from the parent CV
+  async deleteComponent(cvId: number, componentId: number): Promise<CV> {
+    await prisma.cVComponent.delete({
+      where: { id: componentId },
+    });
+
+    const cv = await this.findById(cvId);
+    if (!cv) {
+      throw new Error('CV not found');
+    }
+
+    const newComponentIds = cv.component_ids.filter(id => id !== componentId);
+
+    return prisma.cV.update({
+      where: { id: cvId },
+      data: {
+        component_ids: newComponentIds,
+      },
     });
   },
 
-  async getVersionsByCvId(cvId: string): Promise<CVVersion[]> {
+  // --- CV Versioning Methods ---
+  async createVersion(cvId: number, versionNumber: number, delta: any): Promise<CVVersion> {
+    return prisma.cVVersion.create({
+      data: {
+        cv_id: cvId,
+        version_number: versionNumber,
+        delta: delta,
+      },
+    });
+  },
+
+  async getVersions(cvId: number): Promise<CVVersion[]> {
     return prisma.cVVersion.findMany({
-      where: { cvId },
+      where: { cv_id: cvId },
       orderBy: { version_number: 'asc' },
     });
   },
 
-  // --- Work Experience specific methods ---
-  async addWorkExperience(cvId: string, experience: ExperienceEntry): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) {
-      throw new Error('CV not found');
-    }
-    const updatedExperience = [...(currentCV.experience as ExperienceEntry[]), experience];
-    return this.update(cvId, { experience: updatedExperience });
+  async getLatestVersionNumber(cvId: number): Promise<number> {
+    const latestVersion = await prisma.cVVersion.findFirst({
+      where: { cv_id: cvId },
+      orderBy: { version_number: 'desc' },
+    });
+    return latestVersion ? latestVersion.version_number : 0;
   },
 
-  async updateWorkExperience(cvId: string, index: number, experience: Partial<ExperienceEntry>): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) {
-      throw new Error('CV not found');
-    }
-    const currentExperience = currentCV.experience as ExperienceEntry[];
-    if (index < 0 || index >= currentExperience.length) {
-      throw new Error('Work experience entry not found');
-    }
-    currentExperience[index] = { ...currentExperience[index], ...experience };
-    return this.update(cvId, { experience: currentExperience });
-  },
-
-  async deleteWorkExperience(cvId: string, index: number): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) {
-      throw new Error('CV not found');
-    }
-    const currentExperience = currentCV.experience as ExperienceEntry[];
-    if (index < 0 || index >= currentExperience.length) {
-      throw new Error('Work experience entry not found');
-    }
-    const updatedExperience = currentExperience.filter((_, i) => i !== index);
-    return this.update(cvId, { experience: updatedExperience });
-  },
-
-  // --- Education specific methods ---
-  async addEducation(cvId: string, education: EducationEntry): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) throw new Error('CV not found');
-    const updatedEducation = [...(currentCV.education as EducationEntry[]), education];
-    return this.update(cvId, { education: updatedEducation });
-  },
-
-  async updateEducation(cvId: string, index: number, education: Partial<EducationEntry>): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) throw new Error('CV not found');
-    const currentEducation = currentCV.education as EducationEntry[];
-    if (index < 0 || index >= currentEducation.length) throw new Error('Education entry not found');
-    currentEducation[index] = { ...currentEducation[index], ...education };
-    return this.update(cvId, { education: currentEducation });
-  },
-
-  async deleteEducation(cvId: string, index: number): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) throw new Error('CV not found');
-    const currentEducation = currentCV.education as EducationEntry[];
-    if (index < 0 || index >= currentEducation.length) throw new Error('Education entry not found');
-    const updatedEducation = currentEducation.filter((_, i) => i !== index);
-    return this.update(cvId, { education: updatedEducation });
-  },
-
-  // --- Skills specific methods ---
-  async addSkill(cvId: string, skill: SkillEntry): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) throw new Error('CV not found');
-    const updatedSkills = [...(currentCV.skills as SkillEntry[]), skill];
-    return this.update(cvId, { skills: updatedSkills });
-  },
-
-  async updateSkill(cvId: string, index: number, skill: SkillEntry): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) throw new Error('CV not found');
-    const currentSkills = currentCV.skills as SkillEntry[];
-    if (index < 0 || index >= currentSkills.length) throw new Error('Skill entry not found');
-    currentSkills[index] = skill; // Assuming skill is a simple string, direct replacement
-    return this.update(cvId, { skills: currentSkills });
-  },
-
-  async deleteSkill(cvId: string, index: number): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) throw new Error('CV not found');
-    const currentSkills = currentCV.skills as SkillEntry[];
-    if (index < 0 || index >= currentSkills.length) throw new Error('Skill entry not found');
-    const updatedSkills = currentSkills.filter((_, i) => i !== index);
-    return this.update(cvId, { skills: updatedSkills });
-  },
-
-  // --- Languages specific methods ---
-  async addLanguage(cvId: string, language: LanguageEntry): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) throw new Error('CV not found');
-    const updatedLanguages = [...(currentCV.languages as LanguageEntry[]), language];
-    return this.update(cvId, { languages: updatedLanguages });
-  },
-
-  async updateLanguage(cvId: string, index: number, language: Partial<LanguageEntry>): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) throw new Error('CV not found');
-    const currentLanguages = currentCV.languages as LanguageEntry[];
-    if (index < 0 || index >= currentLanguages.length) throw new Error('Language entry not found');
-    currentLanguages[index] = { ...currentLanguages[index], ...language };
-    return this.update(cvId, { languages: currentLanguages });
-  },
-
-  async deleteLanguage(cvId: string, index: number): Promise<CV> {
-    const currentCV = await this.findById(cvId);
-    if (!currentCV) throw new Error('CV not found');
-    const currentLanguages = currentCV.languages as LanguageEntry[];
-    if (index < 0 || index >= currentLanguages.length) throw new Error('Language entry not found');
-    const updatedLanguages = currentLanguages.filter((_, i) => i !== index);
-    return this.update(cvId, { languages: updatedLanguages });
+  async getVersionByNumber(cvId: number, versionNumber: number): Promise<CVVersion | null> {
+    return prisma.cVVersion.findUnique({
+      where: { cv_id_version_number: { cv_id: cvId, version_number: versionNumber } },
+    });
   },
 };

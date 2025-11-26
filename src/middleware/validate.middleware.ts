@@ -1,9 +1,19 @@
+// src/middleware/validate.middleware.ts
 import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject, ZodError } from 'zod';
-import { ValidationError, AppError } from '../utils/errors.util';
+import { AppError } from '../utils/errors.util'; // Assuming AppError exists
 
-export const validate = (schema: AnyZodObject) =>
-  async (req: Request, res: Response, next: NextFunction) => {
+export class ValidationError extends AppError {
+  errors: Array<{ field: string; message: string }>;
+
+  constructor(message: string, errors: Array<{ field: string; message: string }> = []) {
+    super(message, 400);
+    this.errors = errors;
+  }
+}
+
+export const validate = (schema: AnyZodObject) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await schema.parseAsync({
         body: req.body,
@@ -13,7 +23,7 @@ export const validate = (schema: AnyZodObject) =>
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const errors = error.errors.map((err) => ({
+        const errors = error.errors.map(err => ({
           field: err.path.join('.'),
           message: err.message,
         }));
@@ -23,3 +33,4 @@ export const validate = (schema: AnyZodObject) =>
       }
     }
   };
+};

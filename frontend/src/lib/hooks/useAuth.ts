@@ -1,58 +1,47 @@
-'use client';
-
+// frontend/src/lib/hooks/useAuth.ts
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { registerUser, loginUser, logoutUser } from '../api/auth'; // Import logoutUser
-import { SignupInput, LoginInput } from '../schemas/auth';
-import { useAuthStore } from '../../store/authStore';
+import { useAuthStore } from '@/store/authStore';
+import { SignupFormValues } from '@/lib/schemas/auth';
+import { registerUser } from '@/lib/api/auth';
+import { useToast } from "@/components/ui/use-toast"; // Assuming useToast is available
 
 export function useAuth() {
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { login: zustandLogin, logout: zustandLogout } = useAuthStore();
   const router = useRouter();
+  const { setAuth } = useAuthStore(); // Not used for registration, but for future login
+  const { toast } = useToast();
 
-  const register = async (data: SignupInput) => {
-    setLoading(true);
+  const register = async (values: SignupFormValues) => {
+    setIsLoading(true);
     setError(null);
     try {
-      const response = await registerUser(data);
-      zustandLogin(response.userId, data.email);
-      router.push('/login');
+      const response = await registerUser(values);
+      if (response.success) {
+        toast({ title: "Registration Successful!", description: response.message || "Please check your email for verification." });
+        router.push('/login'); // Redirect to login page after successful registration
+      } else {
+        setError(response.message || 'Registration failed.');
+        toast({ title: "Registration Failed", description: response.message || "An unexpected error occurred.", variant: "destructive" });
+      }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred during registration.');
+      toast({ title: "Error", description: err.message || "An unexpected error occurred.", variant: "destructive" });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const login = async (data: LoginInput) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await loginUser(data);
-      zustandLogin(response.userId, data.email);
-      router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred during login.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // You would add login, logout, and token refresh functions here later
+  const login = async () => { /* ... */ };
+  const logout = () => { /* ... */ };
 
-  const logout = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      await logoutUser(); // Call backend logout endpoint
-      zustandLogout(); // Clear local authentication state
-      router.push('/login'); // Redirect to login page
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred during logout.');
-    } finally {
-      setLoading(false);
-    }
+  return {
+    isLoading,
+    error,
+    register,
+    login,
+    logout,
   };
-
-  return { register, login, logout, loading, error };
 }

@@ -1,90 +1,82 @@
-import { PrismaClient } from '@prisma/client'; // Import statement for type inference
-import { prisma } from '../config/database'; // Assuming Prisma client is initialized here
+import { prisma } from '../config/database';
+import { User } from '@prisma/client'; // Import generated Prisma User type
 
 // Define the shape of user data for creation
 interface CreateUserData {
   email: string;
   passwordHash: string;
-  firstName?: string;
-  lastName?: string;
-  phoneNumber?: string;
-  emailVerificationToken?: string; // Add emailVerificationToken
-  emailVerified?: boolean;        // Add emailVerified
+  name: string; // Changed from firstName/lastName
+  emailVerificationToken?: string;
+  emailVerified?: boolean;
+  // Consent fields from schema.prisma
+  consent_essential?: boolean;
+  consent_ai_training?: boolean;
+  consent_marketing?: boolean;
 }
 
 interface UpdateUserData {
-  firstName?: string;
-  lastName?: string;
-  phoneNumber?: string;
+  name?: string; // Changed from firstName/lastName
   emailVerified?: boolean;
   emailVerificationToken?: string | null;
   passwordResetToken?: string | null;
   passwordHash?: string;
+  // Consent fields
+  consent_essential?: boolean;
+  consent_ai_training?: boolean;
+  consent_marketing?: boolean;
 }
 
 export const userRepository = {
-  /**
-   * Creates a new user in the database.
-   * @param data The user data to create.
-   * @returns The created user object.
-   */
-  async create(data: CreateUserData) {
+  async create(data: CreateUserData): Promise<User> {
     const user = await prisma.user.create({
       data: {
         email: data.email,
         passwordHash: data.passwordHash,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phoneNumber: data.phoneNumber,
+        name: data.name,
         emailVerificationToken: data.emailVerificationToken,
         emailVerified: data.emailVerified,
+        consent_essential: data.consent_essential,
+        consent_ai_training: data.consent_ai_training,
+        consent_marketing: data.consent_marketing,
       },
     });
     return user;
   },
 
-  /**
-   * Finds a user by their email address.
-   * @param email The email address to search for.
-   * @returns The user object if found, otherwise null.
-   */
-  async findByEmail(email: string) {
+  async findByEmail(email: string): Promise<User | null> {
     return prisma.user.findUnique({
       where: { email },
     });
   },
 
-  /**
-   * Finds a user by their ID.
-   * @param id The ID of the user to search for.
-   * @returns The user object if found, otherwise null.
-   */
-  async findById(id: string) {
+  async findById(id: number): Promise<User | null> { // id is now number
     return prisma.user.findUnique({
       where: { id },
     });
   },
 
-  /**
-   * Updates a user's information.
-   * @param id The ID of the user to update.
-   * @param data The data to update.
-   * @returns The updated user object.
-   */
-  async update(id: string, data: UpdateUserData) {
+  async update(id: number, data: UpdateUserData): Promise<User> { // id is now number
     return prisma.user.update({
       where: { id },
       data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phoneNumber: data.phoneNumber,
+        name: data.name,
         emailVerified: data.emailVerified,
         emailVerificationToken: data.emailVerificationToken,
         passwordResetToken: data.passwordResetToken,
         passwordHash: data.passwordHash,
+        consent_essential: data.consent_essential,
+        consent_ai_training: data.consent_ai_training,
+        consent_marketing: data.consent_marketing,
       },
     });
   },
 
-  // Other user-related database operations will go here
+  async updateLastLogin(id: number): Promise<User> { // New method
+    return prisma.user.update({
+      where: { id },
+      data: {
+        // updated_at is automatically handled by Prisma with @updatedAt
+      },
+    });
+  },
 };

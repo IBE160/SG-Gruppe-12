@@ -1,15 +1,17 @@
+// frontend/src/store/authStore.ts
 import { create } from 'zustand';
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: { id: string; email: string } | null;
-  login: (userId: string, email: string) => void;
+  user: { id: number; name: string; email: string } | null;
+  // Potentially add JWT token if stored client-side (though http-only cookies are preferred)
+  setAuth: (user: { id: number; name: string; email: string }) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   user: null,
-  login: (userId, email) => set({ isAuthenticated: true, user: { id: userId, email } }),
+  setAuth: (user) => set({ isAuthenticated: true, user }),
   logout: () => set({ isAuthenticated: false, user: null }),
 }));

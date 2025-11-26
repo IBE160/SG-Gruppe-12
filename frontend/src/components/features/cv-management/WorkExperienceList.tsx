@@ -1,101 +1,46 @@
 // frontend/src/components/features/cv-management/WorkExperienceList.tsx
-"use client";
-
-import { useState } from 'react';
+import React from 'react';
 import { ExperienceEntry } from '@/types/cv';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PencilIcon, TrashIcon } from 'lucide-react';
-import { WorkExperienceForm } from './WorkExperienceForm';
-import { useToast } from '@/components/ui/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Edit, Trash2 } from 'lucide-react';
 
 interface WorkExperienceListProps {
-  cvId: string;
-  experience: ExperienceEntry[];
-  onAdd: (data: ExperienceEntry) => Promise<void>;
-  onUpdate: (index: number, data: Partial<ExperienceEntry>) => Promise<void>;
-  onDelete: (index: number) => Promise<void>;
+  experiences: ExperienceEntry[];
+  onEdit: (index: number) => void;
+  onDelete: (index: number) => void;
+  isLoading: boolean;
 }
 
-export function WorkExperienceList({ cvId, experience, onAdd, onUpdate, onDelete }: WorkExperienceListProps) {
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const { toast } = useToast();
-
-  const handleSave = async (data: ExperienceEntry) => {
-    setIsSaving(true);
-    try {
-      if (editingIndex !== null) {
-        await onUpdate(editingIndex, data);
-        toast({ title: 'Success', description: 'Experience updated.' });
-      } else {
-        await onAdd(data);
-        toast({ title: 'Success', description: 'Experience added.' });
-      }
-      setEditingIndex(null); // Exit edit mode
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to save experience.' });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDelete = async (index: number) => {
-    if (window.confirm('Are you sure you want to delete this work experience entry?')) {
-      setIsSaving(true);
-      try {
-        await onDelete(index);
-        toast({ title: 'Success', description: 'Experience deleted.' });
-      } catch (error: any) {
-        toast({ title: 'Error', description: error.message || 'Failed to delete experience.' });
-      } finally {
-        setIsSaving(false);
-      }
-    }
-  };
+const WorkExperienceList: React.FC<WorkExperienceListProps> = ({ experiences, onEdit, onDelete, isLoading }) => {
+  if (experiences.length === 0) {
+    return <p className="text-sm text-gray-500">No work experience added yet.</p>;
+  }
 
   return (
     <div className="space-y-4">
-      {experience.map((entry, index) => (
-        <Card key={index} className="relative">
-          <CardHeader>
-            <CardTitle>{entry.title} at {entry.company}</CardTitle>
-            <p className="text-sm text-muted-foreground">{entry.startDate} - {entry.endDate || 'Present'}</p>
+      {experiences.map((exp, index) => (
+        <Card key={index}>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-lg">{exp.title} at {exp.company}</CardTitle>
+            <div className="space-x-2">
+              <Button variant="outline" size="icon" onClick={() => onEdit(index)} disabled={isLoading}>
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button variant="destructive" size="icon" onClick={() => onDelete(index)} disabled={isLoading}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            {editingIndex === index ? (
-              <WorkExperienceForm
-                cvId={cvId}
-                initialData={entry}
-                onSave={(data) => handleSave(data)}
-                onCancel={() => setEditingIndex(null)}
-                isSaving={isSaving}
-              />
-            ) : (
-              <>
-                <p className="text-sm">{entry.description}</p>
-                <div className="absolute top-4 right-4 flex space-x-2">
-                  <Button variant="ghost" size="icon" onClick={() => setEditingIndex(index)}>
-                    <PencilIcon className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(index)}>
-                    <TrashIcon className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </>
-            )}
+            <p className="text-sm text-gray-600">{exp.location}</p>
+            <p className="text-sm text-gray-500">{exp.startDate} - {exp.endDate || 'Present'}</p>
+            <p className="mt-2">{exp.description}</p>
           </CardContent>
         </Card>
       ))}
-
-      {editingIndex === null && (
-        <WorkExperienceForm
-          cvId={cvId}
-          onSave={(data) => handleSave(data)}
-          onCancel={() => {}} // No cancel option when adding new
-          isSaving={isSaving}
-        />
-      )}
     </div>
   );
-}
+};
+
+export default WorkExperienceList;

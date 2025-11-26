@@ -3,21 +3,12 @@ export class AppError extends Error {
   statusCode: number;
   isOperational: boolean;
 
-  constructor(message: string, statusCode: number) {
+  constructor(message: string, statusCode: number = 500) {
     super(message);
     this.statusCode = statusCode;
-    this.isOperational = true;
+    this.isOperational = true; // Indicates whether this is an error due to operational reasons
 
     Error.captureStackTrace(this, this.constructor);
-  }
-}
-
-export class ValidationError extends AppError {
-  errors: Array<{ field: string; message: string }>;
-
-  constructor(message: string, errors: Array<{ field: string; message: string }> = []) {
-    super(message, 400); // 400 Bad Request
-    this.errors = errors;
   }
 }
 

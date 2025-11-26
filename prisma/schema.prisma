@@ -2,6 +2,7 @@
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -9,16 +10,100 @@ generator client {
 }
 
 model User {
-  id                    String   @id @default(uuid())
-  email                 String   @unique
-  password_hash         String
-  name                  String?
-  consent_essential     Boolean  @default(true)
-  consent_ai_training   Boolean  @default(false)
-  consent_marketing     Boolean  @default(false)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  emailVerified         Boolean  @default(false)
-  emailVerificationToken String?
-  passwordResetToken    String?
+  id                      Int                   @id @default(autoincrement())
+  name                    String
+  email                   String                @unique
+  passwordHash            String // Renamed from password_hash
+  created_at              DateTime              @default(now())
+  updated_at              DateTime              @updatedAt @default(now())
+  
+  // New fields from userRepository
+  firstName               String? // Optional as per CreateUserData
+  lastName                String? // Optional
+  phoneNumber             String? // Optional
+  emailVerificationToken  String? // Optional
+  emailVerified           Boolean               @default(false)
+
+  consent_essential       Boolean               @default(true)
+  consent_ai_training     Boolean               @default(false)
+  consent_marketing       Boolean               @default(false)
+
+  cvs                     CV[]
+  cv_components           CVComponent[]
+  job_postings            JobPosting[]
+  application_analyses    ApplicationAnalysis[]
+
+  @@map("users")
 }
+
+model CVComponent {
+  id              Int      @id @default(autoincrement())
+  user_id         Int
+  user            User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  component_type  String   // 'education', 'work_experience', 'skill', etc.
+  content         Json
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@map("cv_components")
+}
+
+model CV {
+  id            Int      @id @default(autoincrement())
+  user_id       Int
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  title         String
+  component_ids Int[]    // Array of CVComponent ids
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  application_analyses ApplicationAnalysis[]
+  versions             CVVersion[]
+
+  @@map("cvs")
+}
+
+model JobPosting {
+  id            Int      @id @default(autoincrement())
+  user_id       Int?
+  user          User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  title         String
+  company       String?
+  description   String
+  url           String?
+  created_at    DateTime @default(now())
+
+  application_analyses ApplicationAnalysis[]
+
+  @@map("job_postings")
+}
+
+model ApplicationAnalysis {
+  id                            Int      @id @default(autoincrement())
+  user_id                       Int
+  user                          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  cv_id                         Int
+  cv                            CV       @relation(fields: [cv_id], references: [id])
+  job_posting_id                Int
+  job_posting                   JobPosting @relation(fields: [job_posting_id], references: [id])
+  generated_application_content String?
+  generated_cv_content          String?
+  ats_feedback                  Json?
+  quality_feedback              Json?
+  created_at                    DateTime @default(now())
+
+  @@map("application_analyses")
+}
+
+model CVVersion {
+  id             Int      @id @default(autoincrement())
+  cv_id          Int
+  cv             CV       @relation(fields: [cv_id], references: [id], onDelete: Cascade)
+  version_number Int
+  delta          Json     // Stores the JSON patch delta from the previous version
+  created_at     DateTime @default(now())
+
+  @@unique([cv_id, version_number]) // Ensure unique version numbers per CV
+  @@map("cv_versions")
+}
+

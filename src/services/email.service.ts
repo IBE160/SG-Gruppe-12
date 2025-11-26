@@ -1,42 +1,25 @@
 // src/services/email.service.ts
-interface EmailOptions {
-  to: string;
-  subject: string;
-  text: string;
-  html?: string;
-}
+import { User } from '@prisma/client';
 
 export const emailService = {
-  /**
-   * Sends an email (mocked for MVP).
-   * In a real application, this would integrate with a service like SendGrid or AWS SES.
-   * @param options The email options.
-   */
-  async sendEmail(options: EmailOptions): Promise<void> {
-    console.log(`
-      --- Mock Email Sent ---
-      To: ${options.to}
-      Subject: ${options.subject}
-      Text: ${options.text}
-      HTML: ${options.html || '(none)'}
-      -----------------------
-    `);
-    // For MVP, just log to console.
-    // In production, integrate with actual email service.
+  async sendVerificationEmail(user: User, token: string): Promise<void> {
+    // For MVP, this is a mock implementation.
+    // In a real application, this would integrate with an email sending service
+    // like SendGrid, AWS SES, or a custom SMTP server.
+    console.log(`--- MOCK EMAIL SERVICE ---`);
+    console.log(`Sending verification email to: ${user.email}`);
+    console.log(`Verification link: http://your-app-domain/verify-email?token=${token}`);
+    console.log(`--- END MOCK EMAIL SERVICE ---`);
+
+    // Simulate sending email
+    await new Promise(resolve => setTimeout(resolve, 500)); 
   },
 
-  /**
-   * Sends a user verification email (mocked for MVP).
-   * @param to The recipient's email address.
-   * @param verificationLink The link for email verification.
-   */
-  async sendVerificationEmail(to: string, verificationLink: string): Promise<void> {
-    const subject = 'Verify Your AI CV Assistant Account';
-    const text = `Please verify your account by clicking on this link: ${verificationLink}`;
-    const html = `<p>Please verify your account by clicking on this link: <a href="${verificationLink}">${verificationLink}</a></p>`;
-
-    await this.sendEmail({ to, subject, text, html });
-  },
-
-  // Other email sending functions (e.g., password reset) would go here
+  async sendPasswordResetEmail(user: User, token: string): Promise<void> {
+    console.log(`--- MOCK EMAIL SERVICE ---`);
+    console.log(`Sending password reset email to: ${user.email}`);
+    console.log(`Password reset link: http://your-app-domain/reset-password?token=${token}`);
+    console.log(`--- END MOCK EMAIL SERVICE ---`);
+    await new Promise(resolve => setTimeout(resolve, 500)); 
+  }
 };

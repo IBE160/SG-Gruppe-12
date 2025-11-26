@@ -119,4 +119,79 @@ router.delete(
   cvController.deleteLanguage
 );
 
+// --- Document Generation Routes ---
+
+// Route to trigger the document generation job
+router.get(
+  '/:cvId/download/:format(pdf|docx)',
+  authenticate,
+  validate(z.object({
+    params: z.object({
+      cvId: z.string().uuid(),
+      format: z.enum(['pdf', 'docx']),
+    }),
+  })),
+  cvController.requestDocument
+);
+
+// Route to check the status of a generation job
+router.get(
+  '/download/status/:jobId',
+  authenticate,
+  validate(z.object({
+    params: z.object({
+      jobId: z.string(),
+    }),
+  })),
+  cvController.getJobStatus
+);
+
+// Route to download the generated file
+router.get(
+  '/download/file/:jobId',
+  authenticate,
+  validate(z.object({
+    params: z.object({
+      jobId: z.string(),
+    }),
+  })),
+  cvController.downloadFile
+);
+
+// --- CV Versioning Routes ---
+router.get(
+  '/:cvId/versions',
+  authenticate,
+  validate(z.object({
+    params: z.object({
+      cvId: z.string().transform(v => parseInt(v, 10)),
+    }),
+  })),
+  cvController.listCvVersions
+);
+
+router.get(
+  '/:cvId/versions/:versionNumber',
+  authenticate,
+  validate(z.object({
+    params: z.object({
+      cvId: z.string().transform(v => parseInt(v, 10)),
+      versionNumber: z.string().transform(v => parseInt(v, 10)),
+    }),
+  })),
+  cvController.getCvVersionDetails
+);
+
+router.post(
+  '/:cvId/restore-version/:versionNumber',
+  authenticate,
+  validate(z.object({
+    params: z.object({
+      cvId: z.string().transform(v => parseInt(v, 10)),
+      versionNumber: z.string().transform(v => parseInt(v, 10)),
+    }),
+  })),
+  cvController.restoreCvVersion
+);
+
 export default router;

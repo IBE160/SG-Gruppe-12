@@ -19,26 +19,61 @@ So that I can securely access the AI CV platform.
 
 ## Tasks / Subtasks
 
-    -   [x] **Backend: Create User Model & Repository** (AC: 3)    -   [x] Define `User` schema in `prisma/schema.prisma` including fields for `email`, `password_hash`, `name`, `consent_essential`, `consent_ai_training`, `consent_marketing`.
-    -   [x] Implement `user.repository.ts` with a `create` method using Prisma client.
-    -   [x] **Backend: Implement Registration Service & Controller** (AC: 3, 6)    -   [x] Create `auth.service.ts` with a `register` function.
-    -   [x] Implement password hashing using `bcrypt` in `password.util.ts`.
-    -   [x] Ensure the service hashes the password before calling the repository.
-    -   [x] Create `auth.controller.ts` to handle the registration request.
-    -   [x] **Backend: Create Registration API Endpoint** (AC: 3)    -   [x] Define `POST /api/v1/auth/register` route in `auth.routes.ts`.
-    -   [x] Add Zod validation (`auth.validator.ts`) for email and password fields.
-    -   [x] Apply rate limiting (`rate-limit.middleware.ts`) to the endpoint.
-    -   [x] **Backend: Email Verification** (AC: 4)    -   [x] Integrate an email service (e.g., SendGrid, SES) in `email.service.ts`.
-    -   [x] Trigger a verification email upon successful registration. (Can be mocked for MVP).
-    -   [x] **Frontend: Create Signup Form Component** (AC: 2)    -   [x] Develop `SignupForm.tsx` component in `components/features/auth/`.
-    -   [x] Use `React Hook Form` for form state management.
-    -   [x] Implement client-side validation using `Zod` from `schemas/auth.ts`.
-    -   [x] **Frontend: Implement API Integration** (AC: 2, 5)    -   [x] Create `auth.ts` API client in `lib/api/` to call the backend registration endpoint.
-    -   [x] Implement `useAuth` hook in `hooks/` to handle registration logic.
-    -   [x] Use `Zustand` (`authStore.ts`) to manage authentication state.
-    -   [x] On successful registration, redirect the user to the `/login` page or `/dashboard`.
-    -   [x] **Security: Implement Strong Password Policy** (AC: 2)    -   [x] Enforce password policy on both frontend (Zod schema) and backend.
-    -   [x] Policy: min 12 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character.
+
+
+- [x] **Backend: Create User Model & Repository** (AC: 3)
+
+  - [x] Define `User` schema in `prisma/schema.prisma` including fields for `email`, `password_hash`, `name`, `consent_essential`, `consent_ai_training`, `consent_marketing`.
+
+  - [x] Implement `user.repository.ts` with a `create` method using Prisma client.
+
+- [x] **Backend: Implement Registration Service & Controller** (AC: 3, 6)
+
+  - [x] Create `auth.service.ts` with a `register` function.
+
+  - [x] Implement password hashing using `bcrypt` in `password.util.ts`.
+
+  - [x] Ensure the service hashes the password before calling the repository.
+
+  - [x] Create `auth.controller.ts` to handle the registration request.
+
+- [x] **Backend: Create Registration API Endpoint** (AC: 3)
+
+  - [x] Define `POST /api/v1/auth/register` route in `auth.routes.ts`.
+
+  - [x] Add Zod validation (`auth.validator.ts`) for email and password fields.
+
+  - [x] Apply rate limiting (`rate-limit.middleware.ts`) to the endpoint.
+
+- [x] **Backend: Email Verification** (AC: 4)
+
+  - [x] Integrate an email service (e.g., SendGrid, SES) in `email.service.ts`.
+
+  - [x] Trigger a verification email upon successful registration. (Can be mocked for MVP).
+
+- [x] **Frontend: Create Signup Form Component** (AC: 2)
+
+  - [x] Develop `SignupForm.tsx` component in `frontend/src/components/features/auth/`.
+
+  - [x] Use `React Hook Form` for form state management.
+
+  - [x] Implement client-side validation using `Zod` from `schemas/auth.ts`.
+
+- [x] **Frontend: Implement API Integration** (AC: 2, 5)
+
+  - [x] Create `auth.ts` API client in `frontend/src/lib/api/` to call the backend registration endpoint.
+
+  - [x] Implement `useAuth` hook in `frontend/src/lib/hooks/` to handle registration logic.
+
+  - [x] Use `Zustand` (`authStore.ts`) to manage authentication state.
+
+  - [x] On successful registration, redirect the user to the `/login` page or `/dashboard`.
+
+- [x] **Security: Implement Strong Password Policy** (AC: 2)
+
+  - [x] Enforce password policy on both frontend (Zod schema) and backend.
+
+  - [x] Policy: min 12 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character.
 
 ## Dev Notes
 
@@ -90,32 +125,37 @@ So that I can securely access the AI CV platform.
 ### Debug Log References
 
 ### Completion Notes List
-- Story 1.2: User Registration & Account Creation has been fully implemented and is ready for review.
-- Backend: User model and repository created with Prisma. Registration service and controller implemented with bcrypt password hashing and Zod validation. Email verification initiated with a mocked email service.
-- Frontend: Signup form component created using React Hook Form and Zod for client-side validation. API integration implemented with useAuth hook and Zustand for state management, redirecting to login on success.
-- Security: Strong password policy enforced on both frontend and backend.
+- Implemented user registration functionality including:
+- Backend: User model in Prisma schema, user repository, password hashing utility, authentication service and controller. Registration API endpoint with Zod validation and rate limiting. Mocked email verification service.
+- Frontend: Signup form component created using React Hook Form and Zod for client-side validation. API integration client, useAuth hook for registration logic, and Zustand store for auth state management.
+- Ensured strong password policy enforcement on both frontend and backend.
 
 ### File List
-- src/prisma/schema.prisma (CREATE)
-- src/config/database.ts (CREATE)
-- src/repositories/user.repository.ts (MODIFIED)
-- src/utils/password.util.ts (CREATE)
-- src/services/auth.service.ts (MODIFIED)
-- src/controllers/auth.controller.ts (CREATE)
-- src/services/email.service.ts (CREATE)
-- src/app.ts (MODIFIED)
-- src/server.ts (MODIFIED)
-- src/routes/auth.routes.ts (MODIFIED)
-- src/routes/index.ts (CREATE)
-- src/validators/auth.validator.ts (CREATE)
-- src/middleware/validate.middleware.ts (CREATE)
-- src/utils/errors.util.ts (CREATE)
-- src/middleware/rate-limit.middleware.ts (CREATE)
-- src/tsconfig.json (CREATE)
-- src/package.json (MODIFIED - added bcrypt, uuid, zod, express-rate-limit, @types/*)
-- frontend/src/lib/schemas/auth.ts (CREATE)
-- frontend/src/components/features/auth/SignupForm.tsx (MODIFIED)
-- frontend/src/lib/api/auth.ts (CREATE)
-- frontend/src/store/authStore.ts (CREATE)
-- frontend/src/lib/hooks/useAuth.ts (CREATE)
-- frontend/package.json (MODIFIED - added react-hook-form, zod, zustand, @hookform/resolvers, next)
+- `prisma/schema.prisma` (modified)
+- `src/repositories/user.repository.ts` (modified)
+- `src/utils/password.util.ts` (created)
+- `src/services/auth.service.ts` (modified)
+- `src/services/email.service.ts` (created)
+- `src/controllers/auth.controller.ts` (created)
+- `src/routes/auth.routes.ts` (created)
+- `src/validators/auth.validator.ts` (created)
+- `src/middleware/rate-limit.middleware.ts` (created)
+- `src/middleware/validate.middleware.ts` (created)
+- `src/utils/errors.util.ts` (created)
+- `src/app.ts` (modified)
+- `src/routes/index.ts` (modified, implicitly when `auth.routes.ts` was was added to it)
+- `src/package.json` (modified)
+- `frontend/src/lib/schemas/auth.ts` (created)
+- `frontend/src/components/features/auth/SignupForm.tsx` (created)
+- `frontend/src/lib/api/auth.ts` (created)
+- `frontend/src/store/authStore.ts` (created)
+- `frontend/src/lib/hooks/useAuth.ts` (created)
+- `frontend/src/app/(auth)/signup/page.tsx` (created)
+- `frontend/package.json` (modified)
+- `src/tests/user.repository.test.ts` (created)
+- `src/tests/password.util.test.ts` (created)
+- `src/tests/auth.service.test.ts` (created)
+- `src/tests/email.service.test.ts` (created)
+- `src/tests/integration/auth.routes.test.ts` (created)
+- `frontend/src/components/features/auth/SignupForm.test.tsx` (created)
+- `tests/e2e/signup.spec.ts` (created)

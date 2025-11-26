@@ -1,6 +1,6 @@
 # Story 2.6: CV Download Functionality (PDF/DOCX)
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -18,23 +18,23 @@ so that I can easily submit it to job applications.
 
 ## Tasks / Subtasks
 
-- [ ] **Backend: Implement PDF Generation Service (AC 3, 5)**
-  - [ ] Create a `document-generation.service.ts` to encapsulate PDF generation logic using Puppeteer (recommended by `architecture-backend.md`) or a lightweight alternative.
-  - [ ] The service should accept structured CV data and a template identifier, returning a PDF buffer.
-  - [ ] Implement an API endpoint (e.g., `GET /api/cv/:id/download/pdf`) that triggers PDF generation and returns the file.
-  - [ ] (Optional) Integrate with Bull queue for background PDF generation if processing times are significant.
-- [ ] **Backend: Implement DOCX Generation Service (AC 4, 5)**
-  - [ ] Extend `document-generation.service.ts` with DOCX generation logic using the `docx` library (recommended by `architecture-backend.md`).
-  - [ ] Implement an API endpoint (e.g., `GET /api/cv/:id/download/docx`) that triggers DOCX generation and returns the file.
-  - [ ] (Optional) Integrate with Bull queue for background DOCX generation.
-- [ ] **Frontend: Integrate Download Functionality (AC 2)**
-  - [ ] Add "Download PDF" and "Download DOCX" buttons to the CV preview section (developed in Story 2.5).
-  - [ ] Implement frontend logic to call the respective backend API endpoints and initiate file downloads in the browser.
-- [ ] **Testing: Ensure Feature Quality**
-  - [ ] **Backend:** Write unit tests for `document-generation.service.ts` covering both PDF and DOCX generation, mocking external library calls.
-  - [ ] **Backend:** Write integration tests for the download API endpoints to ensure files are correctly generated and returned.
-  - [ ] **Frontend:** Write component tests for the download buttons and their interaction with the backend.
-  - [ ] **E2E:** Add Playwright tests to verify the end-to-end flow of generating and downloading both PDF and DOCX files from the UI.
+- [x] **Backend: Implement PDF Generation Service (AC 3, 5)**
+  - [x] Create a `document-generation.service.ts` to encapsulate PDF generation logic using Puppeteer (recommended by `architecture-backend.md`) or a lightweight alternative.
+  - [x] The service should accept structured CV data and a template identifier, returning a PDF buffer.
+  - [x] Implement an API endpoint (e.g., `GET /api/cv/:id/download/pdf`) that triggers PDF generation and returns the file.
+  - [x] (Optional) Integrate with Bull queue for background PDF generation if processing times are significant.
+- [x] **Backend: Implement DOCX Generation Service (AC 4, 5)**
+  - [x] Extend `document-generation.service.ts` with DOCX generation logic using the `docx` library (recommended by `architecture-backend.md`).
+  - [x] Implement an API endpoint (e.g., `GET /api/cv/:id/download/docx`) that triggers DOCX generation and returns the file.
+  - [x] (Optional) Integrate with Bull queue for background DOCX generation.
+- [x] **Frontend: Integrate Download Functionality (AC 2)**
+  - [x] Add "Download PDF" and "Download DOCX" buttons to the CV preview section (developed in Story 2.5).
+  - [x] Implement frontend logic to call the respective backend API endpoints and initiate file downloads in the browser.
+- [x] **Testing: Ensure Feature Quality**
+  - [x] **Backend:** Write unit tests for `document-generation.service.ts` covering both PDF and DOCX generation, mocking external library calls.
+  - [x] **Backend:** Write integration tests for the download API endpoints to ensure files are correctly generated and returned.
+  - [x] **Frontend:** Write component tests for the download buttons and their interaction with the backend.
+  - [x] **E2E:** Add Playwright tests to verify the end-to-end flow of generating and downloading both PDF and DOCX files from the UI.
 
 ## Dev Notes
 
@@ -74,6 +74,32 @@ gemini-1.5-flash
 
 ### Debug Log References
 
+- Recreated `prisma/schema.prisma` after it was accidentally deleted.
+- Fixed corrupted `src/package.json`.
+- Resolved dependency conflicts in the monorepo.
+
 ### Completion Notes List
 
+- Implemented a full-stack feature for asynchronous document generation (PDF and DOCX).
+- Backend uses a Bull queue to process generation jobs, preventing API timeouts.
+- Frontend polls for job completion and triggers a download when ready.
+- Wrote unit, integration, and E2E tests to cover the new functionality.
+- Created placeholder frontend component `CVPreview.tsx` as it was missing.
+
 ### File List
+- `prisma/schema.prisma` (created)
+- `src/package.json` (modified)
+- `src/services/document-generation.service.ts` (created)
+- `src/jobs/index.ts` (modified)
+- `src/jobs/document-generation.job.ts` (created)
+- `src/types/cv.types.ts` (created)
+- `src/validators/cv.validator.ts` (modified)
+- `src/repositories/cv.repository.ts` (modified)
+- `src/routes/cv.routes.ts` (modified)
+- `src/controllers/cv.controller.ts` (modified)
+- `src/tests/document-generation.service.test.ts` (created)
+- `src/tests/integration/cv.download.test.ts` (created)
+- `frontend/src/components/features/cv-management/CVPreview.tsx` (created)
+- `frontend/src/lib/api/cv.ts` (created)
+- `frontend/src/components/features/cv-management/CVPreview.test.tsx` (created)
+- `tests/e2e/cv-download.spec.ts` (created)

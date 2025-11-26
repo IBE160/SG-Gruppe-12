@@ -1,131 +1,83 @@
 // frontend/src/components/features/cv-management/WorkExperienceForm.test.tsx
-import '@testing-library/jest-dom';
+import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { WorkExperienceForm } from './WorkExperienceForm';
+import '@testing-library/jest-dom';
+import WorkExperienceForm from './WorkExperienceForm';
+import { ExperienceEntry } from '@/types/cv';
 
-// Mock the react-hook-form's useForm hook and zodResolver
-jest.mock('react-hook-form', () => ({
-  ...jest.requireActual('react-hook-form'),
-  useForm: jest.fn(() => ({
-    register: jest.fn(),
-    handleSubmit: jest.fn((cb) => (e) => {
-      e.preventDefault(); // Prevent default form submission
-      cb(formMockData);
-    }),
-    formState: { errors: {} },
-  })),
-}));
+// We will use the actual react-hook-form and zodResolver for a more realistic test
+// by wrapping the component in a test-specific provider if necessary,
+// or just by rendering it directly as it's self-contained.
 
-const formMockData = {
-  title: 'Software Engineer',
-  company: 'Google',
-  location: 'Mountain View, CA',
-  startDate: '2020-01-01',
-  endDate: '2023-12-31',
-  description: 'Developed and maintained software.',
-};
+describe('WorkExperienceForm Component', () => {
+  const mockOnSubmit = jest.fn();
 
-describe('WorkExperienceForm', () => {
-  const mockOnSave = jest.fn();
-  const mockOnCancel = jest.fn();
-  const cvId = 'testCvId';
+  const initialData: ExperienceEntry = {
+    title: 'Software Engineer',
+    company: 'Tech Corp',
+    location: 'Remote',
+    startDate: '2020-01-01',
+    endDate: '2022-12-31',
+    description: 'Developed amazing things.',
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders correctly for adding new experience', () => {
-    render(
-      <WorkExperienceForm
-        cvId={cvId}
-        onSave={mockOnSave}
-        onCancel={mockOnCancel}
-      />
-    );
+  it('renders correctly for adding a new experience', () => {
+    render(<WorkExperienceForm onSubmit={mockOnSubmit} isLoading={false} />);
 
-    expect(screen.getByText('Add New Work Experience')).toBeInTheDocument();
-    expect(screen.getByLabelText('Job Title')).toBeInTheDocument();
-    expect(screen.getByLabelText('Company')).toBeInTheDocument();
-    expect(screen.getByLabelText('Start Date (YYYY-MM-DD)')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Save Experience/i })).toBeInTheDocument();
+    expect(screen.getByLabelText('Job Title')).toHaveValue('');
+    expect(screen.getByLabelText('Company')).toHaveValue('');
+    expect(screen.getByRole('button', { name: 'Save Experience' })).toBeInTheDocument();
   });
 
-  it('renders correctly for editing existing experience', () => {
-    render(
-      <WorkExperienceForm
-        cvId={cvId}
-        initialData={formMockData}
-        onSave={mockOnSave}
-        onCancel={mockOnCancel}
-      />
-    );
+  it('renders with initial data for editing an experience', () => {
+    render(<WorkExperienceForm onSubmit={mockOnSubmit} initialData={initialData} isLoading={false} />);
 
-    expect(screen.getByText('Edit Work Experience')).toBeInTheDocument();
-    // Check if initial data is populated (mocked register means we can't check value directly without more advanced mocking)
-    // For a real test, you'd verify input values are correctly set.
+    expect(screen.getByLabelText('Job Title')).toHaveValue(initialData.title);
+    expect(screen.getByLabelText('Company')).toHaveValue(initialData.company);
+    expect(screen.getByLabelText('Description')).toHaveValue(initialData.description);
   });
 
-  it('calls onSave with form data when submitted', async () => {
-    const { useForm } = require('react-hook-form');
-    useForm.mockImplementation(() => ({
-      register: jest.fn(),
-      handleSubmit: jest.fn((cb) => (e) => {
-        e.preventDefault();
-        cb(formMockData); // Ensure it passes data
-      }),
-      formState: { errors: {} },
-      getValues: jest.fn(() => formMockData), // Mock getValues if needed by internal logic
-    }));
+  it('calls onSubmit with form data when submitted with valid data', async () => {
+    render(<WorkExperienceForm onSubmit={mockOnSubmit} isLoading={false} />);
+    
+    fireEvent.change(screen.getByLabelText('Job Title'), { target: { value: 'New Title' } });
+    fireEvent.change(screen.getByLabelText('Company'), { target: { value: 'New Company' } });
+    fireEvent.change(screen.getByLabelText('Start Date'), { target: { value: '2023-01-01' } });
 
-    render(
-      <WorkExperienceForm
-        cvId={cvId}
-        onSave={mockOnSave}
-        onCancel={mockOnCancel}
-      />
-    );
-
-    fireEvent.submit(screen.getByRole('button', { name: /Save Experience/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save Experience' }));
 
     await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledWith(formMockData);
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'New Title',
+          company: 'New Company',
+          startDate: '2023-01-01',
+        })
+      );
     });
   });
 
-  it('calls onCancel when cancel button is clicked', () => {
-    render(
-      <WorkExperienceForm
-        cvId={cvId}
-        onSave={mockOnSave}
-        onCancel={mockOnCancel}
-      />
-    );
+  it('shows validation errors for required fields', async () => {
+    render(<WorkExperienceForm onSubmit={mockOnSubmit} isLoading={false} />);
 
-    fireEvent.click(screen.getByRole('button', { name: /Cancel/i }));
-    expect(mockOnCancel).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Save Experience' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Job title is required')).toBeInTheDocument();
+      expect(screen.getByText('Company name is required')).toBeInTheDocument();
+    });
+
+    // onSubmit should not be called
+    expect(mockOnSubmit).not.toHaveBeenCalled();
   });
 
-  // Test validation errors (requires more detailed react-hook-form mocking for errors object)
-  // it('displays validation errors', async () => {
-  //   const { useForm } = require('react-hook-form');
-  //   useForm.mockImplementationOnce(() => ({
-  //     register: jest.fn(),
-  //     handleSubmit: jest.fn((cb) => (e) => { e.preventDefault(); cb({}); }), // Submit empty data
-  //     formState: { errors: { title: { message: 'Job title is required' } } },
-  //   }));
+  it('disables the submit button when isLoading is true', () => {
+    render(<WorkExperienceForm onSubmit={mockOnSubmit} isLoading={true} />);
 
-  //   render(
-  //     <WorkExperienceForm
-  //       cvId={cvId}
-  //       onSave={mockOnSave}
-  //       onCancel={mockOnCancel}
-  //     />
-  //   );
-
-  //   fireEvent.submit(screen.getByRole('button', { name: /Save Experience/i }));
-
-  //   await waitFor(() => {
-  //     expect(screen.getByText('Job title is required')).toBeInTheDocument();
-  //   });
-  // });
+    expect(screen.getByRole('button', { name: 'Saving...' })).toBeDisabled();
+  });
 });

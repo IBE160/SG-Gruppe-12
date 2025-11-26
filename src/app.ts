@@ -3,7 +3,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 // import { loggingMiddleware } from './middleware/logging.middleware'; // Will add later
-import { errorMiddleware } from './middleware/error.middleware'; // Will add later
+import { errorMiddleware } from './middleware/error.middleware';
 import routes from './routes'; // Import the main router
 
 const app = express();
@@ -55,7 +55,7 @@ app.get('/', (req, res) => {
   res.send('CV Analyzer API is running...');
 });
 
-// Error handler (MUST be last) - will add errorMiddleware later
+// Error handler (MUST be last)
 app.use(errorMiddleware);
 
 export default app;
