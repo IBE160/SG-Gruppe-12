@@ -8,6 +8,8 @@
     "dev": "ts-node-dev --respawn --transpile-only server.ts",
     "build": "tsc",
     "test": "jest",
+    "test:coverage": "jest --coverage --coverageThreshold='{\"global\":{\"branches\":85,\"functions\":85,\"lines\":85,\"statements\":85}}'",
+    "test:ci": "jest --ci --coverage --maxWorkers=2",
     "prisma:migrate": "dotenv -e ./.env -- npx prisma migrate dev --schema ../prisma/schema.prisma --name add_cv_models",
     "prisma:generate": "npx prisma generate --schema ../prisma/schema.prisma"
   },
