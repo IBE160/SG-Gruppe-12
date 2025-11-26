@@ -41,6 +41,7 @@ workflow_status:
   create-architecture: docs/architecture-frontend.md # agent: architect (5 docs created)
   validate-architecture: optional # agent: architect
   solutioning-gate-check: docs/SOLUTIONING-GATE-CHECK.md # agent: architect (APPROVED)
+  create-epics-and-stories: docs/epics.md # agent: pm
 
   # Phase 3: Implementation
   sprint-planning: ready # agent: sm (Phase 2 complete, ready to start Sprint 1)
