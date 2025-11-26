@@ -7,8 +7,8 @@
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "prisma:migrate": "dotenv -e ./.env -- npx prisma migrate dev --name init_users_table",
-    "prisma:generate": "npx prisma generate"
+    "prisma:migrate": "dotenv -e ./.env -- npx prisma migrate dev --schema ../prisma/schema.prisma --name add_cv_models",
+    "prisma:generate": "npx prisma generate --schema ../prisma/schema.prisma"
   },
   "keywords": [],
   "author": "",
