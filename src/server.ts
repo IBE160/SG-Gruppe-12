@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import app from './app';
 import './jobs/cv-parsing.job'; // Import the job processor to start it
 
