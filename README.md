@@ -1,5 +1,9 @@
 # AI CV & Job Application Assistant Monorepo
 
+> **🚨 TEAM: ACTION REQUIRED**
+> **If you just pulled latest changes:** See [TEAM-SETUP.md](./TEAM-SETUP.md) for required setup steps (10-15 min)
+> **Latest update (2025-11-26):** Security fixes + Prisma schema sync - requires environment configuration
+
 This monorepo contains the `frontend` and `backend` (src) applications for the AI CV & Job Application Assistant.
 
 ## Project Structure
