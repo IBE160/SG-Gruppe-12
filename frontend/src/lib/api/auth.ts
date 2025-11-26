@@ -1,5 +1,5 @@
 // frontend/src/lib/api/auth.ts
-import { SignupFormValues } from "@/lib/schemas/auth";
+import { SignupFormValues, LoginFormValues } from "@/lib/schemas/auth"; // Import LoginFormValues
 
 // A utility function to handle API errors consistently
 const handleAuthApiError = async (response: Response) => {
@@ -21,4 +21,23 @@ export const registerUser = async (userData: SignupFormValues) => {
   return handleAuthApiError(response);
 };
 
-// You might add login, logout, and token refresh functions here later
+export const loginUser = async (credentials: LoginFormValues) => {
+  const response = await fetch("/api/v1/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(credentials),
+  });
+  return handleAuthApiError(response);
+};
+
+export const logoutUser = async () => {
+  const response = await fetch("/api/v1/auth/logout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return handleAuthApiError(response);
+};

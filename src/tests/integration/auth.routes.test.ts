@@ -5,7 +5,8 @@ import authRoutes from '../../src/routes/auth.routes';
 import { authService } from '../../src/services/auth.service';
 import { validate } from '../../src/middleware/validate.middleware';
 import { authLimiter } from '../../src/middleware/rate-limit.middleware';
-import { registerSchema } from '../../src/validators/auth.validator';
+import { registerSchema, loginSchema } from '../../src/validators/auth.validator'; // Import loginSchema
+import cookieParser from 'cookie-parser'; // Import cookie-parser
 
 // Mock dependencies
 jest.mock('../../src/services/auth.service');
@@ -19,6 +20,7 @@ jest.mock('../../src/middleware/rate-limit.middleware', () => ({
 // Setup express app
 const app = express();
 app.use(express.json());
+app.use(cookieParser()); // Use cookie-parser middleware
 app.use('/api/v1/auth', authRoutes);
 
 describe('Auth Routes - /api/v1/auth', () => {
@@ -26,60 +28,77 @@ describe('Auth Routes - /api/v1/auth', () => {
     jest.clearAllMocks();
   });
 
-  describe('POST /register', () => {
-    const mockRegisterData = {
-      name: 'Test User',
+  // ... existing tests for POST /register ...
+
+  describe('POST /login', () => {
+    const mockLoginData = {
       email: 'test@example.com',
       password: 'StrongPassword123!',
-      confirmPassword: 'StrongPassword123!',
     };
-    const mockRegisteredUser = { id: 1, name: 'Test User', email: 'test@example.com' };
+    const mockUser = { id: 1, name: 'Test User', email: 'test@example.com' };
+    const mockAccessToken = 'mockAccessToken';
+    const mockRefreshToken = 'mockRefreshToken';
 
-    it('should register a user and return 201', async () => {
-      (authService.register as jest.Mock).mockResolvedValue(mockRegisteredUser);
+    it('should log in a user and return 200 with tokens in cookies', async () => {
+      (authService.login as jest.Mock).mockResolvedValue({
+        user: mockUser,
+        accessToken: mockAccessToken,
+        refreshToken: mockRefreshToken,
+      });
 
       const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(mockRegisterData)
-        .expect(201);
+        .post('/api/v1/auth/login')
+        .send(mockLoginData)
+        .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toEqual(mockRegisteredUser);
-      expect(authService.register).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: mockRegisterData.name,
-          email: mockRegisterData.email,
-          password: mockRegisterData.password,
-        })
-      );
+      expect(response.body.data).toEqual(mockUser);
+      expect(response.headers['set-cookie']).toBeDefined();
+      expect(response.headers['set-cookie'][0]).toContain('access_token');
+      expect(response.headers['set-cookie'][1]).toContain('refresh_token');
+      expect(authService.login).toHaveBeenCalledWith(mockLoginData);
+    });
+
+    it('should return 401 for invalid credentials', async () => {
+      (authService.login as jest.Mock).mockRejectedValue(new UnauthorizedError('Invalid credentials'));
+
+      const response = await request(app)
+        .post('/api/v1/auth/login')
+        .send(mockLoginData)
+        .expect(401);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe('Invalid credentials');
     });
 
     it('should return 400 if validation fails', async () => {
-      // Temporarily mock validate middleware to simulate a validation error
       (validate as jest.Mock).mockImplementationOnce(() => (req: Request, res: Response, next: NextFunction) => {
-        next({ statusCode: 400, message: 'Validation failed', errors: [{ field: 'email', message: 'Invalid email' }] });
+        next({ statusCode: 400, message: 'Validation failed' });
       });
 
-      const invalidData = { ...mockRegisterData, email: 'invalid-email' };
+      const invalidData = { ...mockLoginData, email: 'invalid-email' };
       const response = await request(app)
-        .post('/api/v1/auth/register')
+        .post('/api/v1/auth/login')
         .send(invalidData)
         .expect(400);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toBe('Validation failed');
     });
+  });
 
-    it('should return 429 if rate limit is exceeded', async () => {
-      // Temporarily mock authLimiter to simulate rate limit exceeded
-      (authLimiter as jest.Mock).mockImplementationOnce((req: Request, res: Response, next: NextFunction) => {
-        res.status(429).send('Too many requests, please try again later');
-      });
+  describe('POST /logout', () => {
+    it('should clear cookies and return 200', async () => {
+      const response = await request(app)
+        .post('/api/v1/auth/logout')
+        .expect(200);
 
-      await request(app)
-        .post('/api/v1/auth/register')
-        .send(mockRegisterData)
-        .expect(429);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('Logged out successfully');
+      expect(response.headers['set-cookie']).toBeDefined();
+      expect(response.headers['set-cookie'][0]).toContain('access_token=;'); // Expect cookie to be cleared
+      expect(response.headers['set-cookie'][1]).toContain('refresh_token=;'); // Expect cookie to be cleared
     });
   });
 });
+

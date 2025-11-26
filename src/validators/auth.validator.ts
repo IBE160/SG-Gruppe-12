@@ -17,3 +17,8 @@ export const registerSchema = z.object({
   consent_ai_training: z.boolean().optional(),
   consent_marketing: z.boolean().optional(),
 });
+
+export const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'), // Password doesn't need full policy here, just presence
+});

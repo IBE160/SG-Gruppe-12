@@ -1,90 +1,78 @@
-'use client'; // This component will be a Client Component
+// frontend/src/components/features/auth/LoginForm.tsx
+"use client";
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, LoginInput } from '../../../lib/schemas/auth'; // Import loginSchema and LoginInput
-import { useAuth } from '../../../lib/hooks/useAuth'; // Import useAuth hook
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { loginSchema } from "@/lib/schemas/auth"; // Assuming loginSchema is defined here
+import Link from "next/link";
 
-// Import shadcn/ui components
-// Assuming shadcn/ui components are set up and available at these paths
-import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
-import { Label } from '../../ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
+interface LoginFormProps {
+  onSubmit: (values: z.infer<typeof loginSchema>) => void;
+  isLoading: boolean;
+  errorMessage?: string;
+}
 
-export function LoginForm() {
-  const { login: authLogin, loading: authLoading, error: authError } = useAuth(); // Use the actual auth hook
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    setError,
-  } = useForm<LoginInput>({
+export function LoginForm({ onSubmit, isLoading, errorMessage }: LoginFormProps) {
+  const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const onSubmit = async (data: LoginInput) => {
-    try {
-      await authLogin(data);
-    } catch (err: any) {
-      setError('email', { type: 'manual', message: err.message });
-      setError('password', { type: 'manual', message: err.message });
-    }
-  };
-
   return (
-    <Card className="mx-auto max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-xl">Login</CardTitle>
-        <CardDescription>
-          Enter your email below to login to your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              {...register('email')}
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
-          </div>
-          <div className="grid gap-2">
-            <div className="flex items-center">
-              <Label htmlFor="password">Password</Label>
-              <a href="#" className="ml-auto inline-block text-sm underline">
-                Forgot your password?
-              </a>
-            </div>
-            <Input
-              id="password"
-              type="password"
-              {...register('password')}
-            />
-            {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
-            )}
-          </div>
-          {authError && ( // Display a general error if present
-            <p className="text-sm text-red-500 text-center">{authError}</p>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {errorMessage && <p className="text-sm font-medium text-destructive">{errorMessage}</p>}
+        
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="m@example.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-          <Button type="submit" className="w-full" disabled={isSubmitting || authLoading}>
-            {authLoading ? 'Logging in...' : 'Login'}
-          </Button>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{' '}
-            <a href="/signup" className="underline">
-              Sign up
-            </a>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input type="password" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Logging In..." : "Login"}
+        </Button>
+        <div className="text-sm text-center">
+          Don't have an account?{" "}
+          <Link href="/signup" className="text-primary hover:underline">
+            Sign Up
+          </Link>
+        </div>
+      </form>
+    </Form>
   );
 }
