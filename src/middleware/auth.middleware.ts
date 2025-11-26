@@ -1,34 +1,23 @@
+// src/middleware/auth.middleware.ts
 import { Request, Response, NextFunction } from 'express';
-import { verifyJWT, JWTPayload } from '../utils/jwt.util';
-import { UnauthorizedError } from '../utils/errors.util'; // Assuming UnauthorizedError exists
+import { jwtService, JwtPayload } from '../utils/jwt.util';
+import { UnauthorizedError } from '../utils/errors.util';
 
-// Extend Express Request interface to include user property
 export interface AuthRequest extends Request {
-  user?: JWTPayload;
+  user?: JwtPayload;
 }
 
-export const authenticate = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
+export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Get token from HTTP-only cookie
-    const token = req.cookies.access_token; // Assumes access_token cookie is set
-
-    if (!token) {
-      throw new UnauthorizedError('Authentication required');
+    const accessToken = req.cookies.access_token;
+    if (!accessToken) {
+      throw new UnauthorizedError('No access token provided');
     }
 
-    // Verify JWT
-    const payload = verifyJWT(token, 'access');
-
-    // Attach user payload to the request
-    req.user = payload;
-
+    const payload = jwtService.verifyAccessToken(accessToken);
+    (req as AuthRequest).user = payload;
     next();
   } catch (error) {
-    // If token verification fails, or token is missing, pass an UnauthorizedError
-    next(new UnauthorizedError('Invalid or expired token'));
+    next(error);
   }
 };

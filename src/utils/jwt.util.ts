@@ -1,26 +1,36 @@
 // src/utils/jwt.util.ts
 import jwt from 'jsonwebtoken';
-import { AppError } from './errors.util'; // Assuming AppError for custom errors
+import { AppError } from './errors.util'; // Assuming AppError exists
 
-// Define the shape of the JWT payload
-export interface JWTPayload {
-  userId: string;
-  email: string;
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'your_access_token_secret';
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'your_refresh_token_secret';
+
+export interface JwtPayload {
+  userId: number;
 }
 
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'supersecretaccesskey'; // TODO: Use strong, unique keys
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'supersecretrefreshkey'; // TODO: Use strong, unique keys
+export const jwtService = {
+  generateAccessToken(userId: number): string {
+    return jwt.sign({ userId }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' }); // 15 minutes
+  },
 
-export const signJWT = (payload: JWTPayload, expiresIn: string, type: 'access' | 'refresh' = 'access'): string => {
-  const secret = type === 'access' ? ACCESS_TOKEN_SECRET : REFRESH_TOKEN_SECRET;
-  return jwt.sign(payload, secret, { expiresIn });
-};
+  generateRefreshToken(userId: number): string {
+    return jwt.sign({ userId }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' }); // 7 days
+  },
 
-export const verifyJWT = (token: string, type: 'access' | 'refresh' = 'access'): JWTPayload => {
-  const secret = type === 'access' ? ACCESS_TOKEN_SECRET : REFRESH_TOKEN_SECRET;
-  try {
-    return jwt.verify(token, secret) as JWTPayload;
-  } catch (error) {
-    throw new AppError('Invalid or expired token', 401);
-  }
+  verifyAccessToken(token: string): JwtPayload {
+    try {
+      return jwt.verify(token, ACCESS_TOKEN_SECRET) as JwtPayload;
+    } catch (error) {
+      throw new AppError('Invalid or expired access token', 401);
+    }
+  },
+
+  verifyRefreshToken(token: string): JwtPayload {
+    try {
+      return jwt.verify(token, REFRESH_TOKEN_SECRET) as JwtPayload;
+    } catch (error) {
+      throw new AppError('Invalid or expired refresh token', 401);
+    }
+  },
 };
