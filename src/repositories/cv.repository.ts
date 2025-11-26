@@ -1,16 +1,16 @@
 // src/repositories/cv.repository.ts
 import { prisma } from '../config/database';
 import { CV, CVVersion } from '@prisma/client'; // Import generated types from Prisma Client
-import { ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '../validators/cv.validator'; // Import all entry types
+import { PersonalInfo, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '../types/cv.types'; // Import all entry types
 
 export const cvRepository = {
   async create(data: {
     userId: string;
-    personal_info: any;
-    education: any[];
-    experience: any[];
-    skills: any[];
-    languages: any[];
+    personal_info: PersonalInfo;
+    education: EducationEntry[];
+    experience: ExperienceEntry[];
+    skills: SkillEntry[];
+    languages: LanguageEntry[];
   }): Promise<CV> {
     return prisma.cV.create({
       data: {
@@ -38,11 +38,11 @@ export const cvRepository = {
   },
 
   async update(id: string, data: Partial<{
-    personal_info: any;
-    education: any[];
-    experience: any[];
-    skills: any[];
-    languages: any[];
+    personal_info: PersonalInfo;
+    education: EducationEntry[];
+    experience: ExperienceEntry[];
+    skills: SkillEntry[];
+    languages: LanguageEntry[];
   }>): Promise<CV> {
     return prisma.cV.update({
       where: { id },

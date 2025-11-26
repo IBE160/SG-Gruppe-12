@@ -51,9 +51,6 @@ export const createCVSchema = z.object({
   languages: z.array(languageEntrySchema),
 });
 
-// Type for the incoming CV data
-export type CreateCVInput = z.infer<typeof createCVSchema>;
-
 // Main schema for updating an existing CV (all fields optional)
 export const updateCVSchema = z.object({
   personal_info: personalInfoSchema.partial().optional(),
@@ -62,5 +59,3 @@ export const updateCVSchema = z.object({
   skills: z.array(skillEntrySchema).optional(),
   languages: z.array(languageEntrySchema).optional(),
 }).partial(); // Make all top-level fields optional for partial updates
-
-export type UpdateCVInput = z.infer<typeof updateCVSchema>;
