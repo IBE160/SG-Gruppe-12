@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: '20.x'
       - name: Install dependencies (frontend)
-        run: npm install
+        run: node -r dotenv/config npm install
         working-directory: ./frontend
       - name: Run lint (frontend)
         run: npm run lint
