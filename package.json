@@ -16,5 +16,10 @@
   ],
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "bull": "^4.16.5",
+    "file-type": "^21.1.1",
+    "ioredis": "^5.8.2"
+  }
 }
