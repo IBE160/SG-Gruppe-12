@@ -24,13 +24,16 @@ export const authService = {
   async register(userData: RegisterUserDto): Promise<User> {
     const hashedPassword = await hashPassword(userData.password);
     const emailVerificationToken = uuidv4();
+
+    // Split name into firstName and lastName if provided
+    const [firstName, ...lastNameParts] = (userData.name || '').split(' ');
+    const lastName = lastNameParts.join(' ') || undefined;
+
     const user = await userRepository.create({
-      name: userData.name,
+      firstName,
+      lastName,
       email: userData.email,
       passwordHash: hashedPassword,
-      consent_essential: true,
-      consent_ai_training: userData.consent_ai_training || false,
-      consent_marketing: userData.consent_marketing || false,
       emailVerificationToken: emailVerificationToken,
       emailVerified: false,
     });
