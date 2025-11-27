@@ -1,6 +1,7 @@
 // src/controllers/auth.controller.ts
 import { Request, Response, NextFunction } from 'express';
 import { authService } from '../services/auth.service';
+import { jwtService } from '../utils/jwt.util';
 
 export const authController = {
   async register(req: Request, res: Response, next: NextFunction) {
@@ -79,6 +80,35 @@ export const authController = {
       });
 
       res.status(200).json({ success: true, message: 'Logged out successfully' });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async refreshToken(req: Request, res: Response, next: NextFunction) {
+    try {
+      const refreshToken = req.cookies.refresh_token;
+
+      if (!refreshToken) {
+        return res.status(401).json({ success: false, message: 'No refresh token provided' });
+      }
+
+      // Verify refresh token and generate new access token
+      const payload = jwtService.verifyRefreshToken(refreshToken);
+      const newAccessToken = jwtService.generateAccessToken(payload.userId);
+
+      // Set new access token cookie
+      res.cookie('access_token', newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000, // 15 minutes
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'Token refreshed successfully',
+      });
     } catch (error) {
       next(error);
     }

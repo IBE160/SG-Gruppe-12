@@ -26,4 +26,9 @@ router.post(
   authController.logout // No validation or rate limiting needed for logout
 );
 
+router.post(
+  '/refresh',
+  authController.refreshToken // Refresh access token using refresh token cookie
+);
+
 export default router;

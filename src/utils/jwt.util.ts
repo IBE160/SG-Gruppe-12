@@ -2,8 +2,17 @@
 import jwt from 'jsonwebtoken';
 import { AppError } from './errors.util'; // Assuming AppError exists
 
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'your_access_token_secret';
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'your_refresh_token_secret';
+// Require JWT secrets - fail fast if not configured
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
+
+if (!ACCESS_TOKEN_SECRET) {
+  throw new Error('FATAL: ACCESS_TOKEN_SECRET environment variable is not set');
+}
+
+if (!REFRESH_TOKEN_SECRET) {
+  throw new Error('FATAL: REFRESH_TOKEN_SECRET environment variable is not set');
+}
 
 export interface JwtPayload {
   userId: number;

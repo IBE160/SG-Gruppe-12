@@ -41,3 +41,14 @@ export const logoutUser = async () => {
   });
   return handleAuthApiError(response);
 };
+
+export const refreshAccessToken = async () => {
+  const response = await fetch("/api/v1/auth/refresh", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include", // Include cookies
+  });
+  return handleAuthApiError(response);
+};
