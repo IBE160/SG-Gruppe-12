@@ -40,9 +40,9 @@ story_location: "C:\Users\kayle\Desktop\SG-Gruppe-12/docs/sprint-artifacts"
 
 development_status:
   epic-1: contexted
-  1-1-project-setup-core-infrastructure-initialization: review
-  1-2-user-registration-account-creation: review
-  1-3-user-login-session-management: review
+  1-1-project-setup-core-infrastructure-initialization: done
+  1-2-user-registration-account-creation: done
+  1-3-user-login-session-management: done
   1-4-basic-profile-creation-name-contact-info: done
   epic-1-retrospective: optional
 
@@ -57,7 +57,7 @@ development_status:
   2-8-cv-data-versioning: ready-for-dev
   epic-2-retrospective: optional
 
-  epic-3: backlog
+  epic-3: contexted
   3-1-job-description-input-interface: backlog
   3-2-ai-powered-job-description-text-extraction: backlog
   3-3-cv-job-description-keyword-matching-algorithm: backlog
@@ -66,7 +66,7 @@ development_status:
   3-6-data-schema-contract-enforcement-job-analysis-inputs-outputs: backlog
   epic-3-retrospective: optional
 
-  epic-4: backlog
+  epic-4: contexted
   4-1-ai-driven-tailored-cv-generation: backlog
   4-2-ai-driven-personalized-cover-letter-generation: backlog
   4-3-user-review-editing-interface-for-ai-generated-content: backlog
@@ -74,7 +74,7 @@ development_status:
   4-5-robust-ai-processing-feedback-handling: backlog
   epic-4-retrospective: optional
 
-  epic-5: backlog
+  epic-5: contexted
   5-1-gdpr-consent-management: backlog
   5-2-data-export-deletion-right-to-be-forgotten: backlog
   5-3-data-encryption-in-transit-at-rest: backlog
