@@ -1,4 +1,5 @@
 // src/routes/user.routes.ts
+import { z } from 'zod';
 import { Router } from 'express';
 import { userController } from '../controllers/user.controller';
 import { authenticate } from '../middleware/auth.middleware'; // Will create this middleware soon
@@ -19,7 +20,7 @@ router.get(
 // POST /api/v1/profile - Update user profile
 router.post(
   '/',
-  validate(profileSchema), // Validate profile update data
+  validate(z.object({ body: profileSchema })), // Correctly wrap schema for body validation
   userController.updateProfile
 );
 

@@ -1,33 +1,27 @@
 // src/controllers/cv.controller.ts
 import { Request, Response, NextFunction } from 'express';
-import { AuthRequest } from '../middleware/auth.middleware'; // Assuming AuthRequest type is defined here or similar
+import { AuthRequest } from '../middleware/auth.middleware';
 import { parsingService } from '../services/parsing.service';
-import { cvParsingQueue, documentGenerationQueue } from '../jobs'; // Import both Bull queues
-import { cvService } from '../services/cv.service'; // Import cvService
+import { cvParsingQueue, documentGenerationQueue } from '../jobs';
+import { cvService } from '../services/cv.service';
 
 export const cvController = {
-  // New method to request a document generation
-  // TODO: Implement in future epic - CV service needs UUID support
   async requestDocument(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.userId;
       const { cvId, format } = req.params as { cvId: string; format: 'pdf' | 'docx' };
 
-      // Optional: Add a check to ensure the user owns the CV
-      // @ts-ignore - TODO: Update cvService to accept UUID string for userId
-      const cv = await cvService.getCVById(userId, cvId);
+      const cv = await cvService.getCVById(userId, parseInt(cvId, 10));
       if (!cv) {
         return res.status(404).json({ success: false, message: 'CV not found or access denied.' });
       }
 
-      // Add the document generation job to the queue
       const job = await documentGenerationQueue.add({
         userId,
         cvId,
         format,
       });
 
-      // Respond with 202 Accepted and the job ID for status polling
       res.status(202).json({
         success: true,
         data: { jobId: job.id },
@@ -38,7 +32,6 @@ export const cvController = {
     }
   },
 
-  // New method to get the status of a generation job
   async getJobStatus(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { jobId } = req.params;
@@ -48,7 +41,6 @@ export const cvController = {
         return res.status(404).json({ success: false, message: 'Job not found.' });
       }
 
-      // Optional: Check if the user requesting the status is the one who created the job
       if (job.data.userId !== req.user!.userId) {
         return res.status(403).json({ success: false, message: 'Forbidden' });
       }
@@ -73,7 +65,6 @@ export const cvController = {
     }
   },
 
-  // New method to download the generated file
   async downloadFile(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { jobId } = req.params;
@@ -83,7 +74,6 @@ export const cvController = {
         return res.status(404).json({ success: false, message: 'Job not found.' });
       }
 
-      // Check if the user is authorized to download this file
       if (job.data.userId !== req.user!.userId) {
         return res.status(403).json({ success: false, message: 'Forbidden' });
       }
@@ -100,55 +90,36 @@ export const cvController = {
         return res.status(500).json({ success: false, message: 'File information is missing from the completed job.' });
       }
 
-      // Set headers and send the file for download
       res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
       res.download(filePath, fileName, (err) => {
         if (err) {
-          // Handle errors that occur during file download
           next(err);
         }
-        // After download, you might want to clean up the temporary file.
-        // For simplicity, this is omitted here, but in production you'd use something like:
-        // fs.unlink(filePath).catch(console.error);
       });
     } catch (error) {
       next(error);
     }
   },
 
-  // Placeholder for parsing and creating CV from file upload
-  // TODO: Implement in future epic - requires Multer file upload middleware
   async parseAndCreate(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      // @ts-ignore - TODO: Add Multer types when implementing file upload
       if (!req.file) {
         return res.status(400).json({ success: false, message: 'No file uploaded' });
       }
 
-      const userId = req.user!.userId; // User ID from authenticated request
-      // @ts-ignore - req.file from Multer (not yet implemented)
+      const userId = req.user!.userId;
       const fileBuffer = req.file.buffer;
-      // @ts-ignore - req.file from Multer (not yet implemented)
-      const fileType = req.file.mimetype; // Multer provides this
+      const fileType = req.file.mimetype;
 
-      // 1. Create a placeholder CV entry immediately
-      // @ts-ignore - TODO: Implement createCV method in cvService
       const placeholderCV = await cvService.createCV(userId, {
-        personal_info: {
-          firstName: '',
-          lastName: '',
-        }, // Minimal placeholder, will be filled by parsing job
-        education: [],
-        experience: [],
-        skills: [],
-        languages: [],
+        title: 'New CV',
+        component_ids: [],
       });
 
-      // 2. Add the parsing job to the BullMQ queue
       await cvParsingQueue.add({
         userId,
-        fileContent: fileBuffer.toString('utf-8'), // File content as string
+        fileContent: fileBuffer.toString('utf-8'),
         fileType,
         cvId: placeholderCV.id,
       });
@@ -164,14 +135,11 @@ export const cvController = {
     }
   },
 
-  // Existing methods from architecture documentation (if they were to exist)
-  // TODO: Implement in future epic - requires createCV method in cvService
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = req.user!.userId; // Extracted by auth middleware
-      const cvData = req.body; // Validated by Zod middleware
+      const userId = req.user!.userId;
+      const cvData = req.body;
 
-      // @ts-ignore - TODO: Implement createCV method in cvService
       const newCV = await cvService.createCV(userId, cvData);
 
       res.status(201).json({
@@ -186,7 +154,7 @@ export const cvController = {
 
   async getById(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.id, 10);
 
       const cv = await cvService.getCVById(userId, cvId);
@@ -202,7 +170,7 @@ export const cvController = {
 
   async addExperience(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const experienceData = req.body;
 
@@ -220,7 +188,7 @@ export const cvController = {
 
   async updateExperience(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const experienceIndex = parseInt(req.params.experienceIndex, 10);
       const updates = req.body;
@@ -239,7 +207,7 @@ export const cvController = {
 
   async deleteExperience(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const experienceIndex = parseInt(req.params.experienceIndex, 10);
 
@@ -257,7 +225,7 @@ export const cvController = {
 
   async addEducation(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const educationData = req.body;
       const updatedCV = await cvService.addEducation(userId, cvId, educationData);
@@ -273,7 +241,7 @@ export const cvController = {
 
   async updateEducation(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const educationIndex = parseInt(req.params.educationIndex, 10);
       const updates = req.body;
@@ -290,7 +258,7 @@ export const cvController = {
 
   async deleteEducation(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const educationIndex = parseInt(req.params.educationIndex, 10);
       const updatedCV = await cvService.deleteEducation(userId, cvId, educationIndex);
@@ -306,9 +274,9 @@ export const cvController = {
 
   async addSkill(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
-      const skillData = req.body.skill; // Assuming skill is sent as { skill: "..." }
+      const skillData = req.body.skill;
       const updatedCV = await cvService.addSkill(userId, cvId, skillData);
       res.status(201).json({
         success: true,
@@ -322,10 +290,10 @@ export const cvController = {
 
   async updateSkill(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const skillIndex = parseInt(req.params.skillIndex, 10);
-      const skillData = req.body.skill; // Assuming skill is sent as { skill: "..." }
+      const skillData = req.body.skill;
       const updatedCV = await cvService.updateSkill(userId, cvId, skillIndex, skillData);
       res.status(200).json({
         success: true,
@@ -339,7 +307,7 @@ export const cvController = {
 
   async deleteSkill(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const skillIndex = parseInt(req.params.skillIndex, 10);
       const updatedCV = await cvService.deleteSkill(userId, cvId, skillIndex);
@@ -355,7 +323,7 @@ export const cvController = {
 
   async addLanguage(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const languageData = req.body;
       const updatedCV = await cvService.addLanguage(userId, cvId, languageData);
@@ -371,7 +339,7 @@ export const cvController = {
 
   async updateLanguage(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const languageIndex = parseInt(req.params.languageIndex, 10);
       const updates = req.body;
@@ -388,7 +356,7 @@ export const cvController = {
 
   async deleteLanguage(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const languageIndex = parseInt(req.params.languageIndex, 10);
       const updatedCV = await cvService.deleteLanguage(userId, cvId, languageIndex);
@@ -402,10 +370,9 @@ export const cvController = {
     }
   },
 
-  // --- CV Versioning Methods ---
   async listCvVersions(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const versions = await cvService.listVersions(userId, cvId);
       res.status(200).json({
@@ -419,7 +386,7 @@ export const cvController = {
 
   async getCvVersionDetails(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const versionNumber = parseInt(req.params.versionNumber, 10);
       const cvData = await cvService.getVersionDetails(userId, cvId, versionNumber);
@@ -434,7 +401,7 @@ export const cvController = {
 
   async restoreCvVersion(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const userId = parseInt(req.user!.userId.toString(), 10);
+      const userId = req.user!.userId;
       const cvId = parseInt(req.params.cvId, 10);
       const versionNumber = parseInt(req.params.versionNumber, 10);
       const restoredCvData = await cvService.restoreVersion(userId, cvId, versionNumber);

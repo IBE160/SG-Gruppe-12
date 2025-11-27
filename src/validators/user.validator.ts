@@ -7,7 +7,7 @@ const profileDataSchema = z.object({
   phoneNumber: z.string()
     .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format') // E.164 format
     .optional()
-    .or(z.literal('')), // Allow empty string for optional fields
+    .optional(), // Truly optional field
 });
 
 // Schema for user profile update validation (wrapped for middleware)

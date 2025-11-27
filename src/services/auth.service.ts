@@ -20,49 +20,388 @@ interface LoginUserDto {
   password: string;
 }
 
+import { redis } from '../config/redis';
+
+
+
+// ... (existing code) ...
+
+
+
 export const authService = {
-  async register(userData: RegisterUserDto): Promise<User> {
-    const hashedPassword = await hashPassword(userData.password);
+
+
+
+  async register(data: RegisterUserDto): Promise<User> {
+
+
+
+    const { name, email, password, consent_ai_training, consent_marketing } = data;
+
+
+
+    const passwordHash = await hashPassword(password);
+
+
+
     const emailVerificationToken = uuidv4();
 
-    // Split name into firstName and lastName if provided
-    const [firstName, ...lastNameParts] = (userData.name || '').split(' ');
-    const lastName = lastNameParts.join(' ') || undefined;
+
+
+
+
+
 
     const user = await userRepository.create({
-      firstName,
-      lastName,
-      email: userData.email,
-      passwordHash: hashedPassword,
-      emailVerificationToken: emailVerificationToken,
+
+
+
+      name,
+
+
+
+      email,
+
+
+
+      passwordHash,
+
+
+
+      consent_essential: true,
+
+
+
+      consent_ai_training: consent_ai_training || false,
+
+
+
+      consent_marketing: consent_marketing || false,
+
+
+
+      emailVerificationToken,
+
+
+
       emailVerified: false,
+
+
+
     });
+
+
+
+
+
+
+
     await emailService.sendVerificationEmail(user, emailVerificationToken);
+
+
+
+
+
+
+
     return user;
+
+
+
   },
 
-  async login(loginData: LoginUserDto): Promise<{ user: User; accessToken: string; refreshToken: string }> {
-    const { email, password } = loginData;
 
-    // 1. Find user by email
+
+
+
+
+
+  async login(data: LoginUserDto): Promise<{ user: User; accessToken: string; refreshToken: string }> {
+
+
+
+    const { email, password } = data;
+
+
+
     const user = await userRepository.findByEmail(email);
+
+
+
+
+
+
+
     if (!user) {
+
+
+
       throw new UnauthorizedError('Invalid credentials');
+
+
+
     }
 
-    // 2. Compare password
-    const passwordMatch = await comparePassword(password, user.passwordHash);
-    if (!passwordMatch) {
+
+
+
+
+
+
+    const isPasswordValid = await comparePassword(password, user.passwordHash);
+
+
+
+
+
+
+
+    if (!isPasswordValid) {
+
+
+
       throw new UnauthorizedError('Invalid credentials');
+
+
+
     }
 
-    // 3. Generate JWT tokens
-    const accessToken = jwtService.generateAccessToken(user.id);
-    const refreshToken = jwtService.generateRefreshToken(user.id);
 
-    // 4. Update last login time
+
+
+
+
+
     await userRepository.updateLastLogin(user.id);
 
+
+
+
+
+
+
+    const accessToken = jwtService.generateAccessToken(user.id);
+
+
+
+    const refreshToken = jwtService.generateRefreshToken(user.id);
+
+
+
+
+
+
+
     return { user, accessToken, refreshToken };
+
+
+
   },
+
+
+
+
+
+
+
+  async refreshToken(oldRefreshToken: string): Promise<{ user: User; accessToken: string; refreshToken: string }> {
+
+
+
+
+
+
+
+    // 1. Check if token is blacklisted
+
+
+
+
+
+
+
+    const isBlacklisted = await redis.get(`blacklist:${oldRefreshToken}`);
+
+
+
+
+
+
+
+    if (isBlacklisted) {
+
+
+
+
+
+
+
+      throw new UnauthorizedError('Invalid refresh token');
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // 2. Verify the old refresh token
+
+
+
+
+
+
+
+    const payload = jwtService.verifyRefreshToken(oldRefreshToken);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // 3. Find user
+
+
+
+
+
+
+
+    const user = await userRepository.findById(payload.userId);
+
+
+
+
+
+
+
+    if (!user) {
+
+
+
+
+
+
+
+      throw new UnauthorizedError('User not found');
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // 4. Generate new tokens
+
+
+
+
+
+
+
+    const accessToken = jwtService.generateAccessToken(user.id);
+
+
+
+
+
+
+
+    const refreshToken = jwtService.generateRefreshToken(user.id);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // 5. Blacklist the old refresh token (with 7-day expiry to match token lifetime)
+
+
+
+
+
+
+
+    await redis.set(`blacklist:${oldRefreshToken}`, 'true', 'EX', 7 * 24 * 60 * 60);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    return { user, accessToken, refreshToken };
+
+
+
+
+
+
+
+  },
+
+
+
+
+
+
+
 };

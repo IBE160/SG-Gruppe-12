@@ -743,6 +743,20 @@ export const authLimiter = rateLimit({
    - Purpose: Obtain new access token
    - Payload: `{ userId, iat, exp }`
 
+**Refresh Token Rotation (Security Enhancement):**
+
+To mitigate the risk of a compromised refresh token, a one-time-use rotation strategy is implemented.
+
+1.  **One-Time Use:** Each refresh token is valid for only a single use.
+2.  **Redis Blacklist:** When a refresh token is used, its signature is added to a Redis blacklist with an expiry equal to the original token's lifetime (7 days).
+3.  **Verification Flow:**
+    -   The client sends its refresh token.
+    -   The backend first checks if the token exists in the Redis blacklist. If it does, the request is rejected as a potential replay attack, and the user may be logged out.
+    -   If the token is not blacklisted, it is verified.
+    -   Upon successful verification, the backend issues both a **new access token** and a **new refresh token**.
+    -   The old refresh token is then immediately added to the blacklist.
+4.  **Benefit:** This ensures that even if a refresh token is captured, its value is extremely limited, as it is invalidated the moment it is used.
+
 **JWT Generation:**
 
 ```typescript

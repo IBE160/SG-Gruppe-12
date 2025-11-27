@@ -1,4 +1,17 @@
 // src/tests/integration/rate-limiting.test.ts
+jest.mock('rate-limit-redis');
+jest.mock('rate-limit-redis', () => {
+  return {
+    __esModule: true,
+    default: class RedisStore {
+      constructor() {}
+      increment() {}
+      decrement() {}
+      resetKey() {}
+    },
+  };
+});
+
 import request from 'supertest';
 import express, { Express } from 'express';
 import { generalLimiter, aiLimiter, authLimiter } from '../../middleware/rate-limit.middleware';

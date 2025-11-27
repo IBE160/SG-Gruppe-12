@@ -20,7 +20,7 @@ router.post(
 router.post(
   '/',
   authenticate,
-  validate(createCVSchema), // Validate body for creating a full CV
+  validate(z.object({ body: createCVSchema })), // Validate body for creating a full CV
   cvController.create
 );
 
@@ -34,14 +34,14 @@ router.get(
 router.post(
   '/:cvId/experience',
   authenticate,
-  validate(experienceEntrySchema), // Validate new experience entry
+  validate(z.object({ body: experienceEntrySchema })), // Validate new experience entry
   cvController.addExperience
 );
 
 router.patch(
   '/:cvId/experience/:experienceIndex',
   authenticate,
-  validate(experienceEntrySchema.partial()), // Allow partial updates for experience entry
+  validate(z.object({ body: experienceEntrySchema.partial() })), // Allow partial updates for experience entry
   cvController.updateExperience
 );
 
@@ -55,14 +55,14 @@ router.delete(
 router.post(
   '/:cvId/education',
   authenticate,
-  validate(educationEntrySchema),
+  validate(z.object({ body: educationEntrySchema })),
   cvController.addEducation
 );
 
 router.patch(
   '/:cvId/education/:educationIndex',
   authenticate,
-  validate(educationEntrySchema.partial()),
+  validate(z.object({ body: educationEntrySchema.partial() })),
   cvController.updateEducation
 );
 
@@ -75,7 +75,9 @@ router.delete(
 // Routes for Skills management
 // For skills, the body is expected to be a simple string, e.g., { "skill": "JavaScript" }
 const skillBodySchema = z.object({
-  skill: skillEntrySchema,
+  body: z.object({
+    skill: skillEntrySchema,
+  })
 });
 
 router.post(
@@ -102,14 +104,14 @@ router.delete(
 router.post(
   '/:cvId/languages',
   authenticate,
-  validate(languageEntrySchema),
+  validate(z.object({ body: languageEntrySchema })),
   cvController.addLanguage
 );
 
 router.patch(
   '/:cvId/languages/:languageIndex',
   authenticate,
-  validate(languageEntrySchema.partial()),
+  validate(z.object({ body: languageEntrySchema.partial() })),
   cvController.updateLanguage
 );
 
@@ -127,7 +129,7 @@ router.get(
   authenticate,
   validate(z.object({
     params: z.object({
-      cvId: z.string().uuid(),
+      cvId: z.string().transform(v => parseInt(v, 10)),
       format: z.enum(['pdf', 'docx']),
     }),
   })),

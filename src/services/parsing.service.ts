@@ -1,4 +1,7 @@
 // src/services/parsing.service.ts
+import { z } from 'zod';
+import { AppError } from '../utils/errors.util';
+import { logger } from '../utils/logger.util';
 import { genAI } from '../config/ai-providers';
 import { CVParsingPrompt } from '../prompts/cv-parsing.prompt';
 import { createCVSchema } from '../validators/cv.validator'; // Import Zod schema

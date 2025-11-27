@@ -87,15 +87,14 @@ export const authController = {
 
   async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-      const refreshToken = req.cookies.refresh_token;
+      const oldRefreshToken = req.cookies.refresh_token;
 
-      if (!refreshToken) {
+      if (!oldRefreshToken) {
         return res.status(401).json({ success: false, message: 'No refresh token provided' });
       }
 
-      // Verify refresh token and generate new access token
-      const payload = jwtService.verifyRefreshToken(refreshToken);
-      const newAccessToken = jwtService.generateAccessToken(payload.userId);
+      // Call the service to handle token rotation
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await authService.refreshToken(oldRefreshToken);
 
       // Set new access token cookie
       res.cookie('access_token', newAccessToken, {
@@ -103,6 +102,14 @@ export const authController = {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 15 * 60 * 1000, // 15 minutes
+      });
+
+      // Set new refresh token cookie
+      res.cookie('refresh_token', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       res.status(200).json({

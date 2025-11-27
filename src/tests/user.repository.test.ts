@@ -20,7 +20,8 @@ describe('User Repository', () => {
 
   it('should create a new user', async () => {
     const mockUserData = {
-      name: 'Test User',
+      firstName: 'Test',
+      lastName: 'User',
       email: 'test@example.com',
       passwordHash: 'hashedpassword',
       consent_essential: true,
@@ -29,7 +30,7 @@ describe('User Repository', () => {
       emailVerificationToken: 'some_token',
       emailVerified: false,
     };
-    const mockCreatedUser = { id: 1, ...mockUserData, created_at: new Date(), updated_at: new Date() };
+    const mockCreatedUser = { id: 1, name: 'Test User', ...mockUserData, created_at: new Date(), updated_at: new Date() };
 
     (prisma.user.create as jest.Mock).mockResolvedValue(mockCreatedUser);
 
@@ -60,8 +61,8 @@ describe('User Repository', () => {
   });
 
   it('should update a user', async () => {
-    const mockUpdates = { name: 'Updated User' };
-    const mockUpdatedUser = { id: 1, email: 'test@example.com', name: 'Updated User', passwordHash: 'hashed' };
+    const mockUpdates = { firstName: 'Updated', lastName: 'User' };
+    const mockUpdatedUser = { id: 1, email: 'test@example.com', name: 'Updated User', passwordHash: 'hashed', ...mockUpdates };
     (prisma.user.update as jest.Mock).mockResolvedValue(mockUpdatedUser);
 
     const result = await userRepository.update(1, mockUpdates);
