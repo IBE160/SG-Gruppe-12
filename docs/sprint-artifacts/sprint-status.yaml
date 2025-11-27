@@ -47,7 +47,7 @@ development_status:
   epic-1-retrospective: optional
 
   epic-2: contexted
-  2-1-structured-cv-data-model-design-implementation: review
+  2-1-structured-cv-data-model-design-implementation: in-progress
   2-2-ai-powered-cv-parsing-from-file-upload: review
   2-3-user-interface-for-cv-section-editing-work-experience: review
   2-4-user-interface-for-cv-section-editing-education-skills-languages: review
