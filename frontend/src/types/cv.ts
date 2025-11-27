@@ -66,3 +66,11 @@ export interface CVVersion {
   snapshot: CVData; // The actual CVData at that version
   created_at: Date;
 }
+
+// Interface for tracking changes in CV comparison view
+export interface Change {
+  type: 'added' | 'modified' | 'removed' | 'reordered';
+  section: string;
+  description: string;
+  rationale: string;
+}

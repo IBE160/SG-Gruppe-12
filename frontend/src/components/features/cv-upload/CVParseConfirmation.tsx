@@ -115,7 +115,6 @@ export function CVParseConfirmation({ cvId, onConfirm }: CVParseConfirmationProp
       toast({
         title: 'CV Confirmed!',
         description: 'Your CV data has been successfully saved after review.',
-        variant: 'success',
       });
       onConfirm(); // Trigger the parent's onConfirm to redirect
     } catch (error: any) {

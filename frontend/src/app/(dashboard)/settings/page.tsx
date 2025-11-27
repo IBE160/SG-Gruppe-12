@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ProfileForm } from '../../components/features/user/ProfileForm';
-import { getProfile, updateProfile } from '../../lib/api/user';
-import { ProfileInput } from '../../lib/schemas/user';
+import { ProfileForm } from '@/components/features/user/ProfileForm';
+import { getProfile, updateProfile } from '@/lib/api/user';
+import { ProfileInput } from '@/lib/schemas/user';
 import { useRouter } from 'next/navigation'; // For redirection after login if needed
 
 // Optional: Add a loading spinner or skeleton

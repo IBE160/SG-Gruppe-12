@@ -85,9 +85,9 @@ export default function ManageCVPage() {
             updateStoreFunction(updatedSectionData);
             
             setHasUnsavedChanges(false); // Mark as saved after autosave
-            toast({ title: 'Autosaved!', description: 'Your changes have been saved.', duration: 2000 });
+            toast({ title: 'Autosaved!', description: 'Your changes have been saved.' });
         } catch (e: any) {
-            toast({ title: 'Autosave Failed', description: e.message || 'An error occurred during autosave.', variant: 'destructive', duration: 3000 });
+            toast({ title: 'Autosave Failed', description: e.message || 'An error occurred during autosave.', variant: 'destructive' });
         }
     }, 3000); // 3-second debounce
   };
@@ -223,7 +223,7 @@ export default function ManageCVPage() {
 
       {/* Right Column: Preview */}
       <div>
-        <CVPreview template={selectedTemplate} />
+        <CVPreview cvData={cvData} template={selectedTemplate} />
       </div>
     </div>
   );

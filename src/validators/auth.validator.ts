@@ -10,15 +10,20 @@ const passwordSchema = z.string()
   .regex(/[0-9]/, 'Password must contain at least one number')
   .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character');
 
+// Schema wrapped for validate middleware which passes { body, query, params }
 export const registerSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
-  password: passwordSchema,
-  consent_ai_training: z.boolean().optional(),
-  consent_marketing: z.boolean().optional(),
+  body: z.object({
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Invalid email address'),
+    password: passwordSchema,
+    consent_ai_training: z.boolean().optional(),
+    consent_marketing: z.boolean().optional(),
+  }),
 });
 
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'), // Password doesn't need full policy here, just presence
+  body: z.object({
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(1, 'Password is required'),
+  }),
 });

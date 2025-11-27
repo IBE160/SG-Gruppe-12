@@ -1,54 +1,40 @@
 // frontend/src/lib/api/auth.ts
-import { SignupFormValues, LoginFormValues } from "@/lib/schemas/auth"; // Import LoginFormValues
+import { SignupFormValues, LoginFormValues } from "@/lib/schemas/auth";
+import { apiClient } from "./client";
 
-// A utility function to handle API errors consistently
-const handleAuthApiError = async (response: Response) => {
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: response.statusText }));
-    throw new Error(errorData.message || `API Error: ${response.status}`);
-  }
-  return response.json();
-};
+interface AuthResponse {
+  message: string;
+  data?: {
+    user: {
+      id: string;
+      email: string;
+      name: string;
+    };
+  };
+}
 
-export const registerUser = async (userData: SignupFormValues) => {
-  const response = await fetch("/api/v1/auth/register", {
+export const registerUser = async (userData: SignupFormValues): Promise<AuthResponse> => {
+  return apiClient<AuthResponse>("/auth/register", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(userData),
   });
-  return handleAuthApiError(response);
 };
 
-export const loginUser = async (credentials: LoginFormValues) => {
-  const response = await fetch("/api/v1/auth/login", {
+export const loginUser = async (credentials: LoginFormValues): Promise<AuthResponse> => {
+  return apiClient<AuthResponse>("/auth/login", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(credentials),
   });
-  return handleAuthApiError(response);
 };
 
-export const logoutUser = async () => {
-  const response = await fetch("/api/v1/auth/logout", {
+export const logoutUser = async (): Promise<AuthResponse> => {
+  return apiClient<AuthResponse>("/auth/logout", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
   });
-  return handleAuthApiError(response);
 };
 
-export const refreshAccessToken = async () => {
-  const response = await fetch("/api/v1/auth/refresh", {
+export const refreshAccessToken = async (): Promise<AuthResponse> => {
+  return apiClient<AuthResponse>("/auth/refresh", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include", // Include cookies
   });
-  return handleAuthApiError(response);
 };
