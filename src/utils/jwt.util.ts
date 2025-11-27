@@ -15,15 +15,15 @@ if (!REFRESH_TOKEN_SECRET) {
 }
 
 export interface JwtPayload {
-  userId: number;
+  userId: string; // UUID from database
 }
 
 export const jwtService = {
-  generateAccessToken(userId: number): string {
+  generateAccessToken(userId: string): string {
     return jwt.sign({ userId }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' }); // 15 minutes
   },
 
-  generateRefreshToken(userId: number): string {
+  generateRefreshToken(userId: string): string {
     return jwt.sign({ userId }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' }); // 7 days
   },
 
