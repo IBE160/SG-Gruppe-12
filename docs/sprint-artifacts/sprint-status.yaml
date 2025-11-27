@@ -50,11 +50,11 @@ development_status:
   2-1-structured-cv-data-model-design-implementation: review
   2-2-ai-powered-cv-parsing-from-file-upload: review
   2-3-user-interface-for-cv-section-editing-work-experience: review
-  2-4-user-interface-for-cv-section-editing-education-skills-languages: in-progress
-  2-5-dynamic-cv-preview-template-selection: in-progress
-  2-6-cv-download-functionality-pdf-docx: in-progress
-  2-7-autosave-unsaved-changes-warning: ready-for-dev
-  2-8-cv-data-versioning: ready-for-dev
+  2-4-user-interface-for-cv-section-editing-education-skills-languages: review
+  2-5-dynamic-cv-preview-template-selection: review
+  2-6-cv-download-functionality-pdf-docx: review
+  2-7-autosave-unsaved-changes-warning: review
+  2-8-cv-data-versioning: review
   epic-2-retrospective: optional
 
   epic-3: contexted
