@@ -1,19 +1,21 @@
 // src/tests/integration/auth.routes.test.ts
 import request from 'supertest';
-import express from 'express';
-import authRoutes from '../../src/routes/auth.routes';
-import { authService } from '../../src/services/auth.service';
-import { validate } from '../../src/middleware/validate.middleware';
-import { authLimiter } from '../../src/middleware/rate-limit.middleware';
-import { registerSchema, loginSchema } from '../../src/validators/auth.validator'; // Import loginSchema
+import express, { Request, Response, NextFunction } from 'express';
+import authRoutes from '../../routes/auth.routes';
+import { authService } from '../../services/auth.service';
+import { validate } from '../../middleware/validate.middleware';
+import { authLimiter } from '../../middleware/rate-limit.middleware';
+import { registerSchema, loginSchema } from '../../validators/auth.validator'; // Import loginSchema
 import cookieParser from 'cookie-parser'; // Import cookie-parser
+import { UnauthorizedError } from '../../utils/errors.util';
+import { errorMiddleware } from '../../middleware/error.middleware';
 
 // Mock dependencies
-jest.mock('../../src/services/auth.service');
-jest.mock('../../src/middleware/validate.middleware', () => ({
+jest.mock('../../services/auth.service');
+jest.mock('../../middleware/validate.middleware', () => ({
   validate: jest.fn(() => (req: Request, res: Response, next: NextFunction) => next()), // Pass-through for integration
 }));
-jest.mock('../../src/middleware/rate-limit.middleware', () => ({
+jest.mock('../../middleware/rate-limit.middleware', () => ({
   authLimiter: jest.fn((req: Request, res: Response, next: NextFunction) => next()), // Pass-through for integration
 }));
 
@@ -22,6 +24,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser()); // Use cookie-parser middleware
 app.use('/api/v1/auth', authRoutes);
+app.use(errorMiddleware); // Add error handling middleware
 
 describe('Auth Routes - /api/v1/auth', () => {
   beforeEach(() => {
@@ -68,7 +71,7 @@ describe('Auth Routes - /api/v1/auth', () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('Invalid credentials');
+      expect(response.body.error.message).toBe('Invalid credentials');
     });
 
     it('should return 400 if validation fails', async () => {
@@ -83,7 +86,7 @@ describe('Auth Routes - /api/v1/auth', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.error.message).toBe('Validation failed');
     });
   });
 

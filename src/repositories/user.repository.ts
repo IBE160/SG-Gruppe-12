@@ -5,24 +5,21 @@ import { User } from '@prisma/client'; // Import generated Prisma User type
 interface CreateUserData {
   email: string;
   passwordHash: string;
-  name: string; // Changed from firstName/lastName
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
   emailVerificationToken?: string;
   emailVerified?: boolean;
-  // Consent fields from schema.prisma
-  consent_essential?: boolean;
-  consent_ai_training?: boolean;
-  consent_marketing?: boolean;
 }
 
 interface UpdateUserData {
-  name?: string; // Changed from firstName/lastName
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
   emailVerified?: boolean;
   emailVerificationToken?: string | null;
+  passwordResetToken?: string | null;
   passwordHash?: string;
-  // Consent fields
-  consent_essential?: boolean;
-  consent_ai_training?: boolean;
-  consent_marketing?: boolean;
 }
 
 export const userRepository = {
@@ -31,12 +28,11 @@ export const userRepository = {
       data: {
         email: data.email,
         passwordHash: data.passwordHash,
-        name: data.name,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phoneNumber: data.phoneNumber,
         emailVerificationToken: data.emailVerificationToken,
         emailVerified: data.emailVerified,
-        consent_essential: data.consent_essential,
-        consent_ai_training: data.consent_ai_training,
-        consent_marketing: data.consent_marketing,
       },
     });
     return user;
@@ -48,28 +44,28 @@ export const userRepository = {
     });
   },
 
-  async findById(id: number): Promise<User | null> { // id is now number
+  async findById(id: string): Promise<User | null> {
     return prisma.user.findUnique({
       where: { id },
     });
   },
 
-  async update(id: number, data: UpdateUserData): Promise<User> { // id is now number
+  async update(id: string, data: UpdateUserData): Promise<User> {
     return prisma.user.update({
       where: { id },
       data: {
-        name: data.name,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phoneNumber: data.phoneNumber,
         emailVerified: data.emailVerified,
         emailVerificationToken: data.emailVerificationToken,
+        passwordResetToken: data.passwordResetToken,
         passwordHash: data.passwordHash,
-        consent_essential: data.consent_essential,
-        consent_ai_training: data.consent_ai_training,
-        consent_marketing: data.consent_marketing,
       },
     });
   },
 
-  async updateLastLogin(id: number): Promise<User> { // New method
+  async updateLastLogin(id: string): Promise<User> {
     return prisma.user.update({
       where: { id },
       data: {

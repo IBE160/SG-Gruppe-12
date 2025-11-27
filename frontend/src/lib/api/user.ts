@@ -20,6 +20,7 @@ export async function getProfile(): Promise<ProfileResponse> {
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include', // Include cookies for authentication
   });
 
   if (!response.ok) {
@@ -36,6 +37,7 @@ export async function updateProfile(data: ProfileInput): Promise<ProfileResponse
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include', // Include cookies for authentication
     body: JSON.stringify(data),
   });
 

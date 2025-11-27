@@ -22,7 +22,7 @@ describe('password.util', () => {
 
       const result = await hashPassword(plainPassword);
 
-      expect(bcrypt.hash).toHaveBeenCalledWith(plainPassword, 10); // 10 is the SALT_ROUNDS
+      expect(bcrypt.hash).toHaveBeenCalledWith(plainPassword, 12); // 12 is the SALT_ROUNDS (OWASP 2024)
       expect(result).toBe(hashedPassword);
     });
   });
