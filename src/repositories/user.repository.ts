@@ -5,11 +5,14 @@ import { User } from '@prisma/client'; // Import generated Prisma User type
 interface CreateUserData {
   email: string;
   passwordHash: string;
+  name: string;
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
   emailVerificationToken?: string;
   emailVerified?: boolean;
+  consent_ai_training?: boolean;
+  consent_marketing?: boolean;
 }
 
 interface UpdateUserData {
@@ -28,11 +31,14 @@ export const userRepository = {
       data: {
         email: data.email,
         passwordHash: data.passwordHash,
+        name: data.name,
         firstName: data.firstName,
         lastName: data.lastName,
         phoneNumber: data.phoneNumber,
         emailVerificationToken: data.emailVerificationToken,
         emailVerified: data.emailVerified,
+        consent_ai_training: data.consent_ai_training,
+        consent_marketing: data.consent_marketing,
       },
     });
     return user;
@@ -44,13 +50,13 @@ export const userRepository = {
     });
   },
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: number): Promise<User | null> {
     return prisma.user.findUnique({
       where: { id },
     });
   },
 
-  async update(id: string, data: UpdateUserData): Promise<User> {
+  async update(id: number, data: UpdateUserData): Promise<User> {
     return prisma.user.update({
       where: { id },
       data: {
@@ -59,13 +65,12 @@ export const userRepository = {
         phoneNumber: data.phoneNumber,
         emailVerified: data.emailVerified,
         emailVerificationToken: data.emailVerificationToken,
-        passwordResetToken: data.passwordResetToken,
         passwordHash: data.passwordHash,
       },
     });
   },
 
-  async updateLastLogin(id: string): Promise<User> {
+  async updateLastLogin(id: number): Promise<User> {
     return prisma.user.update({
       where: { id },
       data: {

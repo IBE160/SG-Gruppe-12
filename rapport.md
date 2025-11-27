@@ -636,3 +636,54 @@ Med Claude Code opprettet jeg planleggings- og test-artifakter:
 ### Resultat
 
 Komplett dokumentasjon-suite som støtter systematisk Epic 1 closure og Epic 2 execution med klare prosedyrer for testing, evaluering, og implementering.
+
+---
+
+## November 27, 2025 – Backend Security & Frontend Integration *(Vera Kironaki, with Claude Code)*
+
+### Goal
+
+Improve authentication security in the backend and establish frontend-backend integration.
+
+### What We Did
+
+We worked with Claude Code to evaluate and improve several critical files:
+
+1. **Auth Service Improvements (`src/services/auth.service.ts`):**
+   - Added duplicate email check before registration (throws `ConflictError`)
+   - Removed sensitive fields (`passwordHash`, `emailVerificationToken`) from user responses using `SafeUser` type
+   - Added consent fields (`consent_ai_training`, `consent_marketing`) that are now saved to the database
+   - Fixed ID type handling (number for DB, string for JWT)
+
+2. **User Controller Improvements (`src/controllers/user.controller.ts`):**
+   - Now imports shared `AuthRequest` from auth middleware (no duplicate local definition)
+   - Safe number conversion with `parseInt()` and `isNaN` check
+   - Consistent response mapping with `toProfileResponse()` helper
+   - Uses `UnauthorizedError` instead of inline 401 response
+
+3. **User Repository Updates (`src/repositories/user.repository.ts`):**
+   - Added consent fields to `CreateUserData` interface
+   - Changed ID parameter types from `string` to `number`
+
+4. **Database Schema (`src/prisma/schema.prisma`):**
+   - Added `name`, `consentEssential`, `consentAiTraining`, `consentMarketing` fields
+
+5. **Frontend-Backend Integration:**
+   - Created `.env.local` with API base URL
+   - Created centralized API client (`lib/api/client.ts`) with credentials support
+   - Updated auth store with persistence (Zustand)
+   - Fixed toast variant errors and TypeScript issues
+
+### Files Changed (56 total)
+- Backend: auth.service.ts, user.controller.ts, user.repository.ts, user.service.ts, auth.validator.ts, schema.prisma
+- Frontend: API client, auth hooks, stores, UI components, support pages
+
+### Result
+
+A more secure authentication flow with:
+- Protection against duplicate email registration
+- Sensitive data not exposed in API responses
+- GDPR-compliant consent tracking
+- Stable frontend-backend communication
+
+Commit: `3120ce1` - pushed to `main` branch.

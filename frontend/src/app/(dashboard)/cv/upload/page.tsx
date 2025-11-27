@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CVUploadForm } from '@/components/features/cv-upload/CVUploadForm';
 import { CVParseConfirmation } from '@/components/features/cv-upload/CVParseConfirmation';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/use-toast';
@@ -35,7 +36,6 @@ export default function CVUploadPage() {
         toast({
           title: 'Parsing Complete!',
           description: 'Your CV has been parsed and is ready for review.',
-          variant: 'success',
         });
       } else {
         // Still parsing, update progress if available from backend, otherwise simulate
@@ -88,7 +88,6 @@ export default function CVUploadPage() {
     toast({
       title: 'CV Saved!',
       description: 'Your structured CV data has been saved.',
-      variant: 'success',
     });
     router.push(`/dashboard/cv/manage`); // Redirect to CV management page
   };
@@ -108,11 +107,6 @@ export default function CVUploadPage() {
             <p className="text-center text-sm text-muted-foreground mt-2">
               {parsingProgress < 99 ? `Processing... (Current progress: ${parsingProgress}%)` : 'Almost done...'}
             </p>
-            {parsingStatus === 'failed' && (
-              <p className="text-center text-sm text-destructive mt-2">
-                Parsing failed. Please try again or upload a different file.
-              </p>
-            )}
           </CardContent>
         </Card>
       </div>

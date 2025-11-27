@@ -63,7 +63,6 @@ export function CVUploadForm({ onFileUploadSuccess, onFileUploadError }: CVUploa
       toast({
         title: 'Upload Successful!',
         description: result.message,
-        variant: 'success',
       });
       onFileUploadSuccess(result.data.cvId);
     } catch (error: any) {
@@ -97,7 +96,7 @@ export function CVUploadForm({ onFileUploadSuccess, onFileUploadError }: CVUploa
               disabled={isUploading}
             />
             {errors.cvFile && (
-              <p className="text-sm font-medium text-destructive">{errors.cvFile.message}</p>
+              <p className="text-sm font-medium text-destructive">{String(errors.cvFile.message)}</p>
             )}
             <p className="text-sm text-muted-foreground">
               Max file size: 5MB. Supported formats: .pdf, .docx, .txt

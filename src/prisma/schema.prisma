@@ -14,6 +14,7 @@ model User {
   id                     String    @id @default(uuid()) @map("id")
   email                  String    @unique @map("email")
   passwordHash           String    @map("password_hash")
+  name                   String?   @map("name")
   firstName              String?   @map("first_name")
   lastName               String?   @map("last_name")
   phoneNumber            String?   @map("phone_number")
@@ -22,4 +23,7 @@ model User {
   emailVerified          Boolean   @default(false) @map("email_verified")
   emailVerificationToken String?   @map("email_verification_token")
   passwordResetToken     String?   @map("password_reset_token")
+  consentEssential       Boolean   @default(true) @map("consent_essential")
+  consentAiTraining      Boolean   @default(false) @map("consent_ai_training")
+  consentMarketing       Boolean   @default(false) @map("consent_marketing")
 }

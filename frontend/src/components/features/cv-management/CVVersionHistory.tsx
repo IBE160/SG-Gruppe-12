@@ -5,7 +5,7 @@ import * as api from '@/lib/api/cv';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { History, Rollback } from 'lucide-react'; // Assuming lucide-react icons
+import { History, RotateCcw } from 'lucide-react';
 
 interface CVVersionHistoryProps {
   cvId: string;
@@ -90,7 +90,7 @@ const CVVersionHistory: React.FC<CVVersionHistoryProps> = ({ cvId }) => {
                   View
                 </Button>
                 <Button variant="secondary" size="sm" onClick={() => handleRestoreVersion(version.versionNumber)} disabled={isLoading}>
-                  <Rollback className="h-4 w-4 mr-2" /> Restore
+                  <RotateCcw className="h-4 w-4 mr-2" /> Restore
                 </Button>
               </div>
             </div>
