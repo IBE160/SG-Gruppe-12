@@ -5,7 +5,7 @@
   "description": "Monorepo for AI CV and Job Application Assistant project.",
   "scripts": {
     "start": "npm -w src start",
-    "dev": "npm -w src dev & npm -w frontend dev",
+    "dev": "npm run dev -w src & npm run dev -w frontend",
     "build": "npm -w src build && npm -w frontend build",
     "test": "npm -w src test && npm -w frontend test",
     "lint": "npm -w src lint && npm -w frontend lint"

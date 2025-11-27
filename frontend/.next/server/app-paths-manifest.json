@@ -1,8 +1,0 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/(auth)/signup/page": "app/(auth)/signup/page.js",
-  "/(dashboard)/cv/manage/page": "app/(dashboard)/cv/manage/page.js",
-  "/(dashboard)/cv/upload/page": "app/(dashboard)/cv/upload/page.js",
-  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
-  "/page": "app/page.js"
-}

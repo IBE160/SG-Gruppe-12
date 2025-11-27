@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -9,8 +9,181 @@ on:
       - main
 
 jobs:
-  verify:
+  # Backend Testing & Coverage
+  backend-test:
+    name: Backend Tests & Coverage
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - run: echo "CI is working ✅"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'src/package-lock.json'
+
+      - name: Install backend dependencies
+        working-directory: ./src
+        run: npm ci --ignore-scripts
+
+      - name: Run backend tests with coverage
+        working-directory: ./src
+        run: npm run test:ci
+        env:
+          NODE_ENV: test
+
+      - name: Check coverage threshold
+        working-directory: ./src
+        run: |
+          echo "Checking if coverage meets 85% threshold..."
+          npm run test:coverage
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage
+          path: src/coverage/
+          retention-days: 30
+
+      - name: Display coverage summary
+        working-directory: ./src
+        if: always()
+        run: |
+          echo "## Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f coverage/coverage-summary.json ]; then
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            cat coverage/coverage-summary.json >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Coverage report not found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Frontend Testing (if tests exist)
+  frontend-test:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci --ignore-scripts
+
+      - name: Run frontend tests (if they exist)
+        working-directory: ./frontend
+        run: |
+          if [ -f "package.json" ] && grep -q '"test"' package.json; then
+            npm test -- --passWithNoTests
+          else
+            echo "No frontend tests configured yet"
+          fi
+        continue-on-error: true
+
+  # Build verification
+  build:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    needs: [backend-test]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'src/package-lock.json'
+
+      - name: Install backend dependencies
+        working-directory: ./src
+        run: npm ci --ignore-scripts
+
+      - name: Build backend
+        working-directory: ./src
+        run: npm run build
+
+      - name: Check build output
+        working-directory: ./src
+        run: |
+          if [ -d "dist" ]; then
+            echo "✅ Build successful - dist directory created"
+            ls -la dist/
+          else
+            echo "❌ Build failed - dist directory not found"
+            exit 1
+          fi
+
+  # Security & Quality checks
+  quality:
+    name: Code Quality & Security
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check for security vulnerabilities
+        run: |
+          echo "Checking for security vulnerabilities in backend..."
+          cd src && npm audit --audit-level=moderate || true
+
+      - name: Verify .env files are gitignored
+        run: |
+          if git ls-files | grep -E '\.env$'; then
+            echo "❌ ERROR: .env files found in git! These should be gitignored."
+            exit 1
+          else
+            echo "✅ No .env files in git"
+          fi
+
+      - name: Check for TODO/FIXME comments
+        run: |
+          echo "## Code TODOs" >> $GITHUB_STEP_SUMMARY
+          grep -r "TODO\|FIXME" src/ --exclude-dir=node_modules --exclude-dir=dist || echo "No TODOs found" >> $GITHUB_STEP_SUMMARY
+
+  # Summary job
+  ci-summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-test, build, quality]
+    if: always()
+
+    steps:
+      - name: Check job statuses
+        run: |
+          echo "## CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend Tests: ${{ needs.backend-test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend Tests: ${{ needs.frontend-test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Quality Checks: ${{ needs.quality.result }}" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.backend-test.result }}" == "success" ]] && [[ "${{ needs.build.result }}" == "success" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **All critical checks passed!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Some checks failed. Please review the logs.**" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi

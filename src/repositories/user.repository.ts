@@ -18,7 +18,6 @@ interface UpdateUserData {
   name?: string; // Changed from firstName/lastName
   emailVerified?: boolean;
   emailVerificationToken?: string | null;
-  passwordResetToken?: string | null;
   passwordHash?: string;
   // Consent fields
   consent_essential?: boolean;
@@ -62,7 +61,6 @@ export const userRepository = {
         name: data.name,
         emailVerified: data.emailVerified,
         emailVerificationToken: data.emailVerificationToken,
-        passwordResetToken: data.passwordResetToken,
         passwordHash: data.passwordHash,
         consent_essential: data.consent_essential,
         consent_ai_training: data.consent_ai_training,

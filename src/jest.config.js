@@ -11,4 +11,18 @@ module.exports = {
       tsconfig: '<rootDir>/tsconfig.json',
     },
   },
+  // Coverage configuration
+  collectCoverageFrom: [
+    'services/**/*.ts',
+    'controllers/**/*.ts',
+    'middleware/**/*.ts',
+    'repositories/**/*.ts',
+    'utils/**/*.ts',
+    'validators/**/*.ts',
+    '!**/*.d.ts',
+    '!**/node_modules/**',
+    '!**/dist/**',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'json-summary'],
 };
