@@ -58,7 +58,7 @@ development_status:
   epic-2-retrospective: optional
 
   epic-3: contexted
-  3-1-job-description-input-interface: backlog
+  3-1-job-description-input-interface: review
   3-2-ai-powered-job-description-text-extraction: backlog
   3-3-cv-job-description-keyword-matching-algorithm: backlog
   3-4-match-score-calculation-display: backlog

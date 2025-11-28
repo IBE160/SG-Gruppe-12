@@ -78,3 +78,18 @@ Located in `frontend/src/components/custom/`, these are domain-specific componen
     - `score`: A number from 0-100.
     - `variant`: `horizontal` or `circular`.
     - `size`: `sm`, `md`, or `lg`.
+
+### Job Analysis Components
+
+#### `JobDescriptionInput`
+- **File:** `JobDescriptionInput.tsx` (located at `frontend/src/components/features/job-analysis/JobDescriptionInput.tsx`)
+- **Description:** Component for users to input a job description for AI analysis. It handles text input, basic frontend validation, and triggers the API call to the backend.
+- **Related Files:**
+    - `app/(dashboard)/create-application/page.tsx` (Page where this component is used)
+    - `lib/schemas/job.ts` (Zod schema for validation)
+    - `lib/api/job-analysis.ts` (API client for backend communication)
+    - `store/jobAnalysisStore.ts` (Zustand store for managing job analysis state)
+- **Key Props:**
+    - `onSubmit`: Callback function triggered on form submission.
+    - `isLoading`: Boolean to show loading state.
+    - `error`: Error message to display.
