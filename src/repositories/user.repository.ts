@@ -50,13 +50,13 @@ export const userRepository = {
     });
   },
 
-  async findById(id: number): Promise<User | null> {
+  async findById(id: string): Promise<User | null> {
     return prisma.user.findUnique({
       where: { id },
     });
   },
 
-  async update(id: number, data: UpdateUserData): Promise<User> {
+  async update(id: string, data: UpdateUserData): Promise<User> {
     return prisma.user.update({
       where: { id },
       data: {
@@ -70,7 +70,7 @@ export const userRepository = {
     });
   },
 
-  async updateLastLogin(id: number): Promise<User> {
+  async updateLastLogin(id: string): Promise<User> {
     return prisma.user.update({
       where: { id },
       data: {

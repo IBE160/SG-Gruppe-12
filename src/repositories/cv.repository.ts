@@ -5,7 +5,7 @@ import { ExperienceEntry } from '../types/cv.types'; // Using types for content
 
 export const cvRepository = {
   // Creates a CV shell. Components are added separately.
-  async create(userId: number, title: string): Promise<CV> {
+  async create(userId: string, title: string): Promise<CV> {
     return prisma.cV.create({
       data: {
         user_id: userId,
@@ -23,7 +23,7 @@ export const cvRepository = {
   },
 
   // Finds all CV shells for a user.
-  async findByUserId(userId: number): Promise<CV[]> {
+  async findByUserId(userId: string): Promise<CV[]> {
     return prisma.cV.findMany({
       where: { user_id: userId },
       orderBy: { created_at: 'desc' },
@@ -47,7 +47,7 @@ export const cvRepository = {
   },
 
   // Adds a new component (e.g., work experience) and links it to a CV
-  async addComponent(cvId: number, userId: number, type: string, content: any): Promise<CV> {
+  async addComponent(cvId: number, userId: string, type: string, content: any): Promise<CV> {
     const newComponent = await prisma.cVComponent.create({
       data: {
         user_id: userId,
@@ -65,6 +65,14 @@ export const cvRepository = {
       },
     });
   },
+
+  async update(cvId: number, data: { component_ids?: number[] }): Promise<CV> {
+    return prisma.cV.update({
+      where: { id: cvId },
+      data: data,
+    });
+  },
+
 
   // Updates the content of a specific component
   async updateComponent(componentId: number, content: any): Promise<CVComponent> {
@@ -133,6 +141,22 @@ export const cvRepository = {
   async getVersionByNumber(cvId: number, versionNumber: number): Promise<CVVersion | null> {
     return prisma.cVVersion.findUnique({
       where: { cv_id_version_number: { cv_id: cvId, version_number: versionNumber } },
+    });
+  },
+
+  async addComponentOnly(userId: string, type: string, content: any): Promise<CVComponent> {
+    return prisma.cVComponent.create({
+      data: {
+        user_id: userId,
+        component_type: type,
+        content: content,
+      },
+    });
+  },
+
+  async deleteComponentOnly(componentId: number): Promise<void> {
+    await prisma.cVComponent.delete({
+      where: { id: componentId },
     });
   },
 };
