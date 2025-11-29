@@ -7,7 +7,7 @@ export const jobController = {
   async analyzeJob(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { jobDescription } = req.body;
-      const userId = req.user?.id; // Assuming user is authenticated
+      const userId = req.user?.userId; // Assuming user is authenticated
 
       if (!userId) {
         return res.status(401).json({ message: 'Unauthorized: User ID not found.' });

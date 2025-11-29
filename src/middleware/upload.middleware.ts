@@ -1,27 +1,25 @@
 // src/middleware/upload.middleware.ts
 import multer from 'multer';
 import { Request } from 'express';
-import { BadRequestError } from '../utils/errors.util'; // Assuming you have an errors.util.ts
-import * as FileType from 'file-type'; // Import file-type library
+import { BadRequestError } from '../utils/errors.util';
 
 // Configure storage - using memory storage for now, will be updated for streaming
 const storage = multer.memoryStorage();
 
+// Allowed MIME types
+const allowedMimeTypes = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/plain',
+];
+
 // File filter to allow only PDF, DOCX, and TXT
-const fileFilter = async (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedMimeTypes = [
-    'application/pdf',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'text/plain',
-  ];
-
-  // Use file-type to verify MIME type from file content
-  const detectedFileType = await FileType.fromBuffer(file.buffer);
-
-  if (detectedFileType && allowedMimeTypes.includes(detectedFileType.mime)) {
+const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  // Check declared MIME type first (file-type detection happens after upload)
+  if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new BadRequestError(`Invalid file type. Only PDF, DOCX, and TXT are allowed. Detected: ${detectedFileType ? detectedFileType.mime : 'unknown'}`));
+    cb(new BadRequestError(`Invalid file type. Only PDF, DOCX, and TXT are allowed. Detected: ${file.mimetype}`));
   }
 };
 

@@ -17,14 +17,18 @@ export const userService = {
    * @returns The updated user profile.
    * @throws {NotFoundError} if the user is not found.
    */
-  async updateProfile(userId: number, data: UpdateProfileData) {
+  async updateProfile(userId: string, data: UpdateProfileData) {
     const user = await userRepository.findById(userId);
 
     if (!user) {
       throw new NotFoundError('User not found');
     }
 
-    const updatedUser = await userRepository.update(userId, data);
+    const updatedUser = await userRepository.update(userId, {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phoneNumber: data.phoneNumber,
+    });
     return updatedUser;
   },
 
@@ -34,7 +38,7 @@ export const userService = {
    * @returns The user's profile information.
    * @throws {NotFoundError} if the user is not found.
    */
-  async getProfile(userId: number) {
+  async getProfile(userId: string) {
     const user = await userRepository.findById(userId);
 
     if (!user) {

@@ -41,7 +41,7 @@ export const parsingService = {
       logger.error(`Error parsing CV with AI: ${error.message}`, error);
       // If Zod validation fails, it will be a ZodError, which is an instance of Error
       if (error instanceof z.ZodError) {
-        throw new AppError(`AI parsed data failed schema validation: ${error.errors.map(e => e.message).join(', ')}`, 400);
+        throw new AppError(`AI parsed data failed schema validation: ${error.issues.map((e: z.ZodIssue) => e.message).join(', ')}`, 400);
       }
       throw new AppError(`AI parsing failed: ${error.message || 'Unknown error'}`, error.statusCode || 500);
     }
