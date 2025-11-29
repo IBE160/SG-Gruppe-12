@@ -27,7 +27,7 @@ jest.mock('../../config/redis', () => ({
 describe('Auth Service', () => {
   // Mock user data
   const mockUser: User = {
-    id: 1,
+    id: '1',
     name: 'John Doe',
     email: 'john.doe@example.com',
     passwordHash: 'hashed-password-123',
@@ -91,10 +91,10 @@ describe('Auth Service', () => {
         );
         expect(emailService.sendVerificationEmail).toHaveBeenCalledTimes(1);
 
-        // Assert - verify returned user
-        expect(result).toEqual(mockUser);
+        // Assert - verify returned user (SafeUser omits passwordHash and emailVerificationToken)
+        expect(result.email).toBe(mockUser.email);
         expect(result.emailVerified).toBe(false);
-        expect(result.emailVerificationToken).toBe('mock-uuid-token');
+        // Note: emailVerificationToken is intentionally omitted from SafeUser for security
       });
 
       it('should register user with AI training consent when provided', async () => {

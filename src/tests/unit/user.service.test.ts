@@ -10,16 +10,19 @@ describe('User Service', () => {
   const mockUserId = 'clsy96f0100001a1d6n8u2g2t'; // Example UUID
   const mockUser: User = {
     id: mockUserId,
+    name: 'John Doe',
     email: 'test@example.com',
     passwordHash: 'hashedpassword',
     firstName: 'John',
     lastName: 'Doe',
     phoneNumber: '1234567890',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    created_at: new Date(),
+    updated_at: new Date(),
     emailVerified: true,
     emailVerificationToken: null,
-    passwordResetToken: null,
+    consent_essential: true,
+    consent_ai_training: false,
+    consent_marketing: false,
   };
 
   beforeEach(() => {

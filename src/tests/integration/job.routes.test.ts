@@ -44,14 +44,14 @@ app.use(cookieParser());
 // Mock rate limiter to pass tests without Redis running
 // This allows the test to run without setting up a real Redis instance
 jest.mock('express-rate-limit', () => {
-  const mockRateLimit = jest.fn((options) => (req, res, next) => next());
-  (mockRateLimit as any).RedisStore = jest.fn(); // Mock the RedisStore constructor if it's referenced
+  const mockRateLimit = jest.fn((options: any) => (req: any, res: any, next: any) => next());
+  (mockRateLimit as any).RedisStore = jest.fn();
   return mockRateLimit;
 });
 
 // Mock aiLimiter directly
 jest.mock('../../middleware/rate-limit.middleware', () => ({
-  aiLimiter: (req, res, next) => next(), // Just call next() to bypass actual rate limiting
+  aiLimiter: (req: any, res: any, next: any) => next(),
 }));
 
 

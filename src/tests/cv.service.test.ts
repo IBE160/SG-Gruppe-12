@@ -9,11 +9,11 @@ import * as jsonpatch from 'fast-json-patch';
 jest.mock('../repositories/cv.repository');
 
 describe('CV Service (Normalized)', () => {
-  const mockUserId = 1;
+  const mockUserId = '1';
   const mockCvId = 101;
 
   const mockExperienceComponent: CVComponent = { id: 201, user_id: mockUserId, component_type: 'work_experience', content: { title: 'Software Engineer', company: 'Tech Corp' }, created_at: new Date(), updated_at: new Date() };
-  
+
   const mockCvShell: CV = { id: mockCvId, user_id: mockUserId, title: 'My CV', component_ids: [mockExperienceComponent.id], created_at: new Date(), updated_at: new Date() };
 
   beforeEach(() => {
@@ -45,7 +45,7 @@ describe('CV Service (Normalized)', () => {
   });
 
   describe('Work Experience CRUD', () => {
-    const newExperience = { title: 'New Role', company: 'NewCo' };
+    const newExperience = { title: 'New Role', company: 'NewCo', startDate: '2020-01-01' };
     const mockComponentAfterAdd: CVComponent = { id: 205, user_id: mockUserId, component_type: 'work_experience', content: newExperience, created_at: new Date(), updated_at: new Date() };
 
     it('should add a work experience component and create a new version', async () => {
@@ -66,7 +66,7 @@ describe('CV Service (Normalized)', () => {
         (cvRepository.findComponentsByIds as jest.Mock).mockResolvedValue([mockExperienceComponent]);
         (cvRepository.updateComponent as jest.Mock).mockResolvedValue({
             ...mockExperienceComponent,
-            content: { ...mockExperienceComponent.content, ...updates }
+            content: { ...(mockExperienceComponent.content as object), ...updates }
         });
         
         await cvService.updateWorkExperience(mockUserId, mockCvId, 0, updates);

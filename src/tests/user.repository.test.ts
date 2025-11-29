@@ -20,6 +20,7 @@ describe('User Repository', () => {
 
   it('should create a new user', async () => {
     const mockUserData = {
+      name: 'Test User',
       firstName: 'Test',
       lastName: 'User',
       email: 'test@example.com',
@@ -30,7 +31,7 @@ describe('User Repository', () => {
       emailVerificationToken: 'some_token',
       emailVerified: false,
     };
-    const mockCreatedUser = { id: 1, name: 'Test User', ...mockUserData, created_at: new Date(), updated_at: new Date() };
+    const mockCreatedUser = { id: '1', ...mockUserData, created_at: new Date(), updated_at: new Date() };
 
     (prisma.user.create as jest.Mock).mockResolvedValue(mockCreatedUser);
 
@@ -54,9 +55,9 @@ describe('User Repository', () => {
     const mockUser = { id: 1, email: 'test@example.com', name: 'Test', passwordHash: 'hashed' };
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
-    const result = await userRepository.findById(1);
+    const result = await userRepository.findById('1');
 
-    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: '1' } });
     expect(result).toEqual(mockUser);
   });
 
@@ -65,9 +66,9 @@ describe('User Repository', () => {
     const mockUpdatedUser = { id: 1, email: 'test@example.com', name: 'Updated User', passwordHash: 'hashed', ...mockUpdates };
     (prisma.user.update as jest.Mock).mockResolvedValue(mockUpdatedUser);
 
-    const result = await userRepository.update(1, mockUpdates);
+    const result = await userRepository.update('1', mockUpdates);
 
-    expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: 1 }, data: mockUpdates });
+    expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: '1' }, data: mockUpdates });
     expect(result).toEqual(mockUpdatedUser);
   });
 
@@ -75,9 +76,9 @@ describe('User Repository', () => {
     const mockUser = { id: 1, email: 'test@example.com', name: 'Test', passwordHash: 'hashed' };
     (prisma.user.update as jest.Mock).mockResolvedValue(mockUser);
 
-    const result = await userRepository.updateLastLogin(1);
+    const result = await userRepository.updateLastLogin('1');
 
-    expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: 1 }, data: {} }); // updatedAt is automatic
+    expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: '1' }, data: {} }); // updatedAt is automatic
     expect(result).toEqual(mockUser);
   });
 });

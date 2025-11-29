@@ -15,7 +15,7 @@ jest.mock('../utils/jwt.util');
 
 describe('Auth Service', () => {
   const mockUser: User = { // Define mockUser based on Prisma's User type
-    id: 1,
+    id: '1',
     name: 'John Doe',
     email: 'john.doe@example.com',
     passwordHash: 'hashedPassword123',

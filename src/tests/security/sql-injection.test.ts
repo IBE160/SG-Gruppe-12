@@ -100,7 +100,7 @@ describe('SQL Injection Security Tests', () => {
   describe('User Repository - User ID Lookup', () => {
     it('should safely handle malicious numeric input', async () => {
       // Try to inject SQL through numeric ID
-      const maliciousId = 1; // Even if someone tries: "1 OR 1=1"
+      const maliciousId = '1'; // Even if someone tries: "1 OR 1=1"
 
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
@@ -128,23 +128,23 @@ describe('SQL Injection Security Tests', () => {
   });
 
   describe('User Repository - Update Operations', () => {
-    it('should safely handle malicious name input', async () => {
-      const maliciousName = "'; DELETE FROM users WHERE '1'='1";
-      const userId = 1;
+    it('should safely handle malicious firstName input', async () => {
+      const maliciousFirstName = "'; DELETE FROM users WHERE '1'='1";
+      const userId = '1';
 
       (prisma.user.update as jest.Mock).mockResolvedValue({
         id: userId,
-        name: maliciousName,
+        firstName: maliciousFirstName,
         email: 'test@example.com',
       });
 
-      await userRepository.update(userId, { name: maliciousName });
+      await userRepository.update(userId, { firstName: maliciousFirstName });
 
-      // Prisma should treat name as literal data, not SQL
+      // Prisma should treat firstName as literal data, not SQL
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: userId },
         data: expect.objectContaining({
-          name: maliciousName,
+          firstName: maliciousFirstName,
         }),
       });
 
@@ -154,7 +154,7 @@ describe('SQL Injection Security Tests', () => {
 
     it('should safely handle malicious email updates', async () => {
       const maliciousEmail = "test@example.com'; UPDATE users SET role='admin' WHERE '1'='1";
-      const userId = 1;
+      const userId = '1';
 
       (prisma.user.update as jest.Mock).mockResolvedValue({
         id: userId,

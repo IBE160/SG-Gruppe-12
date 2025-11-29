@@ -31,7 +31,7 @@ jest.mock('../config/database', () => ({
 describe('CV Repository', () => {
   const mockCV: CV = {
     id: 1,
-    user_id: 1,
+    user_id: '1',
     title: 'Test CV',
     component_ids: [],
     created_at: new Date(),
@@ -40,7 +40,7 @@ describe('CV Repository', () => {
 
   const mockCVComponent: CVComponent = {
     id: 1,
-    user_id: 1,
+    user_id: '1',
     component_type: 'work_experience',
     content: { title: 'Software Engineer' },
     created_at: new Date(),
@@ -63,11 +63,11 @@ describe('CV Repository', () => {
     it('should create a new CV shell', async () => {
       (prisma.cV.create as jest.Mock).mockResolvedValue(mockCV);
 
-      const newCV = await cvRepository.create(1, 'Test CV');
+      const newCV = await cvRepository.create('1', 'Test CV');
 
       expect(prisma.cV.create).toHaveBeenCalledWith({
         data: {
-          user_id: 1,
+          user_id: '1',
           title: 'Test CV',
           component_ids: [],
         },
@@ -91,10 +91,10 @@ describe('CV Repository', () => {
     it('should find all CVs for a user', async () => {
       (prisma.cV.findMany as jest.Mock).mockResolvedValue([mockCV]);
 
-      const foundCVs = await cvRepository.findByUserId(1);
+      const foundCVs = await cvRepository.findByUserId('1');
 
       expect(prisma.cV.findMany).toHaveBeenCalledWith({
-        where: { user_id: 1 },
+        where: { user_id: '1' },
         orderBy: { created_at: 'desc' },
       });
       expect(foundCVs).toEqual([mockCV]);
@@ -106,11 +106,11 @@ describe('CV Repository', () => {
       (prisma.cVComponent.create as jest.Mock).mockResolvedValue(mockCVComponent);
       (prisma.cV.update as jest.Mock).mockResolvedValue({ ...mockCV, component_ids: [1] });
 
-      const updatedCV = await cvRepository.addComponent(1, 1, 'work_experience', { title: 'Software Engineer' });
+      const updatedCV = await cvRepository.addComponent(1, '1', 'work_experience', { title: 'Software Engineer' });
 
       expect(prisma.cVComponent.create).toHaveBeenCalledWith({
         data: {
-          user_id: 1,
+          user_id: '1',
           component_type: 'work_experience',
           content: { title: 'Software Engineer' },
         },
