@@ -1,9 +1,9 @@
 // src/services/cv.service.ts
 import { cvRepository } from '../repositories/cv.repository';
-import { UnauthorizedError } from '../utils/errors.util';
+import { UnauthorizedError, NotFoundError } from '../utils/errors.util';
 import { userRepository } from '../repositories/user.repository';
 import { CV, CVComponent } from '@prisma/client';
-import { CvData, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '../types/cv.types';
+import { CvData, PersonalInfo, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '../types/cv.types';
 import { experienceEntrySchema, educationEntrySchema, skillEntrySchema, languageEntrySchema } from '../validators/cv.validator';
 import * as jsonpatch from 'fast-json-patch'; // Import fast-json-patch
 
@@ -37,20 +37,20 @@ async function assembleCvData(cvShell: CV, userId: string): Promise<CvData> {
 
   components.forEach(component => {
     switch (component.component_type) {
-      case 'personal_info': // Assuming personal_info will eventually be a component
-        assembledData.personal_info = component.content as any;
+      case 'personal_info':
+        assembledData.personal_info = component.content as unknown as PersonalInfo;
         break;
       case 'work_experience':
-        assembledData.experience.push(component.content as ExperienceEntry);
+        assembledData.experience.push(component.content as unknown as ExperienceEntry);
         break;
       case 'education':
-        assembledData.education.push(component.content as EducationEntry);
+        assembledData.education.push(component.content as unknown as EducationEntry);
         break;
       case 'skill':
-        assembledData.skills.push(component.content as SkillEntry);
+        assembledData.skills.push(component.content as unknown as SkillEntry);
         break;
       case 'language':
-        assembledData.languages.push(component.content as LanguageEntry);
+        assembledData.languages.push(component.content as unknown as LanguageEntry);
         break;
     }
   });
@@ -85,6 +85,57 @@ async function createNewVersion(cvId: number, userId: string, previousCvData: Cv
 }
 
 export const cvService = {
+  async createCV(userId: string, data: { title: string; component_ids: number[] }): Promise<CV> {
+    return cvRepository.create(userId, data.title);
+  },
+
+  async updateCV(userId: string, cvId: string, data: CvData): Promise<CV> {
+    const cvIdNum = parseInt(cvId, 10);
+    const cvShell = await cvRepository.findById(cvIdNum);
+    if (!cvShell || cvShell.user_id !== userId) {
+      throw new UnauthorizedError('CV not found or access denied');
+    }
+
+    // Clear existing components and add new ones based on parsed data
+    const existingComponents = await cvRepository.findComponentsByIds(cvShell.component_ids);
+    await Promise.all(existingComponents.map(c => cvRepository.deleteComponentOnly(c.id)));
+
+    const newComponentIds: number[] = [];
+
+    // Add personal info as a component
+    if (data.personal_info) {
+      const comp = await cvRepository.addComponentOnly(userId, 'personal_info', data.personal_info);
+      newComponentIds.push(comp.id);
+    }
+
+    // Add experience entries
+    for (const exp of data.experience || []) {
+      const comp = await cvRepository.addComponentOnly(userId, 'work_experience', exp);
+      newComponentIds.push(comp.id);
+    }
+
+    // Add education entries
+    for (const edu of data.education || []) {
+      const comp = await cvRepository.addComponentOnly(userId, 'education', edu);
+      newComponentIds.push(comp.id);
+    }
+
+    // Add skills
+    for (const skill of data.skills || []) {
+      const comp = await cvRepository.addComponentOnly(userId, 'skill', { name: skill });
+      newComponentIds.push(comp.id);
+    }
+
+    // Add languages
+    for (const lang of data.languages || []) {
+      const comp = await cvRepository.addComponentOnly(userId, 'language', lang);
+      newComponentIds.push(comp.id);
+    }
+
+    // Update CV with new component IDs
+    return cvRepository.update(cvIdNum, { component_ids: newComponentIds });
+  },
+
   async getCVById(userId: string, cvId: number): Promise<CvData> {
     const cvShell = await cvRepository.findById(cvId);
     if (!cvShell || cvShell.user_id !== userId) {
@@ -292,7 +343,7 @@ export const cvService = {
     for (const version of versions) {
         if (version.version_number <= versionNumber) {
             // Apply the patch to the historical data
-            jsonpatch.applyPatch(historicalCvData, version.delta);
+            jsonpatch.applyPatch(historicalCvData, version.delta as unknown as jsonpatch.Operation[]);
         } else {
             break; // Stop if we've passed the target version
         }
@@ -341,7 +392,8 @@ export const cvService = {
     await cvRepository.update(cvId, { component_ids: newComponentIds });
 
     // 4. Create a new version representing this restore operation
-    await createNewVersion(cvId, await assembleCvData(cvShell, cvShell.user_id), versionToRestore);
+    const previousCvData = await assembleCvData(cvShell, cvShell.user_id);
+    await createNewVersion(cvId, cvShell.user_id, previousCvData, versionToRestore);
 
     return versionToRestore;
   },
