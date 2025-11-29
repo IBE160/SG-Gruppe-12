@@ -1,11 +1,48 @@
 // src/tests/integration/application.routes.test.ts
 import request from 'supertest';
-import { app } from '../../app';
-import { applicationService } from '../../services/application.service';
-import { jwtService } from '../../utils/jwt.util';
 
-// Mock the application service
-jest.mock('../../services/application.service');
+// Mock dependencies before any imports
+jest.mock('@sentry/node', () => ({
+  Handlers: {
+    requestHandler: () => (_req: unknown, _res: unknown, next: () => void) => next(),
+    errorHandler: () => (_err: unknown, _req: unknown, _res: unknown, next: () => void) => next(),
+  },
+}));
+
+jest.mock('../../config/redis', () => ({
+  redis: {
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+    on: jest.fn(),
+    quit: jest.fn(),
+    call: jest.fn(),
+  },
+}));
+
+jest.mock('../../middleware/rate-limit.middleware', () => ({
+  authRateLimiter: (_req: unknown, _res: unknown, next: () => void) => next(),
+  apiRateLimiter: (_req: unknown, _res: unknown, next: () => void) => next(),
+}));
+
+jest.mock('../../config/database', () => ({
+  prisma: {
+    applicationAnalysis: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('../../config/ai-providers', () => ({
+  genAI: {
+    getGenerativeModel: jest.fn().mockReturnValue({
+      generateContent: jest.fn(),
+    }),
+  },
+}));
 
 // Mock JWT verification
 jest.mock('../../utils/jwt.util', () => ({
@@ -16,6 +53,21 @@ jest.mock('../../utils/jwt.util', () => ({
     verifyRefreshToken: jest.fn().mockReturnValue({ userId: 'test-user-id' }),
   },
 }));
+
+// Mock the application service
+jest.mock('../../services/application.service', () => ({
+  applicationService: {
+    generateTailoredCV: jest.fn(),
+    generateCoverLetter: jest.fn(),
+    getApplication: jest.fn(),
+    getUserApplications: jest.fn(),
+    updateApplication: jest.fn(),
+  },
+}));
+
+// Import after all mocks are set up
+import app from '../../app';
+import { applicationService } from '../../services/application.service';
 
 describe('Application Routes', () => {
   const mockUserId = 'test-user-id';

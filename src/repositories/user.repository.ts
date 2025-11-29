@@ -11,6 +11,7 @@ interface CreateUserData {
   phoneNumber?: string;
   emailVerificationToken?: string;
   emailVerified?: boolean;
+  consent_essential?: boolean;
   consent_ai_training?: boolean;
   consent_marketing?: boolean;
 }
