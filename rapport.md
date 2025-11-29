@@ -687,3 +687,47 @@ A more secure authentication flow with:
 - Stable frontend-backend communication
 
 Commit: `3120ce1` - pushed to `main` branch.
+
+---
+
+## November 30, 2025 – TypeScript Error Fixes & CV Service Completion *(Vera Kironaki, with Claude Code)*
+
+### Goal
+
+Fix all remaining TypeScript compilation errors in source and test files.
+
+### What We Did
+
+We worked with Claude Code to resolve 60+ TypeScript errors across the codebase:
+
+1. **Created CV Type Definitions (`src/types/cv.types.ts`):**
+   - Added `PersonalInfo`, `ExperienceEntry`, `EducationEntry`, `SkillEntry`, `LanguageEntry` interfaces
+   - Created `CvData` composite type for CV operations
+
+2. **CV Service Improvements (`src/services/cv.service.ts`):**
+   - Added `createCV()` method for creating new CV shells
+   - Added `updateCV()` method for updating CVs with parsed AI data
+   - Fixed `NotFoundError` import
+   - Fixed Prisma `JsonValue` type casting with `as unknown as Type` pattern
+
+3. **Job Queue Updates (`src/jobs/index.ts`):**
+   - Added `documentGenerationQueue` for PDF/DOCX export functionality
+   - Added `DocumentGenerationJobData` interface
+
+4. **Test File Updates (12 files):**
+   - Changed all `userId` from `number` to `string` (UUID format)
+   - Fixed mock data to match Prisma schema (`created_at`/`updated_at`)
+   - Updated integration tests to use `cvService` instead of `cvRepository`
+   - Fixed `SafeUser` property assertions
+
+### Files Changed
+- Source: 3 files (1 new, 2 modified)
+- Tests: 12 files updated
+
+### Result
+
+- TypeScript compilation: **0 errors** (down from 60+)
+- Tests: 46/53 passing locally (7 failures are infrastructure-related)
+- Two commits pushed to `main`:
+  - `2745cb9` - fix: resolve CV service TypeScript errors
+  - `1e22c57` - fix: update test files for userId type change
