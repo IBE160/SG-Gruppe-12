@@ -4,6 +4,7 @@ import userRoutes from './user.routes';
 import cvRoutes from './cv.routes';
 import jobRoutes from './job.routes';
 import applicationRoutes from './application.routes';
+import gdprRoutes from './gdpr.routes';
 
 const router = Router();
 
@@ -13,5 +14,6 @@ router.use('/profile', userRoutes); // All user profile routes will be under /ap
 router.use('/cvs', cvRoutes); // All CV routes will be under /api/v1/cvs
 router.use('/jobs', jobRoutes); // All job routes will be under /api/v1/jobs
 router.use('/applications', applicationRoutes); // All application routes will be under /api/v1/applications
+router.use('/gdpr', gdprRoutes); // All GDPR routes will be under /api/v1/gdpr
 
 export default router;
