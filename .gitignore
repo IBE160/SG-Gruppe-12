@@ -24,6 +24,7 @@ lerna-debug.log*
 /build
 /tmp
 **/tmp/
+*.tsbuildinfo
 
 # Next.js build output
 .next/
