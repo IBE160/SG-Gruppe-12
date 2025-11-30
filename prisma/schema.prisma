@@ -113,3 +113,36 @@ model CVVersion {
   @@unique([cv_id, version_number]) // Ensure unique version numbers per CV
   @@map("cv_versions")
 }
+
+// Audit log for security events (Story 5.6)
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  user_id     String?  // Nullable for unauthenticated events (failed login attempts)
+  action      String   // e.g., 'LOGIN', 'LOGOUT', 'PASSWORD_CHANGE', 'DATA_EXPORT', 'ACCOUNT_DELETE'
+  resource    String?  // e.g., 'user', 'cv', 'application'
+  resource_id String?  // ID of the affected resource
+  ip_address  String?  // Client IP address
+  user_agent  String?  // Browser/client user agent
+  metadata    Json?    // Additional context (redacted PII)
+  status      String   // 'SUCCESS', 'FAILURE', 'BLOCKED'
+  created_at  DateTime @default(now())
+
+  @@index([user_id, created_at])
+  @@index([action, created_at])
+  @@index([created_at])
+  @@map("audit_logs")
+}
+
+// Consent change log for GDPR compliance (Story 5.1)
+model ConsentLog {
+  id           Int      @id @default(autoincrement())
+  user_id      String
+  consent_type String   // 'essential', 'ai_training', 'marketing'
+  granted      Boolean  // true = opted in, false = opted out
+  ip_address   String?  // Client IP address for audit trail
+  timestamp    DateTime @default(now())
+
+  @@index([user_id, timestamp])
+  @@index([timestamp])
+  @@map("consent_logs")
+}
