@@ -3,14 +3,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Target, FileText, PlusCircle, Settings, FolderOpen } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Target, FileText, PlusCircle, Settings, FolderOpen, Upload, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { logoutUser } from "@/lib/api/auth";
 
 const navItems = [
   {
     title: "My CVs",
     href: "/cv/manage",
     icon: FileText,
+  },
+  {
+    title: "Upload CV",
+    href: "/cv/upload",
+    icon: Upload,
   },
   {
     title: "Applications",
@@ -35,6 +43,17 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      router.push("/login");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,7 +66,15 @@ export default function DashboardLayout({
               <span className="text-xl font-bold text-gray-900">AI CV Assistant</span>
             </Link>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">Dashboard</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>
