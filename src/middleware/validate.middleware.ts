@@ -1,6 +1,9 @@
 // src/middleware/validate.middleware.ts
 import { Request, Response, NextFunction } from 'express';
-import { ZodSchema, ZodError, ZodIssue } from 'zod';
+import { z } from 'zod';
+
+type ZodSchema = z.ZodType<unknown>;
+type ZodIssue = z.ZodIssue;
 import { AppError } from '../utils/errors.util';
 
 export class ValidationError extends AppError {
@@ -22,7 +25,7 @@ export const validate = (schema: ZodSchema) => {
       });
       next();
     } catch (error) {
-      if (error instanceof ZodError) {
+      if (error instanceof z.ZodError) {
         const errors = error.issues.map((issue: ZodIssue) => ({
           field: issue.path.join('.'),
           message: issue.message,
