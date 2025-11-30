@@ -1,16 +1,48 @@
 // src/tests/cv.service.test.ts
+
+// Mock Prisma BEFORE imports
+jest.mock('../config/database', () => ({
+  prisma: {
+    cV: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+    cVComponent: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+    cVVersion: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+    },
+    user: {
+      findUnique: jest.fn(),
+    },
+  },
+}));
+
+// Mock repositories
+jest.mock('../repositories/cv.repository');
+jest.mock('../repositories/user.repository');
+
 import { cvService } from '../services/cv.service';
 import { cvRepository } from '../repositories/cv.repository';
-import { NotFoundError, UnauthorizedError } from '../utils/errors.util';
-import { CV, CVComponent, CVVersion } from '@prisma/client';
-import * as jsonpatch from 'fast-json-patch';
-
-// Mock the repository
-jest.mock('../repositories/cv.repository');
+import { userRepository } from '../repositories/user.repository';
+import { UnauthorizedError } from '../utils/errors.util';
+import { CV, CVComponent } from '@prisma/client';
 
 describe('CV Service (Normalized)', () => {
   const mockUserId = '1';
   const mockCvId = 101;
+
+  const mockUser = { id: mockUserId, email: 'test@test.com' };
 
   const mockExperienceComponent: CVComponent = { id: 201, user_id: mockUserId, component_type: 'work_experience', content: { title: 'Software Engineer', company: 'Tech Corp' }, created_at: new Date(), updated_at: new Date() };
 
@@ -21,6 +53,8 @@ describe('CV Service (Normalized)', () => {
     (cvRepository.getLatestVersionNumber as jest.Mock).mockResolvedValue(0);
     (cvRepository.createVersion as jest.Mock).mockResolvedValue({});
     (cvRepository.getVersions as jest.Mock).mockResolvedValue([]);
+    // Mock userRepository.findById for CV ownership checks
+    (userRepository.findById as jest.Mock).mockResolvedValue(mockUser);
   });
 
   describe('getCVById', () => {
@@ -77,8 +111,13 @@ describe('CV Service (Normalized)', () => {
 
     it('should delete a specific work experience component and create a new version', async () => {
         (cvRepository.findById as jest.Mock).mockResolvedValue(mockCvShell);
-        (cvRepository.findComponentsByIds as jest.Mock).mockResolvedValue([mockExperienceComponent]);
+        // First call returns component for findNthComponent/assembleCvData, second call returns empty for post-delete state
+        (cvRepository.findComponentsByIds as jest.Mock)
+          .mockResolvedValueOnce([mockExperienceComponent])  // For assembleCvData (previous state)
+          .mockResolvedValueOnce([mockExperienceComponent])  // For findNthComponent
+          .mockResolvedValueOnce([]);  // For assembleCvData (current state after delete)
         (cvRepository.deleteComponent as jest.Mock).mockResolvedValue({ ...mockCvShell, component_ids: [] });
+        (cvRepository.getLatestVersionNumber as jest.Mock).mockResolvedValue(0);
 
         const result = await cvService.deleteWorkExperience(mockUserId, mockCvId, 0);
 
@@ -117,6 +156,16 @@ describe('CV Service (Normalized)', () => {
     it('should reconstruct and return CV data for restoreVersion', async () => {
         (cvRepository.findById as jest.Mock).mockResolvedValue(mockCvShell); // For auth check
         (cvRepository.getVersions as jest.Mock).mockResolvedValue(mockVersions);
+        // Mock addComponentOnly to return component with an id
+        (cvRepository.addComponentOnly as jest.Mock).mockImplementation((userId, type, content) =>
+          Promise.resolve({ id: 999, user_id: userId, component_type: type, content, created_at: new Date(), updated_at: new Date() })
+        );
+        // Mock update to update the CV shell's component_ids
+        (cvRepository.update as jest.Mock).mockResolvedValue({ ...mockCvShell, component_ids: [999] });
+        // Mock findComponentsByIds for the final assembleCvData call
+        (cvRepository.findComponentsByIds as jest.Mock).mockResolvedValue([
+          { id: 999, user_id: mockUserId, component_type: 'work_experience', content: { title: 'Exp 1' }, created_at: new Date(), updated_at: new Date() }
+        ]);
 
         const result = await cvService.restoreVersion(mockUserId, mockCvId, 1);
 

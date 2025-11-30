@@ -1,17 +1,19 @@
 // src/tests/user.repository.test.ts
-import { userRepository } from '../repositories/user.repository';
-import { prisma } from '../config/database'; // Import prisma client directly
 
-// Mock the prisma client for repository tests
+// Mock the prisma client BEFORE imports
 jest.mock('../config/database', () => ({
   prisma: {
     user: {
       create: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
     },
   },
 }));
+
+import { userRepository } from '../repositories/user.repository';
+import { prisma } from '../config/database';
 
 describe('User Repository', () => {
   beforeEach(() => {
@@ -37,7 +39,21 @@ describe('User Repository', () => {
 
     const result = await userRepository.create(mockUserData);
 
-    expect(prisma.user.create).toHaveBeenCalledWith({ data: mockUserData });
+    // Repository maps fields explicitly (excludes consent_essential, adds phoneNumber)
+    expect(prisma.user.create).toHaveBeenCalledWith({
+      data: {
+        email: mockUserData.email,
+        passwordHash: mockUserData.passwordHash,
+        name: mockUserData.name,
+        firstName: mockUserData.firstName,
+        lastName: mockUserData.lastName,
+        phoneNumber: undefined,
+        emailVerificationToken: mockUserData.emailVerificationToken,
+        emailVerified: mockUserData.emailVerified,
+        consent_ai_training: mockUserData.consent_ai_training,
+        consent_marketing: mockUserData.consent_marketing,
+      },
+    });
     expect(result).toEqual(mockCreatedUser);
   });
 
@@ -68,7 +84,18 @@ describe('User Repository', () => {
 
     const result = await userRepository.update('1', mockUpdates);
 
-    expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: '1' }, data: mockUpdates });
+    // Repository maps fields explicitly
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: '1' },
+      data: {
+        firstName: mockUpdates.firstName,
+        lastName: mockUpdates.lastName,
+        phoneNumber: undefined,
+        emailVerified: undefined,
+        emailVerificationToken: undefined,
+        passwordHash: undefined,
+      },
+    });
     expect(result).toEqual(mockUpdatedUser);
   });
 

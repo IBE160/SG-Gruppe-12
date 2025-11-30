@@ -1,17 +1,76 @@
 // src/tests/integration/auth.routes.test.ts
+
+// Set env vars BEFORE imports
+process.env.ACCESS_TOKEN_SECRET = 'test_access_secret_for_testing';
+process.env.REFRESH_TOKEN_SECRET = 'test_refresh_secret_for_testing';
+
+// Mock dependencies BEFORE imports
+
+// Mock Prisma
+jest.mock('../../config/database', () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+    auditLog: {
+      create: jest.fn().mockResolvedValue({ id: 1 }),
+    },
+  },
+}));
+
+// Mock Redis
+jest.mock('../../config/redis', () => ({
+  redis: {
+    call: jest.fn().mockResolvedValue('OK'),
+    get: jest.fn(),
+    set: jest.fn(),
+    setex: jest.fn(),
+    del: jest.fn(),
+    sadd: jest.fn(),
+    expire: jest.fn(),
+    on: jest.fn(),
+    quit: jest.fn(),
+  },
+}));
+
+// Mock rate-limit-redis
+jest.mock('rate-limit-redis', () => {
+  return {
+    __esModule: true,
+    default: class RedisStore {
+      constructor() {}
+      increment() { return Promise.resolve({ totalHits: 1, resetTime: new Date() }); }
+      decrement() { return Promise.resolve(); }
+      resetKey() { return Promise.resolve(); }
+    },
+  };
+});
+
+// Mock audit service
+jest.mock('../../services/audit.service', () => ({
+  auditService: {
+    logSecurityEvent: jest.fn().mockResolvedValue(undefined),
+    log: jest.fn().mockResolvedValue(undefined),
+  },
+}));
+
+// Mock auth service
+jest.mock('../../services/auth.service');
+
 import request from 'supertest';
 import express, { Request, Response, NextFunction } from 'express';
 import authRoutes from '../../routes/auth.routes';
 import { authService } from '../../services/auth.service';
 import { validate } from '../../middleware/validate.middleware';
 import { authLimiter } from '../../middleware/rate-limit.middleware';
-import { registerSchema, loginSchema } from '../../validators/auth.validator'; // Import loginSchema
-import cookieParser from 'cookie-parser'; // Import cookie-parser
+import { registerSchema, loginSchema } from '../../validators/auth.validator';
+import cookieParser from 'cookie-parser';
 import { UnauthorizedError } from '../../utils/errors.util';
 import { errorMiddleware } from '../../middleware/error.middleware';
-
-// Mock dependencies
-jest.mock('../../services/auth.service');
 jest.mock('../../middleware/validate.middleware', () => ({
   validate: jest.fn(() => (req: Request, res: Response, next: NextFunction) => next()), // Pass-through for integration
 }));

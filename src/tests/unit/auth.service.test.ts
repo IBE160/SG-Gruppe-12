@@ -1,4 +1,26 @@
 // src/tests/unit/auth.service.test.ts
+
+// Mock Prisma BEFORE imports
+jest.mock('../../config/database', () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+  },
+}));
+
+// Mock JWT util BEFORE imports
+jest.mock('../../utils/jwt.util', () => ({
+  generateAccessToken: jest.fn(() => 'mock-access-token'),
+  generateRefreshToken: jest.fn(() => 'mock-refresh-token'),
+  verifyAccessToken: jest.fn(),
+  verifyRefreshToken: jest.fn(),
+}));
+
 import * as myAuthService from '../../services/auth.service';
 import { userRepository } from '../../repositories/user.repository';
 import { hashPassword } from '../../utils/password.util';

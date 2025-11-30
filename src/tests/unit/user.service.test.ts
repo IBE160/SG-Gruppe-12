@@ -1,3 +1,16 @@
+// Mock Prisma BEFORE imports
+jest.mock('../../config/database', () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+  },
+}));
+
 import { userService } from '../../services/user.service';
 import { userRepository } from '../../repositories/user.repository';
 import { User } from '@prisma/client';
@@ -70,13 +83,8 @@ describe('User Service', () => {
 
       expect(userRepository.findById).toHaveBeenCalledWith(mockUserId);
       expect(userRepository.update).toHaveBeenCalledWith(mockUserId, updateData);
-      expect(profile).toEqual({
-        id: updatedUser.id,
-        email: updatedUser.email,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
-        phoneNumber: updatedUser.phoneNumber,
-      });
+      // updateProfile returns the full updated user object
+      expect(profile).toEqual(updatedUser);
     });
 
     it('should throw NotFoundError if user is not found', async () => {

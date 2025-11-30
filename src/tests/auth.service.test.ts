@@ -1,17 +1,48 @@
 // src/tests/auth.service.test.ts
-import { authService } from '../services/auth.service';
-import { userRepository } from '../repositories/user.repository';
-import { hashPassword, comparePassword } from '../utils/password.util'; // Import comparePassword
-import { emailService } from '../services/email.service';
-import { jwtService } from '../utils/jwt.util'; // Import jwtService
-import { UnauthorizedError } from '../utils/errors.util'; // Import UnauthorizedError
-import { User } from '@prisma/client'; // Import Prisma's User type
+
+// Set env vars BEFORE any imports
+process.env.ACCESS_TOKEN_SECRET = 'test_access_secret_for_testing';
+process.env.REFRESH_TOKEN_SECRET = 'test_refresh_secret_for_testing';
+
+// Mock Prisma BEFORE imports
+jest.mock('../config/database', () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+  },
+}));
+
+// Mock Redis BEFORE imports
+jest.mock('../config/redis', () => ({
+  redis: {
+    get: jest.fn(),
+    set: jest.fn(),
+    setex: jest.fn(),
+    del: jest.fn(),
+    sadd: jest.fn(),
+    expire: jest.fn(),
+    on: jest.fn(),
+  },
+}));
 
 // Mock dependencies
 jest.mock('../repositories/user.repository');
 jest.mock('../utils/password.util');
 jest.mock('../services/email.service');
 jest.mock('../utils/jwt.util');
+
+import { authService } from '../services/auth.service';
+import { userRepository } from '../repositories/user.repository';
+import { hashPassword, comparePassword } from '../utils/password.util';
+import { emailService } from '../services/email.service';
+import { jwtService } from '../utils/jwt.util';
+import { UnauthorizedError } from '../utils/errors.util';
+import { User } from '@prisma/client';
 
 describe('Auth Service', () => {
   const mockUser: User = { // Define mockUser based on Prisma's User type
@@ -68,10 +99,12 @@ describe('Auth Service', () => {
         })
       );
       expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 1, email: mockUserData.email }),
+        expect.objectContaining({ id: '1', email: mockUserData.email }),
         expect.any(String)
       );
-      expect(result).toEqual(mockCreatedUser);
+      // Register returns SafeUser (without passwordHash and emailVerificationToken)
+      const { passwordHash: _p, emailVerificationToken: _e, ...safeUser } = mockCreatedUser;
+      expect(result).toEqual(safeUser);
     });
 
     it('should handle default consent values if not provided', async () => {
@@ -120,7 +153,9 @@ describe('Auth Service', () => {
       expect(jwtService.generateAccessToken).toHaveBeenCalledWith(mockUser.id, 'USER');
       expect(jwtService.generateRefreshToken).toHaveBeenCalledWith(mockUser.id, 'USER');
       expect(userRepository.updateLastLogin).toHaveBeenCalledWith(mockUser.id);
-      expect(result).toEqual({ user: mockUser, accessToken: mockAccessToken, refreshToken: mockRefreshToken });
+      // Login returns SafeUser (without passwordHash and emailVerificationToken)
+      const { passwordHash, emailVerificationToken, ...safeUser } = mockUser;
+      expect(result).toEqual({ user: safeUser, accessToken: mockAccessToken, refreshToken: mockRefreshToken });
     });
 
     it('should throw UnauthorizedError for invalid email', async () => {

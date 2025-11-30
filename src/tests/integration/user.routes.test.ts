@@ -1,8 +1,46 @@
-import request from 'supertest';
-import app from '../../app'; // Assuming your Express app is exported from src/app.ts
-import { prisma } from '../../config/database';
-import { jwtService } from '../../utils/jwt.util';
-import { hashPassword } from '../../utils/password.util';
+// Mock dependencies BEFORE imports
+
+// Mock Redis
+jest.mock('../../config/redis', () => ({
+  redis: {
+    call: jest.fn().mockResolvedValue('OK'),
+    get: jest.fn(),
+    set: jest.fn(),
+    setex: jest.fn(),
+    del: jest.fn(),
+    sadd: jest.fn(),
+    expire: jest.fn(),
+    on: jest.fn(),
+    quit: jest.fn(),
+    options: {
+      host: 'localhost',
+      port: 6379,
+      password: undefined,
+    },
+  },
+}));
+
+// Mock bull queue
+jest.mock('../../jobs', () => ({
+  cvParsingQueue: {
+    add: jest.fn().mockResolvedValue({ id: 'mock-job-id' }),
+    process: jest.fn(),
+    on: jest.fn(),
+  },
+}));
+
+// Mock rate-limit-redis
+jest.mock('rate-limit-redis', () => {
+  return {
+    __esModule: true,
+    default: class RedisStore {
+      constructor() {}
+      increment() { return Promise.resolve({ totalHits: 1, resetTime: new Date() }); }
+      decrement() { return Promise.resolve(); }
+      resetKey() { return Promise.resolve(); }
+    },
+  };
+});
 
 // Mock Prisma client
 jest.mock('../../config/database', () => ({
@@ -11,8 +49,24 @@ jest.mock('../../config/database', () => ({
       findUnique: jest.fn(),
       update: jest.fn(),
     },
+    auditLog: {
+      create: jest.fn().mockResolvedValue({ id: 1 }),
+    },
   },
 }));
+
+// Mock audit service
+jest.mock('../../services/audit.service', () => ({
+  auditService: {
+    logSecurityEvent: jest.fn().mockResolvedValue(undefined),
+    log: jest.fn().mockResolvedValue(undefined),
+  },
+}));
+
+import request from 'supertest';
+import app from '../../app';
+import { prisma } from '../../config/database';
+import { jwtService } from '../../utils/jwt.util';
 
 // Mock jwtService
 jest.mock('../../utils/jwt.util', () => ({

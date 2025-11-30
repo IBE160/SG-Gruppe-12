@@ -1,21 +1,12 @@
 // src/tests/jwt.util.test.ts
+
+// Set env vars BEFORE any imports
+process.env.ACCESS_TOKEN_SECRET = 'test_access_secret_for_testing';
+process.env.REFRESH_TOKEN_SECRET = 'test_refresh_secret_for_testing';
+
 import { jwtService, JwtPayload } from '../utils/jwt.util';
 import jwt from 'jsonwebtoken';
 import { AppError } from '../utils/errors.util';
-
-// Mock environment variables
-const ORIGINAL_ENV = process.env;
-
-beforeEach(() => {
-  jest.resetModules();
-  process.env = { ...ORIGINAL_ENV };
-  process.env.ACCESS_TOKEN_SECRET = 'test_access_secret';
-  process.env.REFRESH_TOKEN_SECRET = 'test_refresh_secret';
-});
-
-afterAll(() => {
-  process.env = ORIGINAL_ENV;
-});
 
 describe('JWT Utility', () => {
   const mockUserId = '123';

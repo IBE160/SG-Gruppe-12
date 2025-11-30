@@ -1,8 +1,21 @@
+// Mock Prisma BEFORE imports
+jest.mock('../config/database', () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('../repositories/user.repository');
+
 import { userService } from '../services/user.service';
 import { userRepository } from '../repositories/user.repository';
 import { NotFoundError } from '../utils/errors.util';
-
-jest.mock('../repositories/user.repository');
 
 const mockUser = {
   id: '1',

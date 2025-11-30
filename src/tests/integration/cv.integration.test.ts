@@ -1,4 +1,92 @@
 // src/tests/integration/cv.integration.test.ts
+
+// Mock dependencies BEFORE imports
+
+// Mock Prisma
+jest.mock('../../config/database', () => ({
+  prisma: {
+    cV: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+    auditLog: {
+      create: jest.fn().mockResolvedValue({ id: 1 }),
+    },
+  },
+}));
+
+// Mock Redis
+jest.mock('../../config/redis', () => ({
+  redis: {
+    call: jest.fn().mockResolvedValue('OK'),
+    get: jest.fn(),
+    set: jest.fn(),
+    setex: jest.fn(),
+    del: jest.fn(),
+    sadd: jest.fn(),
+    expire: jest.fn(),
+    on: jest.fn(),
+    quit: jest.fn(),
+    options: {
+      host: 'localhost',
+      port: 6379,
+      password: undefined,
+    },
+  },
+}));
+
+// Mock bull queue
+jest.mock('../../jobs', () => ({
+  cvParsingQueue: {
+    add: jest.fn().mockResolvedValue({ id: 'mock-job-id' }),
+    process: jest.fn(),
+    on: jest.fn(),
+  },
+}));
+
+// Mock rate-limit-redis
+jest.mock('rate-limit-redis', () => {
+  return {
+    __esModule: true,
+    default: class RedisStore {
+      constructor() {}
+      increment() { return Promise.resolve({ totalHits: 1, resetTime: new Date() }); }
+      decrement() { return Promise.resolve(); }
+      resetKey() { return Promise.resolve(); }
+    },
+  };
+});
+
+// Mock audit service
+jest.mock('../../services/audit.service', () => ({
+  auditService: {
+    logSecurityEvent: jest.fn().mockResolvedValue(undefined),
+    log: jest.fn().mockResolvedValue(undefined),
+  },
+}));
+
+// Mock authentication middleware
+jest.mock('../../middleware/auth.middleware', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => {
+    _req.user = { userId: 'mockUserId', role: 'USER' };
+    next();
+  }),
+  AuthRequest: {},
+}));
+
+// Mock validation middleware
+jest.mock('../../middleware/validate.middleware', () => ({
+  validate: jest.fn(() => (_req: any, _res: any, next: any) => {
+    next();
+  }),
+}));
+
+// Mock cvService
+jest.mock('../../services/cv.service');
+
 import request from 'supertest';
 import express, { Request, Response, NextFunction } from 'express';
 import { cvController } from '../../controllers/cv.controller';
@@ -7,25 +95,6 @@ import { AuthRequest } from '../../middleware/auth.middleware';
 import { authenticate } from '../../middleware/auth.middleware';
 import { validate } from '../../middleware/validate.middleware';
 import { experienceEntrySchema } from '../../validators/cv.validator';
-
-// Mock authentication middleware
-jest.mock('../../middleware/auth.middleware', () => ({
-  authenticate: jest.fn((req: AuthRequest, res: Response, next: NextFunction) => {
-    req.user = { userId: 'mockUserId', role: 'USER' };
-    next();
-  }),
-  AuthRequest: {},
-}));
-
-// Mock validation middleware
-jest.mock('../../middleware/validate.middleware', () => ({
-  validate: jest.fn(() => (req: Request, res: Response, next: NextFunction) => {
-    next();
-  }),
-}));
-
-// Mock cvService instead of cvRepository (service has the CRUD methods)
-jest.mock('../../services/cv.service');
 
 const app = express();
 app.use(express.json());

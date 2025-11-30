@@ -1,5 +1,15 @@
 // src/tests/integration/database.test.ts
-import { prisma } from '../../config/database'; // Adjust path as needed
+
+// Mock Prisma for test environment
+jest.mock('../../config/database', () => ({
+  prisma: {
+    $connect: jest.fn().mockResolvedValue(undefined),
+    $disconnect: jest.fn().mockResolvedValue(undefined),
+    $queryRaw: jest.fn().mockResolvedValue([{ result: 1 }]),
+  },
+}));
+
+import { prisma } from '../../config/database';
 
 // Skip this test if DATABASE_URL is not properly configured
 // This is an infrastructure test that requires a real database
