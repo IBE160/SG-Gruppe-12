@@ -24,6 +24,13 @@ router.post(
   cvController.create
 );
 
+// GET /api/v1/cvs - Get all user's CVs
+router.get(
+  '/',
+  authenticate,
+  cvController.getAll
+);
+
 router.get(
   '/:id',
   authenticate,

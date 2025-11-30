@@ -1,7 +1,7 @@
 // frontend/src/app/(dashboard)/applications/new/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/components/ui/use-toast";
 import { generateTailoredCV, generateCoverLetter, CoverLetterOptions } from "@/lib/api/applications";
 import { createJobPosting } from "@/lib/api/jobs";
+import { getUserCVs, CVSummary } from "@/lib/api/cvs";
 
 type GenerationStep = "input" | "generating" | "complete";
 
@@ -20,7 +21,9 @@ export default function NewApplicationPage() {
 
   const [step, setStep] = useState<GenerationStep>("input");
   const [jobDescription, setJobDescription] = useState("");
-  const [cvId, setCvId] = useState<string>("1"); // Default CV ID - in production, would select from user's CVs
+  const [cvId, setCvId] = useState<string>("");
+  const [userCVs, setUserCVs] = useState<CVSummary[]>([]);
+  const [loadingCVs, setLoadingCVs] = useState(true);
   const [generateCV, setGenerateCV] = useState(true);
   const [generateLetter, setGenerateLetter] = useState(true);
   const [letterTone, setLetterTone] = useState<"professional" | "enthusiastic" | "formal">("professional");
@@ -29,11 +32,42 @@ export default function NewApplicationPage() {
   const [applicationId, setApplicationId] = useState<number | null>(null);
   const [generationProgress, setGenerationProgress] = useState<string>("");
 
+  // Fetch user's CVs on mount
+  useEffect(() => {
+    const fetchCVs = async () => {
+      try {
+        const cvs = await getUserCVs();
+        setUserCVs(cvs);
+        if (cvs.length > 0) {
+          setCvId(cvs[0].id.toString());
+        }
+      } catch (err: any) {
+        toast({
+          title: "Error",
+          description: "Failed to load your CVs",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingCVs(false);
+      }
+    };
+    fetchCVs();
+  }, [toast]);
+
   const handleGenerate = async () => {
     if (!jobDescription.trim()) {
       toast({
         title: "Error",
         description: "Please enter a job description",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!cvId) {
+      toast({
+        title: "Error",
+        description: "Please select a CV",
         variant: "destructive",
       });
       return;
@@ -127,17 +161,38 @@ export default function NewApplicationPage() {
                 />
               </div>
 
-              {/* CV Selection (simplified for MVP) */}
+              {/* CV Selection */}
               <div className="space-y-2">
                 <Label htmlFor="cvSelect">Select CV</Label>
-                <Select value={cvId} onValueChange={setCvId}>
-                  <SelectTrigger id="cvSelect">
-                    <SelectValue placeholder="Select your CV" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">My Primary CV</SelectItem>
-                  </SelectContent>
-                </Select>
+                {loadingCVs ? (
+                  <div className="h-10 bg-muted animate-pulse rounded-md" />
+                ) : userCVs.length === 0 ? (
+                  <div className="p-4 border rounded-lg bg-muted/50">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      You haven&apos;t uploaded any CVs yet.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push("/cv/upload")}
+                    >
+                      Upload a CV
+                    </Button>
+                  </div>
+                ) : (
+                  <Select value={cvId} onValueChange={setCvId}>
+                    <SelectTrigger id="cvSelect">
+                      <SelectValue placeholder="Select your CV" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {userCVs.map((cv) => (
+                        <SelectItem key={cv.id} value={cv.id.toString()}>
+                          {cv.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               {/* Generation Options */}
@@ -202,7 +257,7 @@ export default function NewApplicationPage() {
               <div className="flex gap-4">
                 <Button
                   onClick={handleGenerate}
-                  disabled={isGenerating || (!generateCV && !generateLetter)}
+                  disabled={isGenerating || (!generateCV && !generateLetter) || !cvId || loadingCVs}
                   className="flex-1"
                 >
                   Generate Application Materials

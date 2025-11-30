@@ -144,6 +144,15 @@ export const cvService = {
     return assembleCvData(cvShell, userId);
   },
 
+  async getUserCVs(userId: string): Promise<{ id: number; title: string; createdAt: string }[]> {
+    const cvShells = await cvRepository.findByUserId(userId);
+    return cvShells.map(cv => ({
+      id: cv.id,
+      title: cv.title,
+      createdAt: cv.created_at.toISOString(),
+    }));
+  },
+
   // --- Work Experience ---
   async addWorkExperience(userId: string, cvId: number, data: ExperienceEntry): Promise<CvData> {
     const cvShell = await cvRepository.findById(cvId);
