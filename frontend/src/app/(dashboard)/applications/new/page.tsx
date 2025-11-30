@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { generateTailoredCV, generateCoverLetter, CoverLetterOptions } from "@/lib/api/applications";
+import { createJobPosting } from "@/lib/api/jobs";
 
 type GenerationStep = "input" | "generating" | "complete";
 
@@ -20,7 +21,6 @@ export default function NewApplicationPage() {
   const [step, setStep] = useState<GenerationStep>("input");
   const [jobDescription, setJobDescription] = useState("");
   const [cvId, setCvId] = useState<string>("1"); // Default CV ID - in production, would select from user's CVs
-  const [jobPostingId, setJobPostingId] = useState<number | null>(null);
   const [generateCV, setGenerateCV] = useState(true);
   const [generateLetter, setGenerateLetter] = useState(true);
   const [letterTone, setLetterTone] = useState<"professional" | "enthusiastic" | "formal">("professional");
@@ -43,14 +43,17 @@ export default function NewApplicationPage() {
     setStep("generating");
 
     try {
-      // For MVP, we assume jobPostingId is already created or we use a mock
-      // In production, this would first create a job posting from the description
-      const mockJobPostingId = jobPostingId || 1;
+      // Step 1: Create job posting from description
+      setGenerationProgress("Analyzing job description...");
+      const jobResult = await createJobPosting(jobDescription);
+      const newJobPostingId = jobResult.jobPostingId;
+
       let resultApplicationId: number | null = null;
 
+      // Step 2: Generate tailored CV if selected
       if (generateCV) {
         setGenerationProgress("Generating tailored CV...");
-        const cvResult = await generateTailoredCV(parseInt(cvId), mockJobPostingId);
+        const cvResult = await generateTailoredCV(parseInt(cvId), newJobPostingId);
         resultApplicationId = cvResult.applicationId;
         toast({
           title: "Success",
@@ -58,6 +61,7 @@ export default function NewApplicationPage() {
         });
       }
 
+      // Step 3: Generate cover letter if selected
       if (generateLetter) {
         setGenerationProgress("Generating cover letter...");
         const letterOptions: CoverLetterOptions = {
@@ -66,7 +70,7 @@ export default function NewApplicationPage() {
         };
         const letterResult = await generateCoverLetter(
           parseInt(cvId),
-          mockJobPostingId,
+          newJobPostingId,
           letterOptions
         );
         resultApplicationId = letterResult.applicationId;
