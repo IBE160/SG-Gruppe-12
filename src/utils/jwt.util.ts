@@ -14,17 +14,20 @@ if (!REFRESH_TOKEN_SECRET) {
   throw new Error('FATAL: REFRESH_TOKEN_SECRET environment variable is not set');
 }
 
+export type UserRole = 'USER' | 'ADMIN';
+
 export interface JwtPayload {
   userId: string; // UUID from database
+  role: UserRole;
 }
 
 export const jwtService = {
-  generateAccessToken(userId: string): string {
-    return jwt.sign({ userId }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' }); // 15 minutes
+  generateAccessToken(userId: string, role: UserRole = 'USER'): string {
+    return jwt.sign({ userId, role }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' }); // 15 minutes
   },
 
-  generateRefreshToken(userId: string): string {
-    return jwt.sign({ userId }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' }); // 7 days
+  generateRefreshToken(userId: string, role: UserRole = 'USER'): string {
+    return jwt.sign({ userId, role }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' }); // 7 days
   },
 
   verifyAccessToken(token: string): JwtPayload {

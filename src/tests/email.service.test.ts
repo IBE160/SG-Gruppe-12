@@ -19,6 +19,7 @@ describe('Email Service', () => {
     name: 'Test User',
     email: 'test@example.com',
     passwordHash: 'hashedpassword',
+    role: 'USER',
     created_at: new Date(),
     updated_at: new Date(),
     consent_essential: true,

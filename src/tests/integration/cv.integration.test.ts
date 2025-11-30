@@ -11,7 +11,7 @@ import { experienceEntrySchema } from '../../validators/cv.validator';
 // Mock authentication middleware
 jest.mock('../../middleware/auth.middleware', () => ({
   authenticate: jest.fn((req: AuthRequest, res: Response, next: NextFunction) => {
-    req.user = { userId: 'mockUserId' };
+    req.user = { userId: 'mockUserId', role: 'USER' };
     next();
   }),
   AuthRequest: {},

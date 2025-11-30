@@ -2,7 +2,7 @@
 import { userRepository } from '../repositories/user.repository';
 import { hashPassword, comparePassword } from '../utils/password.util';
 import { emailService } from './email.service';
-import { jwtService } from '../utils/jwt.util';
+import { jwtService, UserRole } from '../utils/jwt.util';
 import { UnauthorizedError, ConflictError } from '../utils/errors.util';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '@prisma/client';
@@ -77,9 +77,10 @@ export const authService = {
 
     await userRepository.updateLastLogin(user.id);
 
-    // Generate JWT tokens (convert numeric id to string for JWT)
-    const accessToken = jwtService.generateAccessToken(String(user.id));
-    const refreshToken = jwtService.generateRefreshToken(String(user.id));
+    // Generate JWT tokens with role
+    const userRole = (user.role as UserRole) || 'USER';
+    const accessToken = jwtService.generateAccessToken(String(user.id), userRole);
+    const refreshToken = jwtService.generateRefreshToken(String(user.id), userRole);
 
     return { user: toSafeUser(user), accessToken, refreshToken };
   },
@@ -102,9 +103,10 @@ export const authService = {
       throw new UnauthorizedError('User not found');
     }
 
-    // 4. Generate new tokens
-    const accessToken = jwtService.generateAccessToken(user.id);
-    const refreshToken = jwtService.generateRefreshToken(user.id);
+    // 4. Generate new tokens with role
+    const userRole = (user.role as UserRole) || 'USER';
+    const accessToken = jwtService.generateAccessToken(user.id, userRole);
+    const refreshToken = jwtService.generateRefreshToken(user.id, userRole);
 
     // 5. Blacklist the old refresh token (with 7-day expiry to match token lifetime)
     await redis.set(`blacklist:${oldRefreshToken}`, 'true', 'EX', 7 * 24 * 60 * 60);

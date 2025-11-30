@@ -31,6 +31,7 @@ describe('Auth Service', () => {
     name: 'John Doe',
     email: 'john.doe@example.com',
     passwordHash: 'hashed-password-123',
+    role: 'USER',
     emailVerified: false,
     emailVerificationToken: 'mock-uuid-token',
     firstName: 'John',

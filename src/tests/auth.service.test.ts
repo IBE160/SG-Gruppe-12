@@ -19,6 +19,7 @@ describe('Auth Service', () => {
     name: 'John Doe',
     email: 'john.doe@example.com',
     passwordHash: 'hashedPassword123',
+    role: 'USER',
     created_at: new Date(),
     updated_at: new Date(),
     consent_essential: true,
@@ -116,8 +117,8 @@ describe('Auth Service', () => {
 
       expect(userRepository.findByEmail).toHaveBeenCalledWith(mockLoginData.email);
       expect(comparePassword).toHaveBeenCalledWith(mockLoginData.password, mockUser.passwordHash);
-      expect(jwtService.generateAccessToken).toHaveBeenCalledWith(mockUser.id);
-      expect(jwtService.generateRefreshToken).toHaveBeenCalledWith(mockUser.id);
+      expect(jwtService.generateAccessToken).toHaveBeenCalledWith(mockUser.id, 'USER');
+      expect(jwtService.generateRefreshToken).toHaveBeenCalledWith(mockUser.id, 'USER');
       expect(userRepository.updateLastLogin).toHaveBeenCalledWith(mockUser.id);
       expect(result).toEqual({ user: mockUser, accessToken: mockAccessToken, refreshToken: mockRefreshToken });
     });

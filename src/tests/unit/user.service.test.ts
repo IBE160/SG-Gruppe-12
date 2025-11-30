@@ -13,6 +13,7 @@ describe('User Service', () => {
     name: 'John Doe',
     email: 'test@example.com',
     passwordHash: 'hashedpassword',
+    role: 'USER',
     firstName: 'John',
     lastName: 'Doe',
     phoneNumber: '1234567890',
