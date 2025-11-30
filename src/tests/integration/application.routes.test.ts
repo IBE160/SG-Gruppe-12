@@ -9,6 +9,18 @@ jest.mock('@sentry/node', () => ({
   },
 }));
 
+// Mock jobs module to avoid Redis connection issues
+jest.mock('../../jobs', () => ({
+  cvParsingQueue: {
+    add: jest.fn(),
+    on: jest.fn(),
+  },
+  documentGenerationQueue: {
+    add: jest.fn(),
+    on: jest.fn(),
+  },
+}));
+
 jest.mock('../../config/redis', () => ({
   redis: {
     get: jest.fn(),
@@ -17,12 +29,19 @@ jest.mock('../../config/redis', () => ({
     on: jest.fn(),
     quit: jest.fn(),
     call: jest.fn(),
+    options: {
+      host: 'localhost',
+      port: 6379,
+      password: undefined,
+    },
   },
 }));
 
 jest.mock('../../middleware/rate-limit.middleware', () => ({
   authRateLimiter: (_req: unknown, _res: unknown, next: () => void) => next(),
   apiRateLimiter: (_req: unknown, _res: unknown, next: () => void) => next(),
+  authLimiter: (_req: unknown, _res: unknown, next: () => void) => next(),
+  aiLimiter: (_req: unknown, _res: unknown, next: () => void) => next(),
 }));
 
 jest.mock('../../config/database', () => ({

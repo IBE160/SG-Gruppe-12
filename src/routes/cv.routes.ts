@@ -132,7 +132,7 @@ router.delete(
 
 // Route to trigger the document generation job
 router.get(
-  '/:cvId/download/:format(pdf|docx)',
+  '/:cvId/download/:format',
   authenticate,
   validate(z.object({
     params: z.object({
