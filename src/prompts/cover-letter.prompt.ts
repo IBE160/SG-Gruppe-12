@@ -1,6 +1,7 @@
 // src/prompts/cover-letter.prompt.ts
 
 import { CvData, JobData } from './tailored-cv.prompt';
+import { SAFETY_PREAMBLE } from '../utils/llm-safety.util';
 
 export interface CoverLetterOptions {
   tone?: 'formal' | 'professional' | 'friendly';
@@ -9,11 +10,13 @@ export interface CoverLetterOptions {
 }
 
 export const CoverLetterPrompt = {
-  version: '1.0.0',
+  version: '2.0.0',
 
   /**
    * Generates a prompt for creating a personalized cover letter.
    * The prompt uses CV data and job information to create a compelling letter.
+   *
+   * v2.0.0: Added safety preamble and enhanced anti-fabrication rules
    */
   v1: (cvData: CvData, jobData: JobData, options: CoverLetterOptions = {}) => {
     const tone = options.tone || 'professional';
@@ -25,12 +28,16 @@ export const CoverLetterPrompt = {
     };
 
     return `
+${SAFETY_PREAMBLE}
+
+---
+
 You are an expert cover letter writer helping a candidate apply for a job.
 
 YOUR TASK:
 Write a compelling, personalized cover letter that connects the candidate's background to the specific job requirements.
 
-CRITICAL RULES:
+ADDITIONAL RULES FOR THIS TASK:
 1. ONLY reference experiences, skills, and achievements from the candidate's CV
 2. Never fabricate accomplishments or misrepresent qualifications
 3. Create a genuine connection between the candidate's background and the job
@@ -38,6 +45,8 @@ CRITICAL RULES:
 5. Keep the letter ${lengthGuidance[length]}
 6. Include specific examples from the CV that match job requirements
 7. Show enthusiasm without being excessive
+8. Use gender-neutral language throughout
+9. Do NOT mention degrees, certifications, or experience the candidate does not have
 
 JOB DETAILS:
 Position: ${jobData.title}
@@ -84,15 +93,20 @@ IMPORTANT: Return ONLY the JSON object, no additional text or markdown formattin
    * Simplified prompt for generating just the main body of a cover letter.
    */
   bodyOnly: (experience: string, jobTitle: string, companyName: string) => `
+${SAFETY_PREAMBLE}
+
+---
+
 Write 2 paragraphs connecting this experience to the ${jobTitle} role at ${companyName || 'the company'}.
 
 Experience: ${experience}
 
-Rules:
-- Reference only the provided experience
+STRICT RULES:
+- Reference only the provided experience - NEVER fabricate
 - Be specific and genuine
 - Keep each paragraph 3-4 sentences
-- Use professional language
+- Use professional, gender-neutral language
+- Do NOT add qualifications or achievements not mentioned
 
 Return only the two paragraphs, separated by a blank line.
 `,

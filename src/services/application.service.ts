@@ -8,6 +8,10 @@ import { logger } from '../utils/logger.util';
 import { TailoredCvPrompt, CvData, JobData } from '../prompts/tailored-cv.prompt';
 import { CoverLetterPrompt, CoverLetterOptions } from '../prompts/cover-letter.prompt';
 import { CV, JobPosting, CVComponent } from '@prisma/client';
+import {
+  llmSafetyService,
+  ValidationContext,
+} from '../utils/llm-safety.util';
 
 // Constants
 const AI_TIMEOUT_MS = 30000; // 30 seconds
@@ -71,6 +75,7 @@ interface GenerationContext {
   jobPosting: JobPosting;
   cvData: CvData;
   jobData: JobData;
+  validationContext: ValidationContext;
 }
 
 export const applicationService = {
@@ -90,6 +95,17 @@ export const applicationService = {
       () => this.callAIForTailoredCV(context.cvData, context.jobData),
       'tailored CV'
     );
+
+    // Validate generated content for potential fabrication
+    const fullText = JSON.stringify(tailoredCv);
+    const validation = llmSafetyService.validateGeneratedContent(fullText, context.validationContext);
+
+    if (!validation.isValid) {
+      logger.warn('AI-generated CV content contains potentially unverified claims', {
+        suspiciousContent: validation.suspiciousContent,
+        warnings: validation.warnings,
+      });
+    }
 
     const application = await this.saveOrUpdateApplication(
       userId,
@@ -123,6 +139,27 @@ export const applicationService = {
       () => this.callAIForCoverLetter(context.cvData, context.jobData, options),
       'cover letter'
     );
+
+    // Validate generated content for potential fabrication
+    const validation = llmSafetyService.validateGeneratedContent(
+      coverLetter.fullText,
+      context.validationContext
+    );
+
+    if (!validation.isValid) {
+      logger.warn('AI-generated cover letter contains potentially unverified claims', {
+        suspiciousContent: validation.suspiciousContent,
+        warnings: validation.warnings,
+      });
+    }
+
+    // Check for biased language
+    const biasCheck = llmSafetyService.detectBias(coverLetter.fullText);
+    if (biasCheck.hasBias) {
+      logger.warn('AI-generated cover letter contains potentially biased language', {
+        patterns: biasCheck.detectedPatterns,
+      });
+    }
 
     const application = await this.saveOrUpdateApplication(
       userId,
@@ -229,7 +266,22 @@ export const applicationService = {
       description: jobPosting.description,
     };
 
-    return { cv, jobPosting, cvData, jobData };
+    // Build validation context for LLM output verification
+    const validationContext: ValidationContext = {
+      userSkills: cvData.skills,
+      userExperience: cvData.experience.map(exp => ({
+        title: exp.title,
+        company: exp.company,
+        dates: exp.period,
+      })),
+      userEducation: cvData.education.map(edu => ({
+        degree: edu.degree,
+        institution: edu.institution,
+        year: edu.year,
+      })),
+    };
+
+    return { cv, jobPosting, cvData, jobData, validationContext };
   },
 
   /**
@@ -416,7 +468,10 @@ export const applicationService = {
 
     const result = await model.generateContent(prompt);
     const response = result.response;
-    const text = response.text();
+    let text = response.text();
+
+    // Sanitize output to remove any leaked system content
+    text = llmSafetyService.sanitizeOutput(text);
 
     // Parse JSON response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -447,7 +502,10 @@ export const applicationService = {
 
     const result = await model.generateContent(prompt);
     const response = result.response;
-    const text = response.text();
+    let text = response.text();
+
+    // Sanitize output to remove any leaked system content
+    text = llmSafetyService.sanitizeOutput(text);
 
     // Parse JSON response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
