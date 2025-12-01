@@ -21,27 +21,32 @@ describe('SignupForm Component', () => {
 
   it('renders all form fields and submit button', () => {
     render(<SignupForm onSubmit={mockOnSubmit} isLoading={false} />);
-    expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Confirm Password/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Allow AI training/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Receive marketing/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Name')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByLabelText('Confirm Password')).toBeInTheDocument();
+    expect(screen.getByLabelText('Allow AI training with my (anonymized) data.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Receive marketing communications.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Sign Up/i })).toBeInTheDocument();
   });
 
   it('submits valid data correctly', async () => {
     render(<SignupForm onSubmit={mockOnSubmit} isLoading={false} />);
 
-    fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: validFormData.name } });
-    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: validFormData.email } });
-    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: validFormData.password } });
-    fireEvent.change(screen.getByLabelText(/Confirm Password/i), { target: { value: validFormData.confirmPassword } });
+    // Fill out the form fields
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: validFormData.name } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: validFormData.email } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: validFormData.password } });
+    fireEvent.change(screen.getByLabelText('Confirm Password'), { target: { value: validFormData.confirmPassword } });
 
-    fireEvent.click(screen.getByRole('button', { name: /Sign Up/i }));
+    // Simulate clicking the submit button
+    const formElement = screen.getByRole('form', { name: /signup form/i }); // Get the form element by accessible name
+    fireEvent.submit(formElement); // Trigger form submission
 
+    // Wait for the onSubmit mock to be called with the form data
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+      // Ensure the mock is called with the collected form values, not a DOM event
       expect(mockOnSubmit).toHaveBeenCalledWith(validFormData);
     });
   });
@@ -62,10 +67,10 @@ describe('SignupForm Component', () => {
   it('displays validation error if passwords do not match', async () => {
     render(<SignupForm onSubmit={mockOnSubmit} isLoading={false} />);
 
-    fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: validFormData.name } });
-    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: validFormData.email } });
-    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: validFormData.password } });
-    fireEvent.change(screen.getByLabelText(/Confirm Password/i), { target: { value: 'Mismatch123!' } });
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: validFormData.name } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: validFormData.email } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: validFormData.password } });
+    fireEvent.change(screen.getByLabelText('Confirm Password'), { target: { value: 'Mismatch123!' } });
 
     fireEvent.click(screen.getByRole('button', { name: /Sign Up/i }));
 

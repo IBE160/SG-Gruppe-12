@@ -4,13 +4,14 @@ import { User } from '@prisma/client'; // Import generated Prisma User type
 // Define the shape of user data for creation
 interface CreateUserData {
   email: string;
-  passwordHash: string;
+  password_hash: string;
   name: string;
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
   emailVerificationToken?: string;
   emailVerified?: boolean;
+  consent_essential?: boolean;
   consent_ai_training?: boolean;
   consent_marketing?: boolean;
 }
@@ -22,7 +23,7 @@ interface UpdateUserData {
   emailVerified?: boolean;
   emailVerificationToken?: string | null;
   passwordResetToken?: string | null;
-  passwordHash?: string;
+  password_hash?: string;
 }
 
 export const userRepository = {
@@ -30,7 +31,7 @@ export const userRepository = {
     const user = await prisma.user.create({
       data: {
         email: data.email,
-        passwordHash: data.passwordHash,
+        password_hash: data.password_hash,
         name: data.name,
         firstName: data.firstName,
         lastName: data.lastName,
@@ -65,7 +66,7 @@ export const userRepository = {
         phoneNumber: data.phoneNumber,
         emailVerified: data.emailVerified,
         emailVerificationToken: data.emailVerificationToken,
-        passwordHash: data.passwordHash,
+        password_hash: data.password_hash,
       },
     });
   },

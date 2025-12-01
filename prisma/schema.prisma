@@ -13,7 +13,7 @@ model User {
   id                      String                @id @default(uuid())
   name                    String
   email                   String                @unique
-  passwordHash            String // Renamed from password_hash
+  password_hash           String // Renamed from passwordHash
   created_at              DateTime              @default(now())
   updated_at              DateTime              @updatedAt @default(now())
   
@@ -29,31 +29,27 @@ model User {
   consent_marketing       Boolean               @default(false)
 
   cvs                     CV[]
-  cv_components           CVComponent[]
   job_postings            JobPosting[]
   application_analyses    ApplicationAnalysis[]
 
   @@map("users")
 }
 
-model CVComponent {
-  id              Int      @id @default(autoincrement())
-  user_id         String
-  user            User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  component_type  String   // 'education', 'work_experience', 'skill', etc.
-  content         Json
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-
-  @@map("cv_components")
-}
-
 model CV {
   id            Int      @id @default(autoincrement())
   user_id       String
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  title         String
-  component_ids Int[]    // Array of CVComponent ids
+  title         String?  // Made nullable
+  file_path     String?  // Path to the original uploaded file in Supabase
+
+  // Direct storage of CV data as JSONB
+  personal_info Json?
+  education     Json?
+  experience    Json?
+  skills        Json?
+  languages     Json?
+  summary       String?
+
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
@@ -100,7 +96,7 @@ model CVVersion {
   cv_id          Int
   cv             CV       @relation(fields: [cv_id], references: [id], onDelete: Cascade)
   version_number Int
-  delta          Json     // Stores the JSON patch delta from the previous version
+  snapshot       Json     // Stores the full CV data as a snapshot
   created_at     DateTime @default(now())
 
   @@unique([cv_id, version_number]) // Ensure unique version numbers per CV

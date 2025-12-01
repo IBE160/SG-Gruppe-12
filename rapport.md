@@ -670,7 +670,7 @@ We worked with Claude Code to evaluate and improve several critical files:
 
 5. **Frontend-Backend Integration:**
    - Created `.env.local` with API base URL
-   - Created centralized API client (`lib/api/client.ts`) with credentials support
+   - Created centralized API client (`lib/api/client.ts`)
    - Updated auth store with persistence (Zustand)
    - Fixed toast variant errors and TypeScript issues
 
@@ -686,4 +686,24 @@ A more secure authentication flow with:
 - GDPR-compliant consent tracking
 - Stable frontend-backend communication
 
-Commit: `3120ce1` - pushed to `main` branch.
+Commit: `3120ce1` - pushed to `main` branch.andging and fixing the frontend Jest tests, working closely with the Gemini agent to analyze test failures and implement precise solutions.
+
+1.  **WorkExperienceForm.tsx:**
+    - **Problem:** Tests were failing because the component was using an internal state for loading, but the test was passing an `isLoading` prop. The form submission was also not correctly wired to the `onSubmit` prop expected by the test.
+    - **Fix:** We refactored the component to be fully controlled by its props. This involved removing the internal `isSaving` state in favor of the `isLoading` prop and ensuring the form's `onSubmit` handler correctly passed the validated data to the `onSubmit` prop. We also updated the Zod validation schema to better handle optional fields, which was causing validation to fail silently in the test.
+
+2.  **CVVersionHistory.test.tsx:**
+    - **Problem:** Tests were failing because they couldn't find the "Restore" button, and even when found, the button was unexpectedly disabled.
+    - **Fix:** We made two key changes. First, we corrected the button's `aria-label` from "Restore to Version X" to "Restore Version X" to exactly match the accessible name the test was searching for. Second, we refactored the component's loading state from a single global flag to a more granular, per-action state. This prevented the initial list loading from disabling all buttons, which had created a race condition in the test.
+
+3.  **JobDescriptionInput.test.tsx:**
+    - **Problem:** This was the most persistent failure. The test was failing with a `TypeError` from the Zod resolver, and the `onSubmit` mock was not being called with the correct data.
+    - **Fix:** The final solution required three precise changes. We moved the Zod schema definition directly into the component file to resolve a module-loading issue in the test environment. We corrected the `form`'s `onSubmit` handler to explicitly pass only the `values` to the prop (`handleSubmit(values => onSubmit(values))`). Finally, we made the form's validation error message accessible by adding `role="alert"` and set the validation `mode` to `"onBlur"` to match the test's exact behavior.
+
+### How Gemini Helped
+- **Iterative Debugging:** Gemini was crucial in the iterative process of reading test outputs, hypothesizing the cause of failures, applying a targeted fix, and re-running tests to verify the outcome.
+- **Code Implementation:** The agent executed all file modifications precisely, including refactoring component state, updating props, correcting Zod schemas, and modifying JSX attributes.
+- **Explanation Generation:** After successfully fixing each test suite, Gemini helped articulate the exact cause of the failure and the rationale behind the fix.
+
+### Result
+All 52 tests in the `ai-cv-assistant-frontend` workspace are now passing. The frontend codebase is stable, and the component tests provide a reliable guard against future regressions. This work unblocks further development and ensures that new features can be built upon a foundation of verified, correct components.

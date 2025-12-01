@@ -1,8 +1,10 @@
 import request from 'supertest';
-import app from '../../app'; // Assuming your Express app is exported from src/app.ts
+import app from '../../app';
 import { prisma } from '../../config/database';
 import { jwtService } from '../../utils/jwt.util';
 import { hashPassword } from '../../utils/password.util';
+import { User } from '@prisma/client'; // Import User type
+import { Request, Response, NextFunction } from 'express';
 
 // Mock Prisma client
 jest.mock('../../config/database', () => ({
@@ -24,18 +26,22 @@ jest.mock('../../utils/jwt.util', () => ({
 
 describe('User Profile API', () => {
   const mockUserId = 'clsy96f0100001a1d6n8u2g2t';
-  const mockUser = {
+  const mockUser: User = {
     id: mockUserId,
     email: 'test@example.com',
-    passwordHash: 'hashedpassword',
+    password_hash: 'hashedpassword',
     firstName: 'John',
     lastName: 'Doe',
     phoneNumber: '1234567890',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    created_at: new Date(),
+    updated_at: new Date(),
     emailVerified: true,
     emailVerificationToken: null,
-    passwordResetToken: null,
+    // Removed passwordResetToken as it might not be directly on the User type or should be mocked differently
+    name: 'John Doe',
+    consent_essential: true, // Assuming this is part of your extended User type in actual schema
+    consent_ai_training: false,
+    consent_marketing: false,
   };
 
   let validToken: string;
@@ -47,9 +53,8 @@ describe('User Profile API', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (jwtService.verifyAccessToken as jest.Mock).mockReturnValue({ userId: mockUserId });
-    // Mock cookie-parser behavior for authenticated requests
     // This is a simplified mock; in a real scenario, you might mock the entire auth middleware
-    app.use((req: any, res: any, next: any) => {
+    app.use((req: Request, res: Response, next: NextFunction) => { // Added types for req, res, next
       req.cookies = { 'auth-token': validToken };
       next();
     });

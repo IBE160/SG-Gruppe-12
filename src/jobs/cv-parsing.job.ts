@@ -7,15 +7,16 @@ import { logger } from '../utils/logger.util';
 
 // This is the job processor function
 cvParsingQueue.process(async (job: Job<CVParsingJobData>) => {
-  const { userId, fileContent, fileType, cvId } = job.data;
-  logger.info(`Processing CV parsing job for user ${userId}, CV ID: ${cvId}`);
+  const { userId, supabaseFilePath, fileType, cvId } = job.data;
+  logger.info(`Processing CV parsing job for user ${userId}, CV ID: ${cvId}, File: ${supabaseFilePath}`);
 
   try {
     // Update job progress (optional)
     job.progress(10);
 
     // 1. Parse CV content using AI service
-    const parsedCVData = await parsingService.parseCV(fileContent, fileType);
+    // parsingService.parseCV now expects supabaseFilePath
+    const parsedCVData = await parsingService.parseCV(supabaseFilePath, fileType);
     job.progress(60);
 
     // 2. Update the existing (placeholder) CV entry with the parsed data

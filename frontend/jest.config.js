@@ -1,18 +1,25 @@
-const nextJest = require('next/jest');
+const baseConfig = require('../../jest.config.js');
 
-const createJestConfig = nextJest({
-  dir: './',
-});
-
-/** @type {import('jest').Config} */
-const customJestConfig = {
-  moduleDirectories: ['node_modules', '<rootDir>/'],
+module.exports = {
+  ...baseConfig,
+  displayName: 'frontend',
   testEnvironment: 'jest-environment-jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testMatch: ['<rootDir>/src/**/*.test.ts', '<rootDir>/src/**/*.test.tsx'],
+  testMatch: ['<rootDir>/frontend/src/**/*.test.ts', '<rootDir>/frontend/src/**/*.test.tsx'],
+  setupFilesAfterEnv: ['<rootDir>/frontend/jest.setup.js'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/(.*)$': '<rootDir>/frontend/src/$1'
   },
+  transform: {
+    '^.+\.(ts|tsx)$': ['ts-jest', {
+      babelConfig: true,
+      tsconfig: {
+        module: 'commonjs',
+        extends: '<rootDir>/frontend/tsconfig.json'
+      }
+    }],
+    '^.+\.(js|jsx)$': 'babel-jest',
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!@testing-library/jest-dom)/'
+  ]
 };
-
-module.exports = createJestConfig(customJestConfig);

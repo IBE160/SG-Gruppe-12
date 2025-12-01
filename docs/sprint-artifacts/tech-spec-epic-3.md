@@ -116,7 +116,46 @@ Example 400 response:
 
 ---
 
-## 6. Data Models
+## 6. Backend Service Design
+
+To ensure a modular and maintainable architecture, the backend logic for this epic will be divided into several distinct services, each with a clear responsibility.
+
+- **`JobAnalysisController`**:
+  - Receives requests from the `/api/job/analyze` endpoint.
+  - Validates the incoming request body.
+  - Orchestrates calls to the other services.
+  - Formats the final `JobAnalysisResult` and returns the HTTP response.
+
+- **`JobAnalysisService`**:
+  - The main service that manages the end-to-end analysis flow.
+  - Handles the caching logic (get/set).
+  - Fetches CV data from the `CVRepository`.
+  - Calls the `KeywordExtractionService` to get keywords.
+  - Calls the `MatchScoringService` to get the score and grouped keywords.
+  - Calls the `SummaryService` to generate natural-language summaries.
+
+- **`KeywordExtractionService`**:
+  - Responsible for all communication with the LLM provider (Gemini).
+  - Formats the prompt using the defined `PromptContract`.
+  - Sends the request to the LLM and validates the JSON response.
+  - Returns a clean list of raw keywords.
+
+- **`MatchScoringService`**:
+  - Contains the business logic for comparing the extracted keywords against the user's CV data.
+  - Groups keywords into `presentKeywords` and `missingKeywords`.
+  - Implements the `calculateMatchScore` function.
+
+- **`SummaryService`**:
+  - (Optional, can be part of `JobAnalysisService` for MVP)
+  - Calls the LLM with a separate prompt to generate the `strengthsSummary` and `weaknessesSummary` based on the grouped keywords.
+
+- **`CacheService`**:
+  - An abstraction layer over Redis (or another cache provider).
+  - Provides simple `get` and `set` methods for caching analysis results.
+
+---
+
+## 7. Data Models
 
 Epic 3 reuses the CV data model from Epic 2 and adds its own analysis types.
 
@@ -173,9 +212,22 @@ High-level flow when the user analyzes a job:
 
 ---
 
-## 8. Match Score Logic
+## 8. Dependencies and Integrations
 
-For MVP, a simple ratio-based score is sufficient and easy to explain to the user.
+This epic relies on the following external services and libraries:
+
+| Dependency | Version/Provider | Purpose |
+| :--- | :--- | :--- |
+| LLM Provider | Google Gemini 2.5 Flash | Keyword extraction and summary generation. |
+| Cache Store | Redis 7.x | Caching job analysis results to reduce latency and cost. |
+| Backend Framework | Express.js 4.18+ | Serves as the foundation for the backend API. |
+| Database | PostgreSQL 15+ | CV data is retrieved from the database established in Epic 2. |
+
+---
+
+## 9. Processing Flow
+
+High-level flow when the user analyzes a job:
 
 ```ts
 function calculateMatchScore(present: string[], missing: string[]): number {
@@ -291,19 +343,55 @@ This ensures that if the user or multiple users analyze the same job text repeat
 
 ---
 
-## 12. Test Ideas
+## 13. Acceptance Criteria
 
-High-level test scenarios:
+| ID | Given | When | Then |
+| :--- | :--- | :--- | :--- |
+| AC-1 | A user provides a job description and a valid CV ID | the user submits the analysis request | the API returns a `200 OK` status with a `JobAnalysisResult` object. |
+| AC-2 | The returned `JobAnalysisResult` object | contains `matchScore`, `presentKeywords`, `missingKeywords`, `strengthsSummary`, and `weaknessesSummary` fields | all fields are correctly populated and typed. |
+| AC-3 | The `matchScore` in the response | is an integer | between 0 and 100, inclusive. |
+| AC-4 | A user provides a job description but an invalid or non-existent `cvId` | the user submits the analysis request | the API returns a `404 Not Found` error. |
+| AC-5 | A user submits an analysis request with an empty `jobDescription` | the request is sent | the API returns a `400 Bad Request` error with a clear validation message. |
+| AC-6 | A user submits the same job description and `cvId` combination twice | the second request is sent within the cache TTL | the response time for the second request is under 500ms. |
 
-- Job and CV with almost complete overlap → expect high score (~90–100).  
-- Job and CV with almost no overlap → expect low score (~0–10).  
-- Mixed overlap → verify correct grouping of `presentKeywords` and `missingKeywords`.  
-- Invalid `cvId` → API returns 404.  
-- Missing `jobDescription` → API returns 400.  
-- Repeated analysis of same job/CV pair → second call should be faster due to caching.
 
 ---
 
-## 13. Conclusion
+## 15. Test Strategy
+
+A multi-layered testing approach will be used to ensure the quality and reliability of the job analysis functionality.
+
+### 15.1 Unit Testing (Jest)
+
+- **`MatchScoringService`**:
+  - Test the `calculateMatchScore` function with various inputs (e.g., empty arrays, all present, all missing) to ensure the logic is sound.
+- **`KeywordExtractionService`**:
+  - Mock the LLM provider and test that the service correctly formats the prompt and handles valid/invalid JSON responses.
+- **`JobAnalysisController`**:
+  - Mock the service layer and test that the controller correctly handles request/response cycles, including error states.
+
+### 15.2 Integration Testing (Supertest)
+
+- **API Endpoint (`/api/job/analyze`)**:
+  - Write integration tests that make live calls to the API endpoint (with a mocked LLM and database).
+  - **TC-01:** Test the successful analysis path (200 OK).
+  - **TC-02:** Test the keyword grouping logic by providing a known CV and job description.
+  - **TC-03:** Test the match score calculation with a known input.
+  - **TC-04:** Test the 404 error when an invalid `cvId` is provided.
+  - **TC-05:** Test the 400 error when the `jobDescription` is missing.
+- **Cache Integration**:
+  - **TC-06:** Send the same request twice and assert that the second response is significantly faster and retrieves data from the cache.
+
+### 15.3 End-to-End (E2E) Testing
+
+- A full E2E test will simulate the user journey:
+  1. A user logs in.
+  2. A pre-existing CV is available.
+  3. The user navigates to the job analysis page, pastes a job description, and submits.
+  4. The test asserts that the UI correctly displays the match score, keyword lists, and summaries returned from the API.
+
+---
+
+## 16. Conclusion
 
 Epic 3 defines the analytical backbone for the job-matching functionality in the application. By extracting keywords from job descriptions, comparing them against structured CV data, and computing a transparent match score, this epic creates the foundation needed for tailored CV and cover-letter generation in **Epic 4**. It also introduces important patterns for LLM prompting and response validation that can be reused elsewhere in the system.

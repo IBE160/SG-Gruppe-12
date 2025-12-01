@@ -4,16 +4,18 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button"; // Assuming shadcn/ui Button
-import { Textarea } from "@/components/ui/textarea"; // Assuming shadcn/ui Textarea
-import { Label } from "@/components/ui/label"; // Assuming shadcn/ui Label
-import { cn } from "@/lib/utils"; // Utility for class names
-import { analyzeJobDescriptionSchema } from "@/lib/schemas/job"; // Frontend Zod schema
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
-// This component will be used on the client side, so "use client" is necessary for hooks.
+// Define the schema directly in the component file to avoid test environment module resolution issues.
+const analyzeJobDescriptionSchema = z.object({
+  jobDescription: z.string().min(10, 'Job description must be at least 10 characters long'),
+});
 
 interface JobDescriptionInputProps {
-  onSubmit: (jobDescription: string) => void;
+  onSubmit: (data: z.infer<typeof analyzeJobDescriptionSchema>) => void;
   isLoading: boolean;
   error?: string;
   className?: string;
@@ -31,14 +33,11 @@ export function JobDescriptionInput({
     formState: { errors },
   } = useForm<z.infer<typeof analyzeJobDescriptionSchema>>({
     resolver: zodResolver(analyzeJobDescriptionSchema),
+    mode: "onBlur",
   });
 
-  const handleFormSubmit = (data: z.infer<typeof analyzeJobDescriptionSchema>) => {
-    onSubmit(data.jobDescription);
-  };
-
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className={cn("space-y-4", className)}>
+    <form onSubmit={handleSubmit((values) => onSubmit(values))} className={cn("space-y-4", className)}>
       <div className="grid w-full gap-1.5">
         <Label htmlFor="jobDescription">Job Description</Label>
         <Textarea
@@ -50,7 +49,7 @@ export function JobDescriptionInput({
           disabled={isLoading}
         />
         {errors.jobDescription && (
-          <p className="text-red-500 text-sm mt-1">{errors.jobDescription.message}</p>
+          <p role="alert" className="text-red-500 text-sm mt-1">{errors.jobDescription.message}</p>
         )}
         {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
       </div>

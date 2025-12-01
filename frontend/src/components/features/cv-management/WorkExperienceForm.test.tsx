@@ -2,7 +2,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import WorkExperienceForm from './WorkExperienceForm';
+import { WorkExperienceForm } from './WorkExperienceForm';
 import { ExperienceEntry } from '@/types/cv';
 
 // We will use the actual react-hook-form and zodResolver for a more realistic test
@@ -16,8 +16,8 @@ describe('WorkExperienceForm Component', () => {
     title: 'Software Engineer',
     company: 'Tech Corp',
     location: 'Remote',
-    startDate: '2020-01-01',
-    endDate: '2022-12-31',
+    start_date: '2020-01-01', // Changed from startDate to start_date
+    end_date: '2022-12-31',   // Changed from endDate to end_date
     description: 'Developed amazing things.',
   };
 
@@ -26,15 +26,17 @@ describe('WorkExperienceForm Component', () => {
   });
 
   it('renders correctly for adding a new experience', () => {
-    render(<WorkExperienceForm onSubmit={mockOnSubmit} isLoading={false} />);
+    render(<WorkExperienceForm cvId="1" onSubmit={mockOnSubmit} isLoading={false} />);
+    
+    fireEvent.click(screen.getByRole('button', { name: /add experience/i }));
 
     expect(screen.getByLabelText('Job Title')).toHaveValue('');
     expect(screen.getByLabelText('Company')).toHaveValue('');
-    expect(screen.getByRole('button', { name: 'Save Experience' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save All Work Experiences' })).toBeInTheDocument();
   });
 
   it('renders with initial data for editing an experience', () => {
-    render(<WorkExperienceForm onSubmit={mockOnSubmit} initialData={initialData} isLoading={false} />);
+    render(<WorkExperienceForm cvId="1" onSubmit={mockOnSubmit} initialExperiences={[initialData]} isLoading={false} />);
 
     expect(screen.getByLabelText('Job Title')).toHaveValue(initialData.title);
     expect(screen.getByLabelText('Company')).toHaveValue(initialData.company);
@@ -42,29 +44,37 @@ describe('WorkExperienceForm Component', () => {
   });
 
   it('calls onSubmit with form data when submitted with valid data', async () => {
-    render(<WorkExperienceForm onSubmit={mockOnSubmit} isLoading={false} />);
+    render(<WorkExperienceForm cvId="1" onSubmit={mockOnSubmit} isLoading={false} />);
     
+    fireEvent.click(screen.getByRole('button', { name: /add experience/i })); // Add an experience entry
+
     fireEvent.change(screen.getByLabelText('Job Title'), { target: { value: 'New Title' } });
     fireEvent.change(screen.getByLabelText('Company'), { target: { value: 'New Company' } });
-    fireEvent.change(screen.getByLabelText('Start Date'), { target: { value: '2023-01-01' } });
+    fireEvent.change(screen.getByLabelText('Start Date (YYYY-MM-DD)'), { target: { value: '2023-01-01' } }); // Use full label
 
-    fireEvent.click(screen.getByRole('button', { name: 'Save Experience' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save All Work Experiences' }));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'New Title',
-          company: 'New Company',
-          startDate: '2023-01-01',
+          experiences: [
+            expect.objectContaining({
+              title: 'New Title',
+              company: 'New Company',
+              start_date: '2023-01-01',
+            }),
+          ],
         })
       );
     });
   });
 
   it('shows validation errors for required fields', async () => {
-    render(<WorkExperienceForm onSubmit={mockOnSubmit} isLoading={false} />);
+    render(<WorkExperienceForm cvId="1" onSubmit={mockOnSubmit} isLoading={false} />);
+    
+    fireEvent.click(screen.getByRole('button', { name: /add experience/i })); // Add an experience entry
 
-    fireEvent.click(screen.getByRole('button', { name: 'Save Experience' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save All Work Experiences' }));
 
     await waitFor(() => {
       expect(screen.getByText('Job title is required')).toBeInTheDocument();
@@ -76,8 +86,8 @@ describe('WorkExperienceForm Component', () => {
   });
 
   it('disables the submit button when isLoading is true', () => {
-    render(<WorkExperienceForm onSubmit={mockOnSubmit} isLoading={true} />);
+    render(<WorkExperienceForm cvId="1" onSubmit={mockOnSubmit} isLoading={true} />);
 
-    expect(screen.getByRole('button', { name: 'Saving...' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Saving.../i })).toBeDisabled();
   });
 });

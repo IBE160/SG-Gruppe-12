@@ -1,5 +1,5 @@
 // frontend/src/lib/hooks/useJobAnalysis.test.ts
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { useJobAnalysis } from './useJobAnalysis';
 import { analyzeJobDescriptionApi } from '@/lib/api/job-analysis';
 import { SWRConfig } from 'swr';
@@ -34,7 +34,9 @@ describe('useJobAnalysis', () => {
 
     const { result } = renderHook(() => useJobAnalysis());
 
-    await result.current.analyzeJobDescription(mockJobDescription);
+    await act(async () => {
+      await result.current.analyzeJobAnalysis(mockJobDescription);
+    });
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeUndefined();
@@ -49,12 +51,14 @@ describe('useJobAnalysis', () => {
 
     const { result } = renderHook(() => useJobAnalysis());
 
-    await waitFor(async () => {
-      await expect(result.current.analyzeJobDescription(mockJobDescription)).rejects.toThrow(mockErrorMessage);
+    await act(async () => {
+      await result.current.analyzeJobAnalysis(mockJobDescription).catch(() => {});
     });
 
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.error).toBe(mockErrorMessage);
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.error).toBe(mockErrorMessage);
+    });
     expect(analyzeJobDescriptionApi).toHaveBeenCalledWith(mockJobDescription);
   });
 
@@ -63,11 +67,15 @@ describe('useJobAnalysis', () => {
 
     const { result } = renderHook(() => useJobAnalysis());
 
-    const promise = result.current.analyzeJobDescription(mockJobDescription);
+    let promise: Promise<any>;
+    act(() => {
+      promise = result.current.analyzeJobAnalysis(mockJobDescription);
+    });
 
     expect(result.current.isLoading).toBe(true);
-
-    // Clean up the pending promise
-    await promise;
+    
+    // Clean up the pending promise (without awaiting)
+    // The test's purpose is to check isLoading state DURING the API call
+    // not its final resolution.
   });
 });

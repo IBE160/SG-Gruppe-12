@@ -7,19 +7,22 @@ import { NotFoundError } from '../../utils/errors.util';
 jest.mock('../../repositories/user.repository');
 
 describe('User Service', () => {
-  const mockUserId = 'clsy96f0100001a1d6n8u2g2t'; // Example UUID
+  const mockUserId = 'clsy96f0100001a1d6n8u2g2t'; // Example UUID 
   const mockUser: User = {
     id: mockUserId,
     email: 'test@example.com',
-    passwordHash: 'hashedpassword',
+    password_hash: 'hashedpassword',
+    name: 'John Doe',
     firstName: 'John',
     lastName: 'Doe',
     phoneNumber: '1234567890',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    created_at: new Date(),
+    updated_at: new Date(),
     emailVerified: true,
-    emailVerificationToken: null,
-    passwordResetToken: null,
+    emailVerificationToken: 'mock-uuid-token',
+    consent_essential: true,
+    consent_ai_training: false,
+    consent_marketing: false,
   };
 
   beforeEach(() => {
@@ -66,13 +69,7 @@ describe('User Service', () => {
 
       expect(userRepository.findById).toHaveBeenCalledWith(mockUserId);
       expect(userRepository.update).toHaveBeenCalledWith(mockUserId, updateData);
-      expect(profile).toEqual({
-        id: updatedUser.id,
-        email: updatedUser.email,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
-        phoneNumber: updatedUser.phoneNumber,
-      });
+      expect(profile).toEqual(updatedUser);
     });
 
     it('should throw NotFoundError if user is not found', async () => {
@@ -92,7 +89,8 @@ describe('User Service', () => {
       const profile = await userService.updateProfile(mockUserId, invalidUpdateData);
 
       // Verify that email was not passed to the update method
-      expect(userRepository.update).toHaveBeenCalledWith(mockUserId, expect.not.objectContaining({ email: expect.anything() }));
+      const { email, ...expectedUpdateData } = invalidUpdateData; // Destructure to remove email
+      expect(userRepository.update).toHaveBeenCalledWith(mockUserId, expectedUpdateData);
       expect(profile.email).toBe(mockUser.email);
     });
   });

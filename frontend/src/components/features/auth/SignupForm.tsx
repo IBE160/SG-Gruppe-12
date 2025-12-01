@@ -38,9 +38,13 @@ export function SignupForm({ onSubmit, isLoading, errorMessage }: SignupFormProp
     },
   });
 
+  const handleFormSubmit = (values: SignupFormValues) => {
+    onSubmit(values);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4" aria-label="Signup form">
         {errorMessage && <p className="text-sm font-medium text-destructive">{errorMessage}</p>}
         
         <FormField
@@ -48,9 +52,9 @@ export function SignupForm({ onSubmit, isLoading, errorMessage }: SignupFormProp
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel htmlFor="name">Name</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input id="name" placeholder="John Doe" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -61,9 +65,9 @@ export function SignupForm({ onSubmit, isLoading, errorMessage }: SignupFormProp
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel htmlFor="email">Email</FormLabel>
               <FormControl>
-                <Input placeholder="m@example.com" {...field} />
+                <Input id="email" placeholder="m@example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -74,9 +78,9 @@ export function SignupForm({ onSubmit, isLoading, errorMessage }: SignupFormProp
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel htmlFor="password">Password</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <Input id="password" type="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -87,9 +91,9 @@ export function SignupForm({ onSubmit, isLoading, errorMessage }: SignupFormProp
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
+              <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <Input id="confirmPassword" type="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -102,12 +106,13 @@ export function SignupForm({ onSubmit, isLoading, errorMessage }: SignupFormProp
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
                 <Checkbox
+                  id="consent_ai_training"
                   checked={field.value}
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>
+                <FormLabel htmlFor="consent_ai_training">
                   Allow AI training with my (anonymized) data.
                 </FormLabel>
                 <FormDescription>
@@ -124,12 +129,13 @@ export function SignupForm({ onSubmit, isLoading, errorMessage }: SignupFormProp
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
                 <Checkbox
+                  id="consent_marketing"
                   checked={field.value}
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>
+                <FormLabel htmlFor="consent_marketing">
                   Receive marketing communications.
                 </FormLabel>
               </div>

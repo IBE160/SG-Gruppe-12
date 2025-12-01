@@ -24,10 +24,10 @@ const WorkExperienceList: React.FC<WorkExperienceListProps> = ({ experiences, on
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">{exp.title} at {exp.company}</CardTitle>
             <div className="space-x-2">
-              <Button variant="outline" size="icon" onClick={() => onEdit(index)} disabled={isLoading}>
+              <Button variant="outline" size="icon" onClick={() => onEdit(index)} disabled={isLoading} aria-label="Edit">
                 <Edit className="h-4 w-4" />
               </Button>
-              <Button variant="destructive" size="icon" onClick={() => onDelete(index)} disabled={isLoading}>
+              <Button variant="destructive" size="icon" onClick={() => onDelete(index)} disabled={isLoading} aria-label="Delete">
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>

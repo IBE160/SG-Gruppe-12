@@ -1,5 +1,10 @@
 // src/tests/integration/rate-limiting.test.ts
 jest.mock('rate-limit-redis');
+jest.mock('../../config/redis', () => ({
+  redis: {
+    call: jest.fn(),
+  },
+}));
 jest.mock('rate-limit-redis', () => {
   return {
     __esModule: true,

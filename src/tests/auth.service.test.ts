@@ -15,10 +15,10 @@ jest.mock('../utils/jwt.util');
 
 describe('Auth Service', () => {
   const mockUser: User = { // Define mockUser based on Prisma's User type
-    id: 1,
+    id: '1',
     name: 'John Doe',
     email: 'john.doe@example.com',
-    passwordHash: 'hashedPassword123',
+    password_hash: 'hashedPassword123',
     created_at: new Date(),
     updated_at: new Date(),
     consent_essential: true,
@@ -29,6 +29,21 @@ describe('Auth Service', () => {
     firstName: null,
     lastName: null,
     phoneNumber: null,
+  };
+
+  const mockUserReturned = { // Define mock user as it would be returned by the service
+    id: mockUser.id,
+    name: mockUser.name,
+    email: mockUser.email,
+    emailVerified: mockUser.emailVerified,
+    firstName: mockUser.firstName,
+    lastName: mockUser.lastName,
+    phoneNumber: mockUser.phoneNumber,
+    consent_essential: mockUser.consent_essential,
+    consent_ai_training: mockUser.consent_ai_training,
+    consent_marketing: mockUser.consent_marketing,
+    created_at: mockUser.created_at,
+    updated_at: mockUser.updated_at,
   };
 
   beforeEach(() => {
@@ -45,11 +60,15 @@ describe('Auth Service', () => {
         consent_marketing: false,
       };
       const hashedPassword = 'hashedPassword123';
-      const mockCreatedUser = { ...mockUser, passwordHash: hashedPassword }; // Use mockUser base
+      const mockAccessToken = 'mockAccessToken';
+      const mockRefreshToken = 'mockRefreshToken';
 
       (hashPassword as jest.Mock).mockResolvedValue(hashedPassword);
-      (userRepository.create as jest.Mock).mockResolvedValue(mockCreatedUser);
+      (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
       (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
+      (jwtService.generateAccessToken as jest.Mock).mockReturnValue(mockAccessToken);
+      (jwtService.generateRefreshToken as jest.Mock).mockReturnValue(mockRefreshToken);
+
 
       const result = await authService.register(mockUserData);
 
@@ -58,7 +77,7 @@ describe('Auth Service', () => {
         expect.objectContaining({
           name: mockUserData.name,
           email: mockUserData.email,
-          passwordHash: hashedPassword,
+          password_hash: hashedPassword,
           consent_essential: true,
           consent_ai_training: true,
           consent_marketing: false,
@@ -67,10 +86,10 @@ describe('Auth Service', () => {
         })
       );
       expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 1, email: mockUserData.email }),
+        expect.objectContaining({ id: '1', email: mockUserData.email }),
         expect.any(String)
       );
-      expect(result).toEqual(mockCreatedUser);
+      expect(result).toEqual({ user: mockUserReturned, accessToken: mockAccessToken, refreshToken: mockRefreshToken });
     });
 
     it('should handle default consent values if not provided', async () => {
@@ -80,13 +99,16 @@ describe('Auth Service', () => {
           password: 'Password123!',
         };
         const hashedPassword = 'hashedPassword123';
-        const mockCreatedUser = { ...mockUser, passwordHash: hashedPassword, consent_ai_training: false, consent_marketing: false };
-  
+        const mockAccessToken = 'mockAccessToken';
+        const mockRefreshToken = 'mockRefreshToken';
+
         (hashPassword as jest.Mock).mockResolvedValue(hashedPassword);
-        (userRepository.create as jest.Mock).mockResolvedValue(mockCreatedUser);
+        (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
+        (jwtService.generateAccessToken as jest.Mock).mockReturnValue(mockAccessToken);
+        (jwtService.generateRefreshToken as jest.Mock).mockReturnValue(mockRefreshToken);
   
-        await authService.register(mockUserData);
+        const result = await authService.register(mockUserData);
   
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -94,6 +116,7 @@ describe('Auth Service', () => {
             consent_marketing: false,
           })
         );
+        expect(result).toEqual({ user: mockUserReturned, accessToken: mockAccessToken, refreshToken: mockRefreshToken });
       });
   });
 
@@ -115,11 +138,11 @@ describe('Auth Service', () => {
       const result = await authService.login(mockLoginData);
 
       expect(userRepository.findByEmail).toHaveBeenCalledWith(mockLoginData.email);
-      expect(comparePassword).toHaveBeenCalledWith(mockLoginData.password, mockUser.passwordHash);
+      expect(comparePassword).toHaveBeenCalledWith(mockLoginData.password, mockUser.password_hash);
       expect(jwtService.generateAccessToken).toHaveBeenCalledWith(mockUser.id);
       expect(jwtService.generateRefreshToken).toHaveBeenCalledWith(mockUser.id);
       expect(userRepository.updateLastLogin).toHaveBeenCalledWith(mockUser.id);
-      expect(result).toEqual({ user: mockUser, accessToken: mockAccessToken, refreshToken: mockRefreshToken });
+      expect(result).toEqual({ user: mockUserReturned, accessToken: mockAccessToken, refreshToken: mockRefreshToken });
     });
 
     it('should throw UnauthorizedError for invalid email', async () => {
@@ -136,7 +159,7 @@ describe('Auth Service', () => {
 
       await expect(authService.login(mockLoginData)).rejects.toThrow(UnauthorizedError);
       expect(userRepository.findByEmail).toHaveBeenCalledWith(mockLoginData.email);
-      expect(comparePassword).toHaveBeenCalledWith(mockLoginData.password, mockUser.passwordHash);
+      expect(comparePassword).toHaveBeenCalledWith(mockLoginData.password, mockUser.password_hash);
       expect(jwtService.generateAccessToken).not.toHaveBeenCalled();
     });
   });

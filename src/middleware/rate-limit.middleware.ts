@@ -1,16 +1,24 @@
-import rateLimit from 'express-rate-limit';
-import RedisStore from 'rate-limit-redis';
+import rateLimit, { MemoryStore } from 'express-rate-limit';
+const RedisStore = require('rate-limit-redis');
 import { redis } from '../config/redis';
 
-// Configure the store for rate limiting
-const store = new RedisStore({
-  // @ts-expect-error - Known issue with rate-limit-redis and ioredis types
-  sendCommand: (...args: string[]) => redis.call(...args),
-});
+// Helper function to create a new store instance based on the environment
+const createStore = () => {
+  if (process.env.NODE_ENV === 'test') {
+    return new MemoryStore();
+  } else {
+    return new RedisStore({
+      // @ts-expect-error - Known issue with rate-limit-redis and ioredis types
+      sendCommand: (...args: string[]) => redis.call(...args),
+      // Optional: Add a unique prefix to each Redis store if needed for better isolation
+      // prefix: 'rate_limit:', 
+    });
+  }
+};
 
 // General rate limit (all endpoints)
 export const generalLimiter = rateLimit({
-  store,
+  store: createStore(),
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // 100 requests per window
   message: 'Too many requests, please try again later',
@@ -20,7 +28,7 @@ export const generalLimiter = rateLimit({
 
 // AI endpoint rate limit (expensive operations)
 export const aiLimiter = rateLimit({
-  store,
+  store: createStore(),
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10, // 10 requests per window
   message: 'AI processing limit reached, please try again later',
@@ -28,7 +36,7 @@ export const aiLimiter = rateLimit({
 
 // Auth rate limit (prevent brute force)
 export const authLimiter = rateLimit({
-  store,
+  store: createStore(),
   windowMs: 15 * 60 * 1000,
   max: 5, // 5 login attempts per 15 minutes
   message: 'Too many login attempts, please try again later',

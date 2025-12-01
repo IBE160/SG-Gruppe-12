@@ -1,128 +1,112 @@
 // src/repositories/cv.repository.ts
 import { prisma } from '../config/database';
-import { CV, CVComponent, CVVersion } from '@prisma/client';
-import { ExperienceEntry } from '../types/cv.types'; // Using types for content
+import { CV, CVVersion, Prisma } from '@prisma/client'; // Import CVVersion
+import { CvData } from '../types/cv.types'; // Using types for content
 
 export const cvRepository = {
-  // Creates a CV shell. Components are added separately.
-  async create(userId: string, title: string): Promise<CV> {
+  /**
+   * Creates a new CV record.
+   * @param userId The ID of the user owning the CV.
+   * @param data Initial CV data (title, file_path, and JSONB content).
+   * @returns The created CV object.
+   */
+  async create(userId: string, data: { title?: string; file_path?: string; } & Partial<CvData>): Promise<CV> {
+    const { title, file_path, personal_info, education, experience, skills, languages, summary } = data;
     return prisma.cV.create({
       data: {
         user_id: userId,
         title: title,
-        component_ids: [],
+        file_path: file_path,
+        personal_info: personal_info ? (personal_info as unknown as Prisma.InputJsonValue) : undefined,
+        education: education ? (education as unknown as Prisma.InputJsonValue) : undefined,
+        experience: experience ? (experience as unknown as Prisma.InputJsonValue) : undefined,
+        skills: skills ? (skills as unknown as Prisma.InputJsonValue) : undefined,
+        languages: languages ? (languages as unknown as Prisma.InputJsonValue) : undefined,
+        summary: summary,
       },
     });
   },
 
-  // Finds a CV shell by its ID.
+  /**
+   * Finds a CV by its ID.
+   * @param id The ID of the CV.
+   * @returns The CV object or null if not found.
+   */
   async findById(id: number): Promise<CV | null> {
     return prisma.cV.findUnique({
       where: { id },
     });
   },
 
-  // Finds all CV shells for a user.
+  /**
+   * Finds all CVs for a user.
+   * @param userId The ID of the user.
+   * @returns An array of CV objects.
+   */
   async findByUserId(userId: string): Promise<CV[]> {
     return prisma.cV.findMany({
       where: { user_id: userId },
       orderBy: { created_at: 'desc' },
     });
   },
-  
-  // --- Component-based Methods ---
 
-  async findComponentById(id: number): Promise<CVComponent | null> {
-    return prisma.cVComponent.findUnique({
-      where: { id },
-    });
-  },
-
-  async findComponentsByIds(ids: number[]): Promise<CVComponent[]> {
-    return prisma.cVComponent.findMany({
-      where: {
-        id: { in: ids }
-      }
-    });
-  },
-
-  // Adds a new component (e.g., work experience) and links it to a CV
-  async addComponent(cvId: number, userId: string, type: string, content: any): Promise<CV> {
-    const newComponent = await prisma.cVComponent.create({
-      data: {
-        user_id: userId,
-        component_type: type,
-        content: content,
-      },
-    });
-
+  /**
+   * Updates a CV record.
+   * @param cvId The ID of the CV to update.
+   * @param data The partial CV data to update (title, file_path, and JSONB content).
+   * @returns The updated CV object.
+   */
+  async updateCV(cvId: number, data: { title?: string; file_path?: string; } & Partial<CvData>): Promise<CV> {
+    const { title, file_path, personal_info, education, experience, skills, languages, summary } = data;
     return prisma.cV.update({
       where: { id: cvId },
       data: {
-        component_ids: {
-          push: newComponent.id,
-        },
+        title: title,
+        file_path: file_path,
+        personal_info: personal_info ? (personal_info as unknown as Prisma.InputJsonValue) : undefined,
+        education: education ? (education as unknown as Prisma.InputJsonValue) : undefined,
+        experience: experience ? (experience as unknown as Prisma.InputJsonValue) : undefined,
+        skills: skills ? (skills as unknown as Prisma.InputJsonValue) : undefined,
+        languages: languages ? (languages as unknown as Prisma.InputJsonValue) : undefined,
+        summary: summary,
+        updated_at: new Date(),
       },
     });
   },
 
-  async update(cvId: number, data: { component_ids?: number[] }): Promise<CV> {
-    return prisma.cV.update({
+  /**
+   * Deletes a CV record.
+   * @param cvId The ID of the CV to delete.
+   */
+  async delete(cvId: number): Promise<void> {
+    await prisma.cV.delete({
       where: { id: cvId },
-      data: data,
-    });
-  },
-
-
-  // Updates the content of a specific component
-  async updateComponent(componentId: number, content: any): Promise<CVComponent> {
-    // First, fetch the existing component to merge the content
-    const existingComponent = await this.findComponentById(componentId);
-    if (!existingComponent) {
-      throw new Error('Component not found');
-    }
-    const newContent = { ...existingComponent.content as object, ...content };
-
-    return prisma.cVComponent.update({
-      where: { id: componentId },
-      data: {
-        content: newContent,
-      },
-    });
-  },
-
-  // Deletes a component and removes its ID from the parent CV
-  async deleteComponent(cvId: number, componentId: number): Promise<CV> {
-    await prisma.cVComponent.delete({
-      where: { id: componentId },
-    });
-
-    const cv = await this.findById(cvId);
-    if (!cv) {
-      throw new Error('CV not found');
-    }
-
-    const newComponentIds = cv.component_ids.filter(id => id !== componentId);
-
-    return prisma.cV.update({
-      where: { id: cvId },
-      data: {
-        component_ids: newComponentIds,
-      },
     });
   },
 
   // --- CV Versioning Methods ---
-  async createVersion(cvId: number, versionNumber: number, delta: any): Promise<CVVersion> {
+  /**
+   * Creates a new version snapshot of a CV.
+   * @param cvId The ID of the CV.
+   * @param versionNumber The version number.
+   * @param snapshot The full CV data snapshot for this version.
+   * @returns The created CVVersion object.
+   */
+  async createVersion(cvId: number, versionNumber: number, snapshot: CvData): Promise<CVVersion> {
     return prisma.cVVersion.create({
       data: {
         cv_id: cvId,
         version_number: versionNumber,
-        delta: delta,
+        snapshot: snapshot as unknown as Prisma.InputJsonValue,
       },
     });
   },
 
+  /**
+   * Retrieves all versions for a given CV.
+   * @param cvId The ID of the CV.
+   * @returns An array of CVVersion objects.
+   */
   async getVersions(cvId: number): Promise<CVVersion[]> {
     return prisma.cVVersion.findMany({
       where: { cv_id: cvId },
@@ -130,6 +114,11 @@ export const cvRepository = {
     });
   },
 
+  /**
+   * Retrieves the latest version number for a CV.
+   * @param cvId The ID of the CV.
+   * @returns The latest version number or 0 if no versions exist.
+   */
   async getLatestVersionNumber(cvId: number): Promise<number> {
     const latestVersion = await prisma.cVVersion.findFirst({
       where: { cv_id: cvId },
@@ -138,25 +127,15 @@ export const cvRepository = {
     return latestVersion ? latestVersion.version_number : 0;
   },
 
+  /**
+   * Retrieves a specific CV version by its number.
+   * @param cvId The ID of the CV.
+   * @param versionNumber The version number to retrieve.
+   * @returns The CVVersion object or null if not found.
+   */
   async getVersionByNumber(cvId: number, versionNumber: number): Promise<CVVersion | null> {
     return prisma.cVVersion.findUnique({
       where: { cv_id_version_number: { cv_id: cvId, version_number: versionNumber } },
-    });
-  },
-
-  async addComponentOnly(userId: string, type: string, content: any): Promise<CVComponent> {
-    return prisma.cVComponent.create({
-      data: {
-        user_id: userId,
-        component_type: type,
-        content: content,
-      },
-    });
-  },
-
-  async deleteComponentOnly(componentId: number): Promise<void> {
-    await prisma.cVComponent.delete({
-      where: { id: componentId },
     });
   },
 };

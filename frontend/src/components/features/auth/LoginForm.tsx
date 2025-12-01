@@ -32,9 +32,13 @@ export function LoginForm({ onSubmit, isLoading, errorMessage }: LoginFormProps)
     },
   });
 
+  const handleFormSubmit = (values: z.infer<typeof loginSchema>) => {
+    onSubmit(values);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4" aria-label="Login form">
         {errorMessage && <p className="text-sm font-medium text-destructive">{errorMessage}</p>}
         
         <FormField
@@ -42,9 +46,9 @@ export function LoginForm({ onSubmit, isLoading, errorMessage }: LoginFormProps)
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel htmlFor="email">Email</FormLabel>
               <FormControl>
-                <Input placeholder="m@example.com" {...field} />
+                <Input id="email" placeholder="m@example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -55,9 +59,9 @@ export function LoginForm({ onSubmit, isLoading, errorMessage }: LoginFormProps)
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel htmlFor="password">Password</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <Input id="password" type="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

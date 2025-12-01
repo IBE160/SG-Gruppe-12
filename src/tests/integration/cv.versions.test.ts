@@ -1,14 +1,14 @@
 // src/tests/integration/cv.versions.test.ts
 import request from 'supertest';
 import express from 'express';
-import { cvController } from '../../controllers/cv.controller';
-import { cvService } from '../../services/cv.service';
-import { authenticate } from '../../middleware/auth.middleware';
+import { cvController } from '@/controllers/cv.controller';
+import { cvService } from '@/services/cv.service';
+import { authenticate } from '@/middleware/auth.middleware';
 
 // Mocks
 jest.mock('../../middleware/auth.middleware', () => ({
   authenticate: jest.fn((req, res, next) => {
-    req.user = { id: '1' }; // Mock authenticated user
+    req.user = { id: 'mock-user-id-1' }; // Mock authenticated user
     next();
   }),
 }));
@@ -26,8 +26,8 @@ cvRouter.post('/:cvId/restore-version/:versionNumber', authenticate, cvControlle
 app.use('/api/v1/cvs', cvRouter);
 
 describe('CV Versioning API Endpoints', () => {
-    const mockCvId = 101;
-    const mockUserId = 1;
+    const mockCvId = 'mock-cv-id-101';
+    const mockUserId = 'mock-user-id-1';
 
     beforeEach(() => {
         jest.clearAllMocks();

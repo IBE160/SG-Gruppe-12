@@ -4,6 +4,9 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import { parsingService } from '../services/parsing.service';
 import { cvParsingQueue, documentGenerationQueue } from '../jobs';
 import { cvService } from '../services/cv.service';
+import { storageService } from '../services/storage.service'; // Import storageService
+import fs from 'fs'; // Import fs for file system operations
+import { fileTypeFromBuffer } from 'file-type'; // Import file-type library for MIME type verification
 
 export const cvController = {
   async requestDocument(req: AuthRequest, res: Response, next: NextFunction) {
@@ -103,35 +106,71 @@ export const cvController = {
   },
 
   async parseAndCreate(req: AuthRequest, res: Response, next: NextFunction) {
+    let tempFilePath: string | undefined;
     try {
       if (!req.file) {
         return res.status(400).json({ success: false, message: 'No file uploaded' });
       }
 
       const userId = req.user!.userId;
-      const fileBuffer = req.file.buffer;
-      const fileType = req.file.mimetype;
+      tempFilePath = req.file.path; // Path to the temporary file on disk
+      const originalFileName = req.file.originalname;
 
+      const buffer = req.file.buffer;
+      const detectedFileType = await fileTypeFromBuffer(buffer);
+
+      const allowedMimeTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword', // Added for .doc files
+        'text/plain',
+      ];
+
+      if (!detectedFileType || !allowedMimeTypes.includes(detectedFileType.mime)) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid file type. Only PDF, DOCX, DOC, and TXT are allowed. Detected: ${detectedFileType ? detectedFileType.mime : 'unknown'}`
+        });
+      }
+
+      // Create a new stream for the upload as the previous one was consumed
+      const uploadStream = fs.createReadStream(tempFilePath);
+
+      // Upload file to Supabase Storage
+      const supabaseFilePath = await storageService.uploadFileStream(
+        userId,
+        uploadStream,
+        originalFileName,
+        detectedFileType.mime
+      );
+
+      // Create a placeholder CV record in the database
       const placeholderCV = await cvService.createCV(userId, {
-        title: 'New CV',
-        component_ids: [],
+        title: originalFileName, // Use the original file name as a default title
+        file_path: supabaseFilePath, // Store the Supabase file path
       });
 
+      // Add parsing job to queue, passing the Supabase file path
       await cvParsingQueue.add({
         userId,
-        fileContent: fileBuffer.toString('utf-8'),
-        fileType,
+        supabaseFilePath, // Pass the path to the file in Supabase
+        fileType: detectedFileType.mime,
         cvId: placeholderCV.id,
       });
 
       res.status(202).json({
         success: true,
-        data: { cvId: placeholderCV.id },
+        data: { cvId: placeholderCV.id, supabaseFilePath },
         message: 'CV parsing initiated. You will be notified when complete.'
       });
 
     } catch (error) {
       next(error);
+    } finally {
+      // Ensure temporary file is deleted from disk
+      if (tempFilePath) {
+        await fs.promises.unlink(tempFilePath).catch(err => console.error('Error deleting temp file:', err));
+      }
     }
   },
 
@@ -262,11 +301,11 @@ export const cvController = {
       const cvId = parseInt(req.params.cvId, 10);
       const educationIndex = parseInt(req.params.educationIndex, 10);
       const updatedCV = await cvService.deleteEducation(userId, cvId, educationIndex);
-      res.status(200).json({
-        success: true,
-        data: updatedCV,
-        message: 'Education entry deleted successfully.'
-      });
+res.status(200).json({
+  success: true,
+  data: updatedCV,
+  message: 'Education entry deleted successfully.'
+});
     } catch (error) {
       next(error);
     }
@@ -360,11 +399,11 @@ export const cvController = {
       const cvId = parseInt(req.params.cvId, 10);
       const languageIndex = parseInt(req.params.languageIndex, 10);
       const updatedCV = await cvService.deleteLanguage(userId, cvId, languageIndex);
-      res.status(200).json({
-        success: true,
-        data: updatedCV,
-        message: 'Language entry deleted successfully.'
-      });
+res.status(200).json({
+  success: true,
+  data: updatedCV,
+  message: 'Language entry deleted successfully.'
+});
     } catch (error) {
       next(error);
     }
@@ -415,4 +454,3 @@ export const cvController = {
     }
   },
 };
-

@@ -19,7 +19,16 @@ ${jobDescription}
 IMPORTANT:
 - Focus on quantifiable and verifiable requirements where possible.
 - Be objective and do not infer beyond what is stated.
-- The output should be a structured list of key points.
+- **The output MUST be a JSON object in the following format:**
+\`\`\`json
+{
+  "keywords": ["keyword1", "keyword2", "keyword3"],
+  "skills": ["skill1", "skill2"],
+  "qualifications": ["qualification1", "qualification2"],
+  "responsibilities": ["responsibility1", "responsibility2"]
+}
+\`\`\`
+- Do NOT include any additional text or formatting outside the JSON object.
 `,
   // Future versions of the prompt can be added here
   // v2: (jobDescription: string) => `... improved prompt ...`

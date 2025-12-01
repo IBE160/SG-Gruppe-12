@@ -7,6 +7,7 @@ interface UpdateProfileData {
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
+  email?: string; // Allow email as an optional property for the interface
 }
 
 export const userService = {
@@ -17,14 +18,17 @@ export const userService = {
    * @returns The updated user profile.
    * @throws {NotFoundError} if the user is not found.
    */
-  async updateProfile(userId: number, data: UpdateProfileData) {
+  async updateProfile(userId: string, data: UpdateProfileData) {
     const user = await userRepository.findById(userId);
 
     if (!user) {
       throw new NotFoundError('User not found');
     }
 
-    const updatedUser = await userRepository.update(userId, data);
+    // Prevent email from being updated via this method
+    const { email, ...updates } = data;
+
+    const updatedUser = await userRepository.update(userId, updates);
     return updatedUser;
   },
 
@@ -34,7 +38,7 @@ export const userService = {
    * @returns The user's profile information.
    * @throws {NotFoundError} if the user is not found.
    */
-  async getProfile(userId: number) {
+  async getProfile(userId: string) {
     const user = await userRepository.findById(userId);
 
     if (!user) {

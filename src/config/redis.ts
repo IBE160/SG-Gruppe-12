@@ -1,21 +1,33 @@
-// src/config/redis.ts
 import Redis from 'ioredis';
+import IORedisMock from 'ioredis-mock';
 
-const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
-const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379', 10);
-const REDIS_PASSWORD = process.env.REDIS_PASSWORD || undefined; // If your Redis requires a password
+let redis: Redis;
 
-export const redis = new Redis({
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  password: REDIS_PASSWORD,
-  maxRetriesPerRequest: null, // Disable retries for commands, Bull handles reconnection
-});
+if (process.env.NODE_ENV === 'test') {
+  // Use an in-memory mock for testing to avoid actual Redis connection
+  redis = new IORedisMock();
+} else {
+  const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
+  const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379', 10);
+  const REDIS_PASSWORD = process.env.REDIS_PASSWORD || undefined;
 
-redis.on('connect', () => {
-  console.log('Connected to Redis');
-});
+  redis = new Redis({
+    host: REDIS_HOST,
+    port: REDIS_PORT,
+    password: REDIS_PASSWORD,
+    maxRetriesPerRequest: null,
+  });
 
-redis.on('error', (error: any) => {
-  console.error('Redis connection error:', error);
-});
+  redis.on('connect', () => {
+    console.log('Connected to Redis');
+  });
+
+  redis.on('error', (error: any) => {
+    // In test, errors are expected if not mocked, so we don't log them.
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Redis connection error:', error);
+    }
+  });
+}
+
+export { redis };
