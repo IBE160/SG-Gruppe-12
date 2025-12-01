@@ -17,18 +17,18 @@ describe('LoginForm Component', () => {
 
   it('renders all form fields and submit button', () => {
     render(<LoginForm onSubmit={mockOnSubmit} isLoading={false} />);
-    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('m@example.com')).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Login/i })).toBeInTheDocument();
   });
 
   it('submits valid data correctly', async () => {
     render(<LoginForm onSubmit={mockOnSubmit} isLoading={false} />);
 
-    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: validFormData.email } });
-    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: validFormData.password } });
+    fireEvent.change(screen.getByPlaceholderText('m@example.com'), { target: { value: validFormData.email } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: validFormData.password } });
 
-    fireEvent.click(screen.getByRole('button', { name: /Login/i }));
+    fireEvent.submit(screen.getByRole('form', { name: /login form/i }));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalledTimes(1);
@@ -39,7 +39,7 @@ describe('LoginForm Component', () => {
   it('displays validation errors for empty required fields', async () => {
     render(<LoginForm onSubmit={mockOnSubmit} isLoading={false} />);
 
-    fireEvent.click(screen.getByRole('button', { name: /Login/i }));
+    fireEvent.submit(screen.getByRole('form', { name: /login form/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/Invalid email address/i)).toBeInTheDocument();

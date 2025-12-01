@@ -1,6 +1,6 @@
 // src/tests/password.util.test.ts
 import { hashPassword, comparePassword } from '../utils/password.util';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 // Mock bcrypt to control its behavior during tests
 jest.mock('bcrypt', () => ({

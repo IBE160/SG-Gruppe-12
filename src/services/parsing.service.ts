@@ -2,48 +2,56 @@
 import { z } from 'zod';
 import { AppError } from '../utils/errors.util';
 import { logger } from '../utils/logger.util';
-import { genAI } from '../config/ai-providers';
+import { gemini } from '../config/ai-providers'; // Changed from genAI to gemini
 import { CVParsingPrompt } from '../prompts/cv-parsing.prompt';
-import { createCVSchema } from '../validators/cv.validator'; // Import Zod schema
-import { CreateCVInput } from '../validators/cv.validator'; // Import corresponding type
+import { cvDataSchema } from '../validators/cv.validator'; // Import the new cvDataSchema
+import { CvData } from '../types/cv.types'; // Import CvData type
+import { storageService } from './storage.service'; // Import storageService
+import { generateObject } from 'ai'; // Import generateObject from ai
 
-// For now, hardcode model as gemini-pro. If using Vercel AI SDK, it might be different.
-// The story context specifically mentions Gemini 2.5 Flash, which is part of Vercel AI SDK setup.
-// For direct usage of @google/generative-ai, 'gemini-pro' is a common choice for text.
-// If actual parsing requires 'gemini-2.5-flash', ensure the Vercel AI SDK is fully integrated or
-// check if @google/generative-ai supports it directly.
-const AI_MODEL_NAME = 'gemini-pro';
+const AI_MODEL_NAME = 'gemini-1.5-flash'; // Using a direct Gemini model name
 
 export const parsingService = {
-  async parseCV(fileContent: string, fileType: string): Promise<CreateCVInput> {
+  /**
+   * Parses CV content from a file stored in Supabase using Google Gemini AI.
+   * @param supabaseFilePath The path to the CV file in Supabase Storage.
+   * @param fileType The MIME type of the file (e.g., 'application/pdf', 'text/plain').
+   * @returns A Promise that resolves with the structured CvData.
+   */
+  async parseCV(supabaseFilePath: string, fileType: string): Promise<CvData> {
+    let fileContent: string;
     try {
-      const model = genAI.getGenerativeModel({ model: AI_MODEL_NAME });
-      const prompt = CVParsingPrompt.v1(fileContent, fileType);
+      // Download file from Supabase
+      const fileBuffer = await storageService.downloadFile(supabaseFilePath);
+      fileContent = fileBuffer.toString('utf-8'); // Assuming text-based content or able to convert
+    } catch (downloadError: any) {
+      logger.error(`Error downloading CV from Supabase: ${downloadError.message}`, downloadError);
+      throw new AppError(`Failed to download CV from storage: ${downloadError.message}`, 500);
+    }
 
-      const result = await model.generateContent(prompt);
-      const response = result.response;
-      const text = response.text();
-
-      let parsedData: unknown; // Use unknown for initial parsing
-      try {
-        parsedData = JSON.parse(text);
-      } catch (jsonError) {
-        logger.error('AI response was not valid JSON:', jsonError);
-        logger.debug('AI raw response:', text);
-        throw new AppError('AI parsing failed: Invalid JSON response from AI', 500);
-      }
+    try {
+      const { object: parsedData } = await generateObject({
+        model: gemini(AI_MODEL_NAME), // Use gemini instance with model name
+        schema: cvDataSchema, // Use Zod schema for structured output validation
+        prompt: CVParsingPrompt.v2(fileContent, fileType), // Use the new v2 prompt
+        temperature: 0.2, // Low temperature for factual extraction
+      });
 
       // Validate against Zod schema to ensure data integrity and correct type mapping
-      const validatedCVData = createCVSchema.parse(parsedData);
+      const validatedCVData = cvDataSchema.parse(parsedData);
 
       return validatedCVData;
     } catch (error: any) {
       logger.error(`Error parsing CV with AI: ${error.message}`, error);
-      // If Zod validation fails, it will be a ZodError, which is an instance of Error
+      if (error instanceof AppError) {
+        throw error;
+      }
       if (error instanceof z.ZodError) {
-        throw new AppError(`AI parsed data failed schema validation: ${error.issues.map((e: z.ZodIssue) => e.message).join(', ')}`, 400);
+        throw new AppError(`AI parsed data failed schema validation: ${error.issues.map((e: any) => e.message).join(', ')}`, 400);
       }
       throw new AppError(`AI parsing failed: ${error.message || 'Unknown error'}`, error.statusCode || 500);
     }
   },
 };
+
+

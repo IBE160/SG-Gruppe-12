@@ -41,6 +41,7 @@ describe('CVVersionHistory Component', () => {
     render(<CVVersionHistory cvId={mockCvId} />);
     
     await waitFor(() => {
+      expect(api.listCvVersions).toHaveBeenCalledWith(mockCvId);
       expect(screen.getByText('Version 1')).toBeInTheDocument();
       expect(screen.getByText('Version 2')).toBeInTheDocument();
     });
@@ -50,9 +51,11 @@ describe('CVVersionHistory Component', () => {
     const setCvSpy = jest.spyOn(useCvStore.getState(), 'setCV');
     render(<CVVersionHistory cvId={mockCvId} />);
 
-    await waitFor(() => expect(screen.getByText('Version 1')).toBeInTheDocument());
+    // Wait for the versions to be loaded and the button to be enabled
+    const viewButton = await screen.findByRole('button', { name: 'View Version 1' });
+    await waitFor(() => expect(viewButton).not.toBeDisabled());
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'View' })[0]); // Click view on Version 1
+    fireEvent.click(viewButton); // Click view on Version 1
 
     await waitFor(() => {
       expect(api.getCvVersionDetails).toHaveBeenCalledWith(mockCvId, 1);
@@ -64,9 +67,10 @@ describe('CVVersionHistory Component', () => {
     const setCvSpy = jest.spyOn(useCvStore.getState(), 'setCV');
     render(<CVVersionHistory cvId={mockCvId} />);
 
-    await waitFor(() => expect(screen.getByText('Version 1')).toBeInTheDocument());
+    const restoreButton = await screen.findByRole('button', { name: 'Restore Version 1' });
+    await waitFor(() => expect(restoreButton).not.toBeDisabled());
 
-    fireEvent.click(screen.getAllByRole('button', { name: /Restore/i })[0]); // Click restore on Version 1
+    fireEvent.click(restoreButton); // Click restore on Version 1
 
     await waitFor(() => {
       expect(global.confirm).toHaveBeenCalledTimes(1);

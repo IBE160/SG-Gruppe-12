@@ -1,15 +1,10 @@
 // src/tests/jwt.util.test.ts
-
-// Set env vars BEFORE any imports
-process.env.ACCESS_TOKEN_SECRET = 'test_access_secret_for_testing';
-process.env.REFRESH_TOKEN_SECRET = 'test_refresh_secret_for_testing';
-
-import { jwtService, JwtPayload } from '../utils/jwt.util';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
+import { jwtService, JwtPayload } from '@/utils/jwt.util';
 import { AppError } from '../utils/errors.util';
 
 describe('JWT Utility', () => {
-  const mockUserId = '123';
+  const mockUserId = 'clsy96f0100001a1d6n8u2g2t';
 
   describe('generateAccessToken', () => {
     it('should generate a valid access token with 15 minute expiry', () => {
@@ -27,14 +22,14 @@ describe('JWT Utility', () => {
     });
 
     it('should create unique tokens for different user IDs', () => {
-      const token1 = jwtService.generateAccessToken('1');
-      const token2 = jwtService.generateAccessToken('2');
+      const token1 = jwtService.generateAccessToken('clsy96f0100001a1d6n8u2g2t');
+      const token2 = jwtService.generateAccessToken('clsy96f0100001a1d6n8u2g2u');
       expect(token1).not.toBe(token2);
 
       const decoded1 = jwt.decode(token1) as any;
       const decoded2 = jwt.decode(token2) as any;
-      expect(decoded1.userId).toBe('1');
-      expect(decoded2.userId).toBe('2');
+      expect(decoded1.userId).toBe('clsy96f0100001a1d6n8u2g2t');
+      expect(decoded2.userId).toBe('clsy96f0100001a1d6n8u2g2u');
     });
   });
 

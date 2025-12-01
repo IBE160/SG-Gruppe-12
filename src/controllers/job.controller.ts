@@ -10,40 +10,18 @@ export const jobController = {
    */
   async analyzeJob(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { jobDescription, title, company } = req.body;
-      const userId = req.user?.userId;
+      const { jobDescription, cvId } = req.body;
+      const userId = req.user?.userId; // Assuming user is authenticated
 
       if (!userId) {
         return res.status(401).json({ message: 'Unauthorized: User ID not found.' });
       }
 
-      const result = await jobAnalysisService.analyzeJobDescription(userId, jobDescription, title, company);
-
-      res.status(201).json({
-        message: 'Job posting created successfully',
-        data: result,
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  /**
-   * GET /api/v1/jobs
-   * Gets all job postings for the authenticated user.
-   */
-  async getJobPostings(req: AuthRequest, res: Response, next: NextFunction) {
-    try {
-      const userId = req.user?.userId;
-
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized: User ID not found.' });
-      }
-
-      const jobPostings = await jobAnalysisService.getUserJobPostings(userId);
+      // For now, just acknowledge receipt. Actual analysis will be in jobAnalysisService.
+      const analysisResult = await jobAnalysisService.analyzeJobDescription(userId, jobDescription, cvId);
 
       res.status(200).json({
-        data: jobPostings,
+        data: analysisResult,
       });
     } catch (error) {
       next(error);

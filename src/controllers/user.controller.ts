@@ -37,8 +37,9 @@ export const userController = {
       const updatedUser = await userService.updateProfile(userId, { firstName, lastName, phoneNumber });
 
       res.status(200).json({
+        success: true,
         message: 'Profile updated successfully',
-        profile: toProfileResponse(updatedUser),
+        data: toProfileResponse(updatedUser),
       });
     } catch (error) {
       next(error);
@@ -51,7 +52,8 @@ export const userController = {
       const profile = await userService.getProfile(userId);
 
       res.status(200).json({
-        profile: toProfileResponse(profile),
+        success: true,
+        data: toProfileResponse(profile),
       });
     } catch (error) {
       next(error);

@@ -59,7 +59,7 @@ describe('WorkExperienceList Component', () => {
   it('calls onDelete with the correct index when the delete button is clicked', () => {
     render(<WorkExperienceList experiences={mockExperiences} onEdit={mockOnEdit} onDelete={mockOnDelete} isLoading={false} />);
 
-    const deleteButtons = screen.getAllByRole('button', { name: /trash/i });
+    const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
     fireEvent.click(deleteButtons[0]); // Click delete on the first item
 
     expect(mockOnDelete).toHaveBeenCalledWith(0);

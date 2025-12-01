@@ -1,46 +1,10 @@
-// Mock dependencies BEFORE imports
-
-// Mock Redis
-jest.mock('../../config/redis', () => ({
-  redis: {
-    call: jest.fn().mockResolvedValue('OK'),
-    get: jest.fn(),
-    set: jest.fn(),
-    setex: jest.fn(),
-    del: jest.fn(),
-    sadd: jest.fn(),
-    expire: jest.fn(),
-    on: jest.fn(),
-    quit: jest.fn(),
-    options: {
-      host: 'localhost',
-      port: 6379,
-      password: undefined,
-    },
-  },
-}));
-
-// Mock bull queue
-jest.mock('../../jobs', () => ({
-  cvParsingQueue: {
-    add: jest.fn().mockResolvedValue({ id: 'mock-job-id' }),
-    process: jest.fn(),
-    on: jest.fn(),
-  },
-}));
-
-// Mock rate-limit-redis
-jest.mock('rate-limit-redis', () => {
-  return {
-    __esModule: true,
-    default: class RedisStore {
-      constructor() {}
-      increment() { return Promise.resolve({ totalHits: 1, resetTime: new Date() }); }
-      decrement() { return Promise.resolve(); }
-      resetKey() { return Promise.resolve(); }
-    },
-  };
-});
+import request from 'supertest';
+import app from '../../app';
+import { prisma } from '../../config/database';
+import { jwtService } from '../../utils/jwt.util';
+import { hashPassword } from '../../utils/password.util';
+import { User } from '@prisma/client'; // Import User type
+import { Request, Response, NextFunction } from 'express';
 
 // Mock Prisma client
 jest.mock('../../config/database', () => ({
@@ -76,20 +40,32 @@ jest.mock('../../utils/jwt.util', () => ({
   },
 }));
 
+// Mock authentication middleware
+jest.mock('../../middleware/auth.middleware', () => ({
+  authenticate: jest.fn((req: any, res: Response, next: NextFunction) => {
+    req.user = { userId: 'clsy96f0100001a1d6n8u2g2t' };
+    next();
+  }),
+}));
+
 describe('User Profile API', () => {
   const mockUserId = 'clsy96f0100001a1d6n8u2g2t';
-  const mockUser = {
+  const mockUser: User = {
     id: mockUserId,
     email: 'test@example.com',
-    passwordHash: 'hashedpassword',
+    password_hash: 'hashedpassword',
     firstName: 'John',
     lastName: 'Doe',
     phoneNumber: '1234567890',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    created_at: new Date(),
+    updated_at: new Date(),
     emailVerified: true,
     emailVerificationToken: null,
-    passwordResetToken: null,
+    // Removed passwordResetToken as it might not be directly on the User type or should be mocked differently
+    name: 'John Doe',
+    consent_essential: true, // Assuming this is part of your extended User type in actual schema
+    consent_ai_training: false,
+    consent_marketing: false,
   };
 
   let validToken: string;
@@ -101,21 +77,15 @@ describe('User Profile API', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (jwtService.verifyAccessToken as jest.Mock).mockReturnValue({ userId: mockUserId });
-    // Mock cookie-parser behavior for authenticated requests
-    // This is a simplified mock; in a real scenario, you might mock the entire auth middleware
-    app.use((req: any, res: any, next: any) => {
-      req.cookies = { 'auth-token': validToken };
-      next();
-    });
   });
 
-  describe('GET /api/v1/user/profile', () => {
+  describe('GET /api/v1/profile', () => {
     it('should return 200 and user profile if authenticated', async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
       const response = await request(app)
-        .get('/api/v1/user/profile')
-        .set('Cookie', [`auth-token=${validToken}`]);
+        .get('/api/v1/profile')
+        .set('Cookie', [`access_token=${validToken}`]);
 
       expect(response.statusCode).toBe(200);
       expect(response.body.success).toBe(true);
@@ -130,13 +100,14 @@ describe('User Profile API', () => {
     });
 
     it('should return 401 if not authenticated', async () => {
-      (jwtService.verifyAccessToken as jest.Mock).mockImplementation(() => {
-        throw new Error('Invalid token');
+      const { authenticate } = require('../../middleware/auth.middleware');
+      (authenticate as jest.Mock).mockImplementationOnce((req: any, res: Response, next: NextFunction) => {
+        next({ statusCode: 401, message: 'Invalid or expired token' });
       });
 
       const response = await request(app)
-        .get('/api/v1/user/profile')
-        .set('Cookie', ['auth-token=invalid']);
+        .get('/api/v1/profile')
+        .set('Cookie', ['access_token=invalid']);
 
       expect(response.statusCode).toBe(401);
       expect(response.body.success).toBe(false);
@@ -147,8 +118,8 @@ describe('User Profile API', () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
       const response = await request(app)
-        .get('/api/v1/user/profile')
-        .set('Cookie', [`auth-token=${validToken}`]);
+        .get('/api/v1/profile')
+        .set('Cookie', [`access_token=${validToken}`]);
 
       expect(response.statusCode).toBe(404);
       expect(response.body.success).toBe(false);
@@ -156,7 +127,7 @@ describe('User Profile API', () => {
     });
   });
 
-  describe('PATCH /api/v1/user/profile', () => {
+  describe('POST /api/v1/profile', () => {
     const updateData = {
       firstName: 'Jane',
       lastName: 'Smith',
@@ -169,8 +140,8 @@ describe('User Profile API', () => {
       (prisma.user.update as jest.Mock).mockResolvedValue(updatedUser);
 
       const response = await request(app)
-        .patch('/api/v1/user/profile')
-        .set('Cookie', [`auth-token=${validToken}`])
+        .post('/api/v1/profile')
+        .set('Cookie', [`access_token=${validToken}`])
         .send(updateData);
 
       expect(response.statusCode).toBe(200);
@@ -189,13 +160,14 @@ describe('User Profile API', () => {
     });
 
     it('should return 401 if not authenticated', async () => {
-      (jwtService.verifyAccessToken as jest.Mock).mockImplementation(() => {
-        throw new Error('Invalid token');
+      const { authenticate } = require('../../middleware/auth.middleware');
+      (authenticate as jest.Mock).mockImplementationOnce((req: any, res: Response, next: NextFunction) => {
+        next({ statusCode: 401, message: 'Invalid or expired token' });
       });
 
       const response = await request(app)
-        .patch('/api/v1/user/profile')
-        .set('Cookie', ['auth-token=invalid'])
+        .post('/api/v1/profile')
+        .set('Cookie', ['access_token=invalid'])
         .send(updateData);
 
       expect(response.statusCode).toBe(401);
@@ -208,8 +180,8 @@ describe('User Profile API', () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
       const response = await request(app)
-        .patch('/api/v1/user/profile')
-        .set('Cookie', [`auth-token=${validToken}`])
+        .post('/api/v1/profile')
+        .set('Cookie', [`access_token=${validToken}`])
         .send(invalidData);
 
       expect(response.statusCode).toBe(400);
@@ -219,7 +191,7 @@ describe('User Profile API', () => {
         expect.arrayContaining([
           expect.objectContaining({
             field: 'body.firstName',
-            message: 'String must contain at least 1 character(s)',
+            message: 'First name cannot be empty',
           }),
         ])
       );
@@ -230,8 +202,8 @@ describe('User Profile API', () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
       const response = await request(app)
-        .patch('/api/v1/user/profile')
-        .set('Cookie', [`auth-token=${validToken}`])
+        .post('/api/v1/profile')
+        .set('Cookie', [`access_token=${validToken}`])
         .send(updateData);
 
       expect(response.statusCode).toBe(404);
@@ -246,8 +218,8 @@ describe('User Profile API', () => {
       (prisma.user.update as jest.Mock).mockResolvedValue({ ...mockUser, ...updateData });
 
       const response = await request(app)
-        .patch('/api/v1/user/profile')
-        .set('Cookie', [`auth-token=${validToken}`])
+        .post('/api/v1/profile')
+        .set('Cookie', [`access_token=${validToken}`])
         .send(dataWithEmail);
 
       expect(response.statusCode).toBe(200);

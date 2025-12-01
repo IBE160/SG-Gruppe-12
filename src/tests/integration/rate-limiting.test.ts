@@ -1,33 +1,10 @@
 // src/tests/integration/rate-limiting.test.ts
-// Mock dependencies BEFORE imports
-
-// Mock Redis
+jest.mock('rate-limit-redis');
 jest.mock('../../config/redis', () => ({
   redis: {
-    call: jest.fn().mockResolvedValue('OK'),
-    on: jest.fn(),
-    quit: jest.fn(),
+    call: jest.fn(),
   },
 }));
-
-// Mock Prisma
-jest.mock('../../config/database', () => ({
-  prisma: {
-    auditLog: {
-      create: jest.fn().mockResolvedValue({ id: 1 }),
-    },
-  },
-}));
-
-// Mock audit service
-jest.mock('../../services/audit.service', () => ({
-  auditService: {
-    logSecurityEvent: jest.fn().mockResolvedValue(undefined),
-    log: jest.fn().mockResolvedValue(undefined),
-  },
-}));
-
-// Mock rate-limit-redis
 jest.mock('rate-limit-redis', () => {
   return {
     __esModule: true,

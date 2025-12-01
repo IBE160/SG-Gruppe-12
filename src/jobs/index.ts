@@ -1,30 +1,39 @@
-// src/jobs/index.ts
-import Queue from 'bull';
-import { redis } from '../config/redis'; // Import the Redis client
+import * as Queue from 'bull';
+import IORedis from 'ioredis';
+import IORedisMock from 'ioredis-mock';
+
+let redisConnection: IORedis.Redis | IORedisMock.IORedisMock | undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  redisConnection = new IORedisMock(); // Use ioredis-mock instance for testing
+} else {
+  redisConnection = new IORedis({
+    host: process.env.REDIS_HOST || 'localhost',
+    port: parseInt(process.env.REDIS_PORT || '6379', 10),
+    password: process.env.REDIS_PASSWORD || undefined,
+  });
+}
+
+const defaultJobOptions = {
+  attempts: 3, // Retry a job up to 3 times
+  backoff: {
+    type: 'fixed',
+    delay: 5000,
+  },
+};
 
 // Define the Bull queue for CV parsing jobs
 export const cvParsingQueue = new Queue('cv-parsing', {
-  redis: {
-    host: redis.options.host,
-    port: redis.options.port,
-    password: redis.options.password,
-  },
-  // Optional: Add default job options
-  defaultJobOptions: {
-    attempts: 3, // Retry a job up to 3 times
-    backoff: {
-      type: 'exponential',
-      delay: 1000, // First retry after 1 second, then 2s, 4s, etc.
-    },
-  },
+  createClient: () => redisConnection!, // Pass the instantiated client
+  defaultJobOptions,
 });
 
 // Define job data interface for better type safety
 export interface CVParsingJobData {
   userId: string;
-  fileContent: string;
+  supabaseFilePath: string; // Changed from fileContent
   fileType: string;
-  cvId: string;
+  cvId: number; // Changed from string to number
 }
 
 // Event listeners for the queue (optional, for logging/monitoring)
@@ -42,36 +51,20 @@ cvParsingQueue.on('error', (error) => {
 
 // Define the Bull queue for document generation jobs
 export const documentGenerationQueue = new Queue('document-generation', {
-  redis: {
-    host: redis.options.host,
-    port: redis.options.port,
-    password: redis.options.password,
-  },
-  defaultJobOptions: {
-    attempts: 3,
-    backoff: {
-      type: 'exponential',
-      delay: 1000,
-    },
-  },
+  createClient: () => redisConnection!, // Pass the instantiated client
+  defaultJobOptions,
 });
 
-// Define job data interface for document generation
 export interface DocumentGenerationJobData {
   userId: string;
-  cvId: string;
+  cvId: number;
   format: 'pdf' | 'docx';
 }
 
-// Event listeners for document generation queue
 documentGenerationQueue.on('global:completed', (jobId, result) => {
-  console.log(`Document generation job ${jobId} completed with result ${result}`);
+  console.log(`Document Generation Job ${jobId} completed with result ${result}`);
 });
 
 documentGenerationQueue.on('global:failed', (jobId, err) => {
-  console.error(`Document generation job ${jobId} failed with error ${err}`);
-});
-
-documentGenerationQueue.on('error', (error) => {
-  console.error('Document generation queue error:', error);
+  console.error(`Document Generation Job ${jobId} failed with error ${err}`);
 });

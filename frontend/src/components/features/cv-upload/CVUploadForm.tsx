@@ -3,25 +3,22 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button } from '@/components/ui/button'; // Assuming shadcn/ui components
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast'; // Assuming shadcn/ui toast
+import { toast } from '@/components/ui/use-toast';
+import { Loader2, UploadCloud } from 'lucide-react';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_FILE_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword', 'text/plain'];
 
 const formSchema = z.object({
-  cvFile: z
-    .any()
-    .refine((file) => file?.length > 0, 'CV file is required.')
-    .refine((file) => file?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
-    .refine(
-      (file) => ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'].includes(file?.[0]?.type),
-      'Only .pdf, .docx, and .txt formats are supported.'
-    ),
+  cvFile: z.instanceof(FileList).refine(fileList => fileList.length > 0, "CV file is required.")
+    .refine(fileList => fileList[0].size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+    .refine(fileList => ACCEPTED_FILE_TYPES.includes(fileList[0].type), "Only PDF, DOCX, DOC, and TXT files are accepted."),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -32,78 +29,77 @@ interface CVUploadFormProps {
 }
 
 export function CVUploadForm({ onFileUploadSuccess, onFileUploadError }: CVUploadFormProps) {
-  const { toast } = useToast();
-  const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
   });
 
-  const { register, handleSubmit, formState: { errors } } = form;
-
   const onSubmit = async (data: FormValues) => {
-    setIsUploading(true);
+    setIsLoading(true);
     const formData = new FormData();
     formData.append('cv_file', data.cvFile[0]);
 
     try {
-      const response = await fetch('/api/v1/cvs/parse', {
+      const response = await fetch('/api/v1/cvs/parse', { // Use the backend API endpoint
         method: 'POST',
         body: formData,
-        // Headers like 'Content-Type': 'multipart/form-data' are usually
-        // automatically set by the browser when using FormData.
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'File upload failed');
+        throw new Error(errorData.message || 'Failed to upload and parse CV.');
       }
 
       const result = await response.json();
-      toast({
-        title: 'Upload Successful!',
-        description: result.message,
-      });
       onFileUploadSuccess(result.data.cvId);
-    } catch (error: any) {
       toast({
-        title: 'Upload Failed!',
-        description: error.message || 'Please try again.',
-        variant: 'destructive',
+        title: 'Upload Successful',
+        description: 'Your CV has been uploaded and parsing has started.',
       });
-      onFileUploadError(error.message || 'Unknown error during upload');
+    } catch (error: any) {
+      console.error('File upload error:', error);
+      onFileUploadError(error.message || 'An unexpected error occurred during upload.');
     } finally {
-      setIsUploading(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Upload Your CV</CardTitle>
+      <CardHeader className="text-center">
+        <UploadCloud className="mx-auto h-12 w-12 text-primary" />
+        <CardTitle className="mt-4">Upload Your CV</CardTitle>
         <CardDescription>
-          Upload your existing CV (PDF, DOCX, or TXT) to get started.
+          Upload your PDF, DOCX, DOC, or TXT file to automatically extract your CV data.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid w-full max-w-sm items-center gap-1.5">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid w-full items-center gap-1.5">
             <Label htmlFor="cvFile">CV File</Label>
             <Input
               id="cvFile"
               type="file"
-              {...register('cvFile')}
-              disabled={isUploading}
+              {...form.register('cvFile')}
+              disabled={isLoading}
+              accept={ACCEPTED_FILE_TYPES.join(',')}
             />
-            {errors.cvFile && (
-              <p className="text-sm font-medium text-destructive">{String(errors.cvFile.message)}</p>
+            {form.formState.errors.cvFile && (
+              <p className="text-sm font-medium text-destructive">
+                {form.formState.errors.cvFile.message}
+              </p>
             )}
-            <p className="text-sm text-muted-foreground">
-              Max file size: 5MB. Supported formats: .pdf, .docx, .txt
-            </p>
           </div>
-          <Button type="submit" className="w-full" disabled={isUploading}>
-            {isUploading ? 'Uploading...' : 'Upload & Parse CV'}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              'Upload and Parse'
+            )}
           </Button>
         </form>
       </CardContent>

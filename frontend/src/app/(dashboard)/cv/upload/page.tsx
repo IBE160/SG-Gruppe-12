@@ -29,7 +29,7 @@ export default function CVUploadPage() {
       const cvData = await response.json();
 
       // Assuming a non-empty personal_info or other key field indicates parsing completion
-      if (cvData.data && cvData.data.personal_info && cvData.data.personal_info.firstName) {
+      if (cvData.data && cvData.data.personal_info && cvData.data.personal_info.name) {
         setParsingStatus('completed');
         setIsParsing(false);
         setParsingProgress(100);

@@ -7,6 +7,7 @@ interface UpdateProfileData {
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
+  email?: string; // Allow email as an optional property for the interface
 }
 
 export const userService = {
@@ -24,11 +25,10 @@ export const userService = {
       throw new NotFoundError('User not found');
     }
 
-    const updatedUser = await userRepository.update(userId, {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      phoneNumber: data.phoneNumber,
-    });
+    // Prevent email from being updated via this method
+    const { email, ...updates } = data;
+
+    const updatedUser = await userRepository.update(userId, updates);
     return updatedUser;
   },
 

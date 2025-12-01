@@ -1,27 +1,5 @@
 // src/tests/unit/auth.service.test.ts
-
-// Mock Prisma BEFORE imports
-jest.mock('../../config/database', () => ({
-  prisma: {
-    user: {
-      findUnique: jest.fn(),
-      findFirst: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    },
-  },
-}));
-
-// Mock JWT util BEFORE imports
-jest.mock('../../utils/jwt.util', () => ({
-  generateAccessToken: jest.fn(() => 'mock-access-token'),
-  generateRefreshToken: jest.fn(() => 'mock-refresh-token'),
-  verifyAccessToken: jest.fn(),
-  verifyRefreshToken: jest.fn(),
-}));
-
-import * as myAuthService from '../../services/auth.service';
+import { authService } from '../../services/auth.service';
 import { userRepository } from '../../repositories/user.repository';
 import { hashPassword } from '../../utils/password.util';
 import { emailService } from '../../services/email.service';
@@ -47,13 +25,12 @@ jest.mock('../../config/redis', () => ({
 }));
 
 describe('Auth Service', () => {
-  // Mock user data
-  const mockUser: User = {
-    id: '1',
+  // Mock user data (as it would be stored in DB)
+  const mockUserStored: User = {
+    id: 'clsy96f0100001a1d6n8u2g2t',
     name: 'John Doe',
     email: 'john.doe@example.com',
-    passwordHash: 'hashed-password-123',
-    role: 'USER',
+    password_hash: 'hashed-password-123',
     emailVerified: false,
     emailVerificationToken: 'mock-uuid-token',
     firstName: 'John',
@@ -65,6 +42,23 @@ describe('Auth Service', () => {
     created_at: new Date('2025-01-01'),
     updated_at: new Date('2025-01-01'),
   };
+
+  // Mock user data (as it would be returned by service, excluding password_hash and token)
+  const mockUserReturned = {
+    id: mockUserStored.id,
+    name: mockUserStored.name,
+    email: mockUserStored.email,
+    emailVerified: mockUserStored.emailVerified,
+    firstName: mockUserStored.firstName,
+    lastName: mockUserStored.lastName,
+    phoneNumber: mockUserStored.phoneNumber,
+    consent_essential: mockUserStored.consent_essential,
+    consent_ai_training: mockUserStored.consent_ai_training,
+    consent_marketing: mockUserStored.consent_marketing,
+    created_at: mockUserStored.created_at,
+    updated_at: mockUserStored.updated_at,
+  };
+
 
   const validUserData = {
     name: 'John Doe',
@@ -84,11 +78,11 @@ describe('Auth Service', () => {
       it('should successfully register a new user with all required fields', async () => {
         // Setup mocks
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
-        (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
+        (userRepository.create as jest.Mock).mockResolvedValue(mockUserStored); // Mock the stored user
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
         // Execute
-        const result = await myAuthService.authService.register(validUserData);
+        const result = await authService.register(validUserData);
 
         // Assert - verify password was hashed
         expect(hashPassword).toHaveBeenCalledWith('SecurePassword123!');
@@ -98,7 +92,7 @@ describe('Auth Service', () => {
         expect(userRepository.create).toHaveBeenCalledWith({
           name: 'John Doe',
           email: 'john.doe@example.com',
-          passwordHash: 'hashed-password-123',
+          password_hash: 'hashed-password-123',
           consent_essential: true, // Always true
           consent_ai_training: false,
           consent_marketing: false,
@@ -109,15 +103,13 @@ describe('Auth Service', () => {
 
         // Assert - verify verification email was sent
         expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
-          mockUser,
+          mockUserStored, // Pass the stored user here
           'mock-uuid-token'
         );
         expect(emailService.sendVerificationEmail).toHaveBeenCalledTimes(1);
 
-        // Assert - verify returned user (SafeUser omits passwordHash and emailVerificationToken)
-        expect(result.email).toBe(mockUser.email);
-        expect(result.emailVerified).toBe(false);
-        // Note: emailVerificationToken is intentionally omitted from SafeUser for security
+        // Assert - verify returned user
+        expect(result).toEqual(mockUserReturned); // Compare against returned user
       });
 
       it('should register user with AI training consent when provided', async () => {
@@ -129,13 +121,13 @@ describe('Auth Service', () => {
 
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
         (userRepository.create as jest.Mock).mockResolvedValue({
-          ...mockUser,
+          ...mockUserStored,
           consent_ai_training: true,
           consent_marketing: true,
         });
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
-        const result = await myAuthService.authService.register(userDataWithConsent);
+        const result = await authService.register(userDataWithConsent);
 
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -155,10 +147,10 @@ describe('Auth Service', () => {
         };
 
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-456');
-        (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
+        (userRepository.create as jest.Mock).mockResolvedValue(mockUserStored);
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
-        await myAuthService.authService.register(userDataMinimal);
+        await authService.register(userDataMinimal);
 
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -173,10 +165,10 @@ describe('Auth Service', () => {
     describe('email verification token generation', () => {
       it('should generate a unique email verification token for each user', async () => {
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
-        (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
+        (userRepository.create as jest.Mock).mockResolvedValue(mockUserStored);
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
-        await myAuthService.authService.register(validUserData);
+        await authService.register(validUserData);
 
         // Verify token was generated and stored
         expect(userRepository.create).toHaveBeenCalledWith(
@@ -188,10 +180,10 @@ describe('Auth Service', () => {
 
       it('should set emailVerified to false for new registrations', async () => {
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
-        (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
+        (userRepository.create as jest.Mock).mockResolvedValue(mockUserStored);
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
-        await myAuthService.authService.register(validUserData);
+        await authService.register(validUserData);
 
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -204,13 +196,13 @@ describe('Auth Service', () => {
     describe('email verification service integration', () => {
       it('should send verification email with correct user and token', async () => {
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
-        (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
+        (userRepository.create as jest.Mock).mockResolvedValue(mockUserStored);
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
-        await myAuthService.authService.register(validUserData);
+        await authService.register(validUserData);
 
         expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
-          mockUser,
+          mockUserStored, // Pass the stored user here
           'mock-uuid-token'
         );
       });
@@ -221,13 +213,14 @@ describe('Auth Service', () => {
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
         (userRepository.create as jest.Mock).mockImplementation(async () => {
           callOrder.push('userRepository.create');
-          return mockUser;
+          return mockUserStored;
         });
         (emailService.sendVerificationEmail as jest.Mock).mockImplementation(async () => {
           callOrder.push('emailService.sendVerificationEmail');
+          return undefined; // Ensure mock returns something for async function
         });
 
-        await myAuthService.authService.register(validUserData);
+        await authService.register(validUserData);
 
         expect(callOrder).toEqual(['userRepository.create', 'emailService.sendVerificationEmail']);
       });
@@ -236,10 +229,10 @@ describe('Auth Service', () => {
     describe('password security', () => {
       it('should hash the password before storing', async () => {
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
-        (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
+        (userRepository.create as jest.Mock).mockResolvedValue(mockUserStored);
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
-        await myAuthService.authService.register(validUserData);
+        await authService.register(validUserData);
 
         // Verify password was hashed
         expect(hashPassword).toHaveBeenCalledWith('SecurePassword123!');
@@ -247,7 +240,7 @@ describe('Auth Service', () => {
         // Verify the hashed password was passed to repository
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            passwordHash: 'hashed-password-123',
+            password_hash: 'hashed-password-123',
           })
         );
 
@@ -261,15 +254,15 @@ describe('Auth Service', () => {
 
       it('should not store plain text password', async () => {
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
-        (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
+        (userRepository.create as jest.Mock).mockResolvedValue(mockUserStored);
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
-        await myAuthService.authService.register(validUserData);
+        await authService.register(validUserData);
 
         const createCallArgs = (userRepository.create as jest.Mock).mock.calls[0][0];
 
         expect(createCallArgs).not.toHaveProperty('password');
-        expect(createCallArgs).toHaveProperty('passwordHash');
+        expect(createCallArgs).toHaveProperty('password_hash');
       });
     });
 
@@ -278,7 +271,7 @@ describe('Auth Service', () => {
         const hashError = new Error('Password hashing failed');
         (hashPassword as jest.Mock).mockRejectedValue(hashError);
 
-        await expect(myAuthService.authService.register(validUserData)).rejects.toThrow('Password hashing failed');
+        await expect(authService.register(validUserData)).rejects.toThrow('Password hashing failed');
 
         // Verify user creation was not attempted
         expect(userRepository.create).not.toHaveBeenCalled();
@@ -290,7 +283,7 @@ describe('Auth Service', () => {
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
         (userRepository.create as jest.Mock).mockRejectedValue(dbError);
 
-        await expect(myAuthService.authService.register(validUserData)).rejects.toThrow('Database connection failed');
+        await expect(authService.register(validUserData)).rejects.toThrow('Database connection failed');
 
         // Verify email was not sent if user creation failed
         expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
@@ -299,10 +292,10 @@ describe('Auth Service', () => {
       it('should propagate email service errors', async () => {
         const emailError = new Error('Email service unavailable');
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
-        (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
+        (userRepository.create as jest.Mock).mockResolvedValue(mockUserStored);
         (emailService.sendVerificationEmail as jest.Mock).mockRejectedValue(emailError);
 
-        await expect(myAuthService.authService.register(validUserData)).rejects.toThrow('Email service unavailable');
+        await expect(authService.register(validUserData)).rejects.toThrow('Email service unavailable');
 
         // Note: User was created but email failed - this is a business decision
         // In production, you might want to handle this differently (e.g., queue for retry)
@@ -314,7 +307,7 @@ describe('Auth Service', () => {
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
         (userRepository.create as jest.Mock).mockRejectedValue(duplicateError);
 
-        await expect(myAuthService.authService.register(validUserData)).rejects.toThrow(
+        await expect(authService.register(validUserData)).rejects.toThrow(
           'Unique constraint failed on the fields: (`email`)'
         );
       });
@@ -329,12 +322,12 @@ describe('Auth Service', () => {
 
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
         (userRepository.create as jest.Mock).mockResolvedValue({
-          ...mockUser,
+          ...mockUserStored,
           name: 'John   Doe-Smith',
         });
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
-        await myAuthService.authService.register(userDataWithFormatting);
+        await authService.register(userDataWithFormatting);
 
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -351,12 +344,12 @@ describe('Auth Service', () => {
 
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
         (userRepository.create as jest.Mock).mockResolvedValue({
-          ...mockUser,
+          ...mockUserStored,
           email: 'John.Doe@Example.COM',
         });
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
-        await myAuthService.authService.register(userDataMixedCase);
+        await authService.register(userDataMixedCase);
 
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -369,10 +362,10 @@ describe('Auth Service', () => {
     describe('essential consent handling', () => {
       it('should always set consent_essential to true regardless of input', async () => {
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
-        (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
+        (userRepository.create as jest.Mock).mockResolvedValue(mockUserStored);
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
-        await myAuthService.authService.register(validUserData);
+        await authService.register(validUserData);
 
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({

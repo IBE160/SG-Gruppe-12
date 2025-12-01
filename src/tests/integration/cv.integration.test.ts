@@ -1,107 +1,57 @@
 // src/tests/integration/cv.integration.test.ts
+import request from 'supertest';
+import express, { Request, Response, NextFunction } from 'express'; // Import NextFunction here
+import { cvController } from '../../controllers/cv.controller';
+import { cvService } from '../../services/cv.service';
+import { authenticate } from '../../middleware/auth.middleware'; // Mock this for integration tests
+import { validate } from '../../middleware/validate.middleware'; // Mock this for integration tests
+import { experienceEntrySchema } from '../../validators/cv.validator';
+import { AppError } from '../../utils/errors.util'; // Import AppError
+import { JwtPayload } from '../../utils/jwt.util'; // Import JwtPayload
 
-// Mock dependencies BEFORE imports
+// Define a local AuthRequest interface for testing purposes to extend Request
+interface AuthRequest extends Request {
+  user?: JwtPayload;
+}
 
-// Mock Prisma
-jest.mock('../../config/database', () => ({
-  prisma: {
-    cV: {
-      findUnique: jest.fn(),
-      findMany: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    },
-    auditLog: {
-      create: jest.fn().mockResolvedValue({ id: 1 }),
-    },
-  },
-}));
-
-// Mock Redis
-jest.mock('../../config/redis', () => ({
-  redis: {
-    call: jest.fn().mockResolvedValue('OK'),
-    get: jest.fn(),
-    set: jest.fn(),
-    setex: jest.fn(),
-    del: jest.fn(),
-    sadd: jest.fn(),
-    expire: jest.fn(),
-    on: jest.fn(),
-    quit: jest.fn(),
-    options: {
-      host: 'localhost',
-      port: 6379,
-      password: undefined,
-    },
-  },
-}));
-
-// Mock bull queue
-jest.mock('../../jobs', () => ({
-  cvParsingQueue: {
-    add: jest.fn().mockResolvedValue({ id: 'mock-job-id' }),
-    process: jest.fn(),
-    on: jest.fn(),
-  },
-}));
-
-// Mock rate-limit-redis
-jest.mock('rate-limit-redis', () => {
-  return {
-    __esModule: true,
-    default: class RedisStore {
-      constructor() {}
-      increment() { return Promise.resolve({ totalHits: 1, resetTime: new Date() }); }
-      decrement() { return Promise.resolve(); }
-      resetKey() { return Promise.resolve(); }
-    },
-  };
-});
-
-// Mock audit service
-jest.mock('../../services/audit.service', () => ({
-  auditService: {
-    logSecurityEvent: jest.fn().mockResolvedValue(undefined),
-    log: jest.fn().mockResolvedValue(undefined),
-  },
-}));
 
 // Mock authentication middleware
 jest.mock('../../middleware/auth.middleware', () => ({
-  authenticate: jest.fn((_req: any, _res: any, next: any) => {
-    _req.user = { userId: 'mockUserId', role: 'USER' };
+  authenticate: jest.fn((req: AuthRequest, res: Response, next: NextFunction) => {
+    req.user = { userId: 'mockUserId' }; // Mock authenticated user
     next();
   }),
-  AuthRequest: {},
 }));
 
-// Mock validation middleware
-jest.mock('../../middleware/validate.middleware', () => ({
-  validate: jest.fn(() => (_req: any, _res: any, next: any) => {
-    next();
-  }),
-}));
+// Mock validation middleware - use actual validation logic
+jest.mock('../../middleware/validate.middleware', () => {
+  const originalModule = jest.requireActual('../../middleware/validate.middleware');
+  return {
+    validate: originalModule.validate, // Use the real validate middleware
+  };
+});
 
 // Mock cvService
 jest.mock('../../services/cv.service');
 
-import request from 'supertest';
-import express, { Request, Response, NextFunction } from 'express';
-import { cvController } from '../../controllers/cv.controller';
-import { cvService } from '../../services/cv.service';
-import { AuthRequest } from '../../middleware/auth.middleware';
-import { authenticate } from '../../middleware/auth.middleware';
-import { validate } from '../../middleware/validate.middleware';
-import { experienceEntrySchema } from '../../validators/cv.validator';
-
 const app = express();
-app.use(express.json());
-app.use(authenticate);
-app.post('/api/v1/cvs/:cvId/experience', validate(experienceEntrySchema), cvController.addExperience);
-app.patch('/api/v1/cvs/:cvId/experience/:experienceIndex', validate(experienceEntrySchema.partial()), cvController.updateExperience);
+app.use(express.json()); // Enable json body parsing
+app.use(authenticate); // Apply mock auth
+
+// Create validation schemas wrapped with body property
+const { z } = require('zod');
+const addExperienceSchema = z.object({ body: experienceEntrySchema, params: z.any(), query: z.any() });
+const updateExperienceSchema = z.object({ body: experienceEntrySchema.partial(), params: z.any(), query: z.any() });
+
+app.post('/api/v1/cvs/:cvId/experience', validate(addExperienceSchema), cvController.addExperience);
+app.patch('/api/v1/cvs/:cvId/experience/:experienceIndex', validate(updateExperienceSchema), cvController.updateExperience);
 app.delete('/api/v1/cvs/:cvId/experience/:experienceIndex', cvController.deleteExperience);
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => { // Error handling middleware for integration tests
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({ success: false, message: err.message });
+  }
+  return res.status(500).json({ success: false, message: 'An unexpected error occurred' });
+});
 
 describe('CV API - Work Experience Endpoints', () => {
   const mockCvId = '123';
@@ -109,7 +59,7 @@ describe('CV API - Work Experience Endpoints', () => {
   const mockExperience = {
     title: 'Software Engineer',
     company: 'Tech Solutions',
-    startDate: '2020-01-01',
+    start_date: '2020-01-01', // Added missing field
     description: 'Developed software solutions.',
   };
   const mockCvData = {
@@ -122,17 +72,17 @@ describe('CV API - Work Experience Endpoints', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (cvService.getCVById as jest.Mock).mockResolvedValue(mockCvData);
+    (cvService.getCVById as jest.Mock).mockResolvedValue(mockCV);
     (cvService.addWorkExperience as jest.Mock).mockResolvedValue({
-      ...mockCvData,
-      experience: [mockExperience],
+      ...mockCV,
+      experience: [...mockCV.experience, mockExperience],
     });
     (cvService.updateWorkExperience as jest.Mock).mockResolvedValue({
-      ...mockCvData,
-      experience: [{ ...mockExperience, title: 'Senior Software Engineer' }],
+      ...mockCV,
+      experience: [mockExperience],
     });
     (cvService.deleteWorkExperience as jest.Mock).mockResolvedValue({
-      ...mockCvData,
+      ...mockCV,
       experience: [],
     });
   });
@@ -145,14 +95,11 @@ describe('CV API - Work Experience Endpoints', () => {
         .expect(201);
 
       expect(response.body.success).toBe(true);
-      expect(cvService.addWorkExperience).toHaveBeenCalled();
+      expect(cvService.addWorkExperience).toHaveBeenCalledWith(mockUserId, parseInt(mockCvId, 10), mockExperience);
     });
 
     it('should return 400 if validation fails', async () => {
-        (validate as jest.Mock).mockImplementationOnce(() => (req: Request, res: Response, next: NextFunction) => {
-            next({ statusCode: 400, message: 'Validation failed' });
-        });
-        const invalidExperience = { ...mockExperience, title: '' };
+        const invalidExperience = { ...mockExperience, title: '' }; // Invalid title (empty string should fail required validation)
         const response = await request(app)
           .post(`/api/v1/cvs/${mockCvId}/experience`)
           .send(invalidExperience)
@@ -164,7 +111,7 @@ describe('CV API - Work Experience Endpoints', () => {
 
     it('should return 401 if not authenticated', async () => {
       (authenticate as jest.Mock).mockImplementationOnce((req: AuthRequest, res: Response, next: NextFunction) => {
-        next({ statusCode: 401, message: 'Unauthorized' });
+        next(new AppError('Unauthorized', 401)); // Simulate unauthorized using AppError
       });
 
       await request(app)
@@ -184,14 +131,11 @@ describe('CV API - Work Experience Endpoints', () => {
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(cvService.updateWorkExperience).toHaveBeenCalled();
+      expect(cvService.updateWorkExperience).toHaveBeenCalledWith(mockUserId, parseInt(mockCvId, 10), 0, updates);
     });
 
     it('should return 400 if validation fails', async () => {
-        (validate as jest.Mock).mockImplementationOnce(() => (req: Request, res: Response, next: NextFunction) => {
-            next({ statusCode: 400, message: 'Validation failed' });
-        });
-        const invalidUpdates = { startDate: 'invalid-date' };
+        const invalidUpdates = { title: '' }; // Empty title should fail validation
         const response = await request(app)
           .patch(`/api/v1/cvs/${mockCvId}/experience/0`)
           .send(invalidUpdates)
@@ -209,7 +153,8 @@ describe('CV API - Work Experience Endpoints', () => {
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(cvService.deleteWorkExperience).toHaveBeenCalled();
+      expect(cvService.deleteWorkExperience).toHaveBeenCalledWith(mockUserId, parseInt(mockCvId, 10), 0);
     });
   });
 });
+

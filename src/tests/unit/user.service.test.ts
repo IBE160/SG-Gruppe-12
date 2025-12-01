@@ -20,20 +20,19 @@ import { NotFoundError } from '../../utils/errors.util';
 jest.mock('../../repositories/user.repository');
 
 describe('User Service', () => {
-  const mockUserId = 'clsy96f0100001a1d6n8u2g2t'; // Example UUID
+  const mockUserId = 'clsy96f0100001a1d6n8u2g2t'; // Example UUID 
   const mockUser: User = {
     id: mockUserId,
     name: 'John Doe',
     email: 'test@example.com',
-    passwordHash: 'hashedpassword',
-    role: 'USER',
+    password_hash: 'hashedpassword',
     firstName: 'John',
     lastName: 'Doe',
     phoneNumber: '1234567890',
     created_at: new Date(),
     updated_at: new Date(),
     emailVerified: true,
-    emailVerificationToken: null,
+    emailVerificationToken: 'mock-uuid-token',
     consent_essential: true,
     consent_ai_training: false,
     consent_marketing: false,
@@ -83,7 +82,6 @@ describe('User Service', () => {
 
       expect(userRepository.findById).toHaveBeenCalledWith(mockUserId);
       expect(userRepository.update).toHaveBeenCalledWith(mockUserId, updateData);
-      // updateProfile returns the full updated user object
       expect(profile).toEqual(updatedUser);
     });
 
@@ -104,7 +102,8 @@ describe('User Service', () => {
       const profile = await userService.updateProfile(mockUserId, invalidUpdateData);
 
       // Verify that email was not passed to the update method
-      expect(userRepository.update).toHaveBeenCalledWith(mockUserId, expect.not.objectContaining({ email: expect.anything() }));
+      const { email, ...expectedUpdateData } = invalidUpdateData; // Destructure to remove email
+      expect(userRepository.update).toHaveBeenCalledWith(mockUserId, expectedUpdateData);
       expect(profile.email).toBe(mockUser.email);
     });
   });

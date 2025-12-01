@@ -26,14 +26,13 @@ describe('User Repository', () => {
       firstName: 'Test',
       lastName: 'User',
       email: 'test@example.com',
-      passwordHash: 'hashedpassword',
-      consent_essential: true,
+      password_hash: 'hashedpassword',
       consent_ai_training: false,
       consent_marketing: false,
       emailVerificationToken: 'some_token',
       emailVerified: false,
     };
-    const mockCreatedUser = { id: '1', ...mockUserData, created_at: new Date(), updated_at: new Date() };
+    const mockCreatedUser = { id: 'clsy96f0100001a1d6n8u2g2t', ...mockUserData, created_at: new Date(), updated_at: new Date() };
 
     (prisma.user.create as jest.Mock).mockResolvedValue(mockCreatedUser);
 
@@ -43,7 +42,7 @@ describe('User Repository', () => {
     expect(prisma.user.create).toHaveBeenCalledWith({
       data: {
         email: mockUserData.email,
-        passwordHash: mockUserData.passwordHash,
+        password_hash: mockUserData.password_hash,
         name: mockUserData.name,
         firstName: mockUserData.firstName,
         lastName: mockUserData.lastName,
@@ -58,7 +57,7 @@ describe('User Repository', () => {
   });
 
   it('should find a user by email', async () => {
-    const mockUser = { id: 1, email: 'test@example.com', name: 'Test', passwordHash: 'hashed' };
+    const mockUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Test', password_hash: 'hashed' };
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
     const result = await userRepository.findByEmail('test@example.com');
@@ -68,44 +67,33 @@ describe('User Repository', () => {
   });
 
   it('should find a user by ID', async () => {
-    const mockUser = { id: 1, email: 'test@example.com', name: 'Test', passwordHash: 'hashed' };
+    const mockUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Test', password_hash: 'hashed' };
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
-    const result = await userRepository.findById('1');
+    const result = await userRepository.findById('clsy96f0100001a1d6n8u2g2t');
 
-    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: '1' } });
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 'clsy96f0100001a1d6n8u2g2t' } });
     expect(result).toEqual(mockUser);
   });
 
   it('should update a user', async () => {
     const mockUpdates = { firstName: 'Updated', lastName: 'User' };
-    const mockUpdatedUser = { id: 1, email: 'test@example.com', name: 'Updated User', passwordHash: 'hashed', ...mockUpdates };
+    const mockUpdatedUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Updated User', password_hash: 'hashed', ...mockUpdates };
     (prisma.user.update as jest.Mock).mockResolvedValue(mockUpdatedUser);
 
-    const result = await userRepository.update('1', mockUpdates);
+    const result = await userRepository.update('clsy96f0100001a1d6n8u2g2t', mockUpdates);
 
-    // Repository maps fields explicitly
-    expect(prisma.user.update).toHaveBeenCalledWith({
-      where: { id: '1' },
-      data: {
-        firstName: mockUpdates.firstName,
-        lastName: mockUpdates.lastName,
-        phoneNumber: undefined,
-        emailVerified: undefined,
-        emailVerificationToken: undefined,
-        passwordHash: undefined,
-      },
-    });
+    expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: 'clsy96f0100001a1d6n8u2g2t' }, data: mockUpdates });
     expect(result).toEqual(mockUpdatedUser);
   });
 
   it('should update last login', async () => {
-    const mockUser = { id: 1, email: 'test@example.com', name: 'Test', passwordHash: 'hashed' };
+    const mockUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Test', password_hash: 'hashed' };
     (prisma.user.update as jest.Mock).mockResolvedValue(mockUser);
 
-    const result = await userRepository.updateLastLogin('1');
+    const result = await userRepository.updateLastLogin('clsy96f0100001a1d6n8u2g2t');
 
-    expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: '1' }, data: {} }); // updatedAt is automatic
+    expect(prisma.user.update).toHaveBeenCalledWith({ where: { id: 'clsy96f0100001a1d6n8u2g2t' }, data: {} }); // updatedAt is automatic
     expect(result).toEqual(mockUser);
   });
 });

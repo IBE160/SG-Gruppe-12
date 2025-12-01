@@ -71,9 +71,12 @@ import { registerSchema, loginSchema } from '../../validators/auth.validator';
 import cookieParser from 'cookie-parser';
 import { UnauthorizedError } from '../../utils/errors.util';
 import { errorMiddleware } from '../../middleware/error.middleware';
-jest.mock('../../middleware/validate.middleware', () => ({
-  validate: jest.fn(() => (req: Request, res: Response, next: NextFunction) => next()), // Pass-through for integration
-}));
+
+// Mock dependencies
+jest.mock('../../services/auth.service');
+// jest.mock('../../middleware/validate.middleware', () => ({
+//   validate: jest.fn(() => (req: Request, res: Response, next: NextFunction) => next()), // Pass-through for integration
+// }));
 jest.mock('../../middleware/rate-limit.middleware', () => ({
   authLimiter: jest.fn((req: Request, res: Response, next: NextFunction) => next()), // Pass-through for integration
 }));
@@ -130,14 +133,10 @@ describe('Auth Routes - /api/v1/auth', () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error.message).toBe('Invalid credentials');
+      expect(response.body.message).toBe('Invalid credentials');
     });
 
     it('should return 400 if validation fails', async () => {
-      (validate as jest.Mock).mockImplementationOnce(() => (req: Request, res: Response, next: NextFunction) => {
-        next({ statusCode: 400, message: 'Validation failed' });
-      });
-
       const invalidData = { ...mockLoginData, email: 'invalid-email' };
       const response = await request(app)
         .post('/api/v1/auth/login')
@@ -145,7 +144,7 @@ describe('Auth Routes - /api/v1/auth', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error.message).toBe('Validation failed');
+      expect(response.body.message).toContain('Validation failed');
     });
   });
 

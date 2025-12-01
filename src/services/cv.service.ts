@@ -1,409 +1,351 @@
 // src/services/cv.service.ts
 import { cvRepository } from '../repositories/cv.repository';
-import { UnauthorizedError, NotFoundError } from '../utils/errors.util';
-import { userRepository } from '../repositories/user.repository';
-import { CV, CVComponent } from '@prisma/client';
+import { NotFoundError, UnauthorizedError } from '../utils/errors.util';
+import { Prisma } from '@prisma/client';
 import { CvData, PersonalInfo, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '../types/cv.types';
-import { experienceEntrySchema, educationEntrySchema, skillEntrySchema, languageEntrySchema } from '../validators/cv.validator';
-import * as jsonpatch from 'fast-json-patch'; // Import fast-json-patch
-
-// --- Transformation Layer ---
-async function assembleCvData(cvShell: CV, userId: string): Promise<CvData> {
-  const components = await cvRepository.findComponentsByIds(cvShell.component_ids);
-  const user = await userRepository.findById(userId);
-
-  if (!user) {
-      throw new NotFoundError('User not found for assembling CV data');
-  }
-  
-  const assembledData: CvData = {
-    personal_info: { 
-        firstName: user.firstName || '', 
-        lastName: user.lastName || '',
-        email: user.email,
-        phone: user.phoneNumber || '',
-        linkedin: '', // These fields are not directly on User model
-        website: '',
-        address: '',
-        city: '',
-        country: '',
-        postalCode: '',
-    },
-    experience: [],
-    education: [],
-    skills: [],
-    languages: [],
-  };
-
-  components.forEach(component => {
-    switch (component.component_type) {
-      case 'personal_info':
-        assembledData.personal_info = component.content as unknown as PersonalInfo;
-        break;
-      case 'work_experience':
-        assembledData.experience.push(component.content as unknown as ExperienceEntry);
-        break;
-      case 'education':
-        assembledData.education.push(component.content as unknown as EducationEntry);
-        break;
-      case 'skill':
-        assembledData.skills.push(component.content as unknown as SkillEntry);
-        break;
-      case 'language':
-        assembledData.languages.push(component.content as unknown as LanguageEntry);
-        break;
-    }
-  });
-
-  return assembledData;
-}
-
-// Helper to find the Nth component of a specific type
-async function findNthComponent(cvShell: CV, type: string, index: number): Promise<CVComponent> {
-    const allComponents = await cvRepository.findComponentsByIds(cvShell.component_ids);
-    const filteredComponents = allComponents.filter(c => c.component_type === type);
-    
-    if (index < 0 || index >= filteredComponents.length) {
-      throw new NotFoundError(`Component of type ${type} not found at index ${index}.`);
-    }
-    
-    return filteredComponents[index];
-}
+import {
+  experienceEntrySchema,
+  educationEntrySchema,
+  skillEntrySchema,
+  languageEntrySchema
+} from '../validators/cv.validator';
 
 // Helper to create a new version after a CV update
-async function createNewVersion(cvId: number, userId: string, previousCvData: CvData, currentCvData: CvData) {
-    const latestVersionNumber = await cvRepository.getLatestVersionNumber(cvId);
-    const newVersionNumber = latestVersionNumber + 1;
+async function createNewVersion(cvId: number, currentCvData: CvData) {
+  const latestVersionNumber = await cvRepository.getLatestVersionNumber(cvId);
+  const newVersionNumber = latestVersionNumber + 1;
 
-    // Calculate JSON patch delta
-    const delta = jsonpatch.compare(previousCvData, currentCvData);
-
-    // Only create a version if there are actual changes
-    if (delta.length > 0) {
-        await cvRepository.createVersion(cvId, newVersionNumber, delta);
-    }
+  await cvRepository.createVersion(cvId, newVersionNumber, currentCvData);
 }
 
 export const cvService = {
-  async createCV(userId: string, data: { title: string; component_ids: number[] }): Promise<CV> {
-    return cvRepository.create(userId, data.title);
+  /**
+   * Creates a new CV record and its initial version.
+   * @param userId The ID of the user.
+   * @param data Initial CV data including title, file_path, and content.
+   * @returns The newly created CV.
+   */
+  async createCV(userId: string, data: { title?: string; file_path?: string; } & Partial<CvData>): Promise<CvData & { id: number }> {
+    const newCV = await cvRepository.create(userId, data);
+    const initialCvData: CvData = {
+      personal_info: newCV.personal_info as PersonalInfo,
+      education: newCV.education as EducationEntry[],
+      experience: newCV.experience as ExperienceEntry[],
+      skills: newCV.skills as SkillEntry[],
+      languages: newCV.languages as LanguageEntry[],
+      summary: newCV.summary || undefined,
+    };
+    await createNewVersion(newCV.id, initialCvData);
+    return { id: newCV.id, ...initialCvData };
   },
 
-  async updateCV(userId: string, cvId: string, data: CvData): Promise<CV> {
-    const cvIdNum = parseInt(cvId, 10);
-    const cvShell = await cvRepository.findById(cvIdNum);
-    if (!cvShell || cvShell.user_id !== userId) {
-      throw new UnauthorizedError('CV not found or access denied');
+  /**
+   * Retrieves a CV by ID for a specific user.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @returns The CV data.
+   */
+  async getCVById(userId: string, cvId: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await cvRepository.findById(cvId);
+    if (!cv) {
+      throw new NotFoundError('CV not found');
     }
-
-    // Clear existing components and add new ones based on parsed data
-    const existingComponents = await cvRepository.findComponentsByIds(cvShell.component_ids);
-    await Promise.all(existingComponents.map(c => cvRepository.deleteComponentOnly(c.id)));
-
-    const newComponentIds: number[] = [];
-
-    // Add personal info as a component
-    if (data.personal_info) {
-      const comp = await cvRepository.addComponentOnly(userId, 'personal_info', data.personal_info);
-      newComponentIds.push(comp.id);
+    if (cv.user_id !== userId) {
+      throw new UnauthorizedError('Not authorized to access this CV');
     }
-
-    // Add experience entries
-    for (const exp of data.experience || []) {
-      const comp = await cvRepository.addComponentOnly(userId, 'work_experience', exp);
-      newComponentIds.push(comp.id);
-    }
-
-    // Add education entries
-    for (const edu of data.education || []) {
-      const comp = await cvRepository.addComponentOnly(userId, 'education', edu);
-      newComponentIds.push(comp.id);
-    }
-
-    // Add skills
-    for (const skill of data.skills || []) {
-      const comp = await cvRepository.addComponentOnly(userId, 'skill', { name: skill });
-      newComponentIds.push(comp.id);
-    }
-
-    // Add languages
-    for (const lang of data.languages || []) {
-      const comp = await cvRepository.addComponentOnly(userId, 'language', lang);
-      newComponentIds.push(comp.id);
-    }
-
-    // Update CV with new component IDs
-    return cvRepository.update(cvIdNum, { component_ids: newComponentIds });
-  },
-
-  async getCVById(userId: string, cvId: number): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) {
-      throw new UnauthorizedError('CV not found or access denied');
-    }
-    return assembleCvData(cvShell, userId);
-  },
-
-  async getUserCVs(userId: string): Promise<{ id: number; title: string; createdAt: string }[]> {
-    const cvShells = await cvRepository.findByUserId(userId);
-    return cvShells.map(cv => ({
+    return {
       id: cv.id,
-      title: cv.title,
-      createdAt: cv.created_at.toISOString(),
-    }));
+      title: cv.title || undefined,
+      file_path: cv.file_path || undefined,
+      personal_info: cv.personal_info as PersonalInfo,
+      education: cv.education as EducationEntry[],
+      experience: cv.experience as ExperienceEntry[],
+      skills: cv.skills as SkillEntry[],
+      languages: cv.languages as LanguageEntry[],
+      summary: cv.summary || undefined,
+    };
   },
 
-  // --- Work Experience ---
-  async addWorkExperience(userId: string, cvId: number, data: ExperienceEntry): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId); // Get previous state for delta
-    
+  /**
+   * Updates a CV record and creates a new version.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV to update.
+   * @param updates Partial CV data to apply.
+   * @returns The updated CV data.
+   */
+  async updateCV(userId: string, cvId: number, updates: Partial<CvData>): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const existingCV = await this.getCVById(userId, cvId); // Performs auth check
+    const updatedCV = await cvRepository.updateCV(cvId, {
+      ...existingCV, // Merge existing data to ensure full snapshot
+      ...updates,
+      personal_info: updates.personal_info,
+      education: updates.education,
+      experience: updates.experience,
+      skills: updates.skills,
+      languages: updates.languages,
+    });
+
+    const newCvData: CvData & { id: number; title?: string; file_path?: string; } = {
+      id: updatedCV.id,
+      title: updatedCV.title || undefined,
+      file_path: updatedCV.file_path || undefined,
+      personal_info: updatedCV.personal_info as PersonalInfo,
+      education: updatedCV.education as EducationEntry[],
+      experience: updatedCV.experience as ExperienceEntry[],
+      skills: updatedCV.skills as SkillEntry[],
+      languages: updatedCV.languages as LanguageEntry[],
+      summary: updatedCV.summary || undefined,
+    };
+
+    await createNewVersion(cvId, newCvData);
+    return newCvData;
+  },
+
+  /**
+   * Adds a work experience entry to a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param data The experience entry to add.
+   * @returns The updated CV data.
+   */
+  async addWorkExperience(userId: string, cvId: number, data: ExperienceEntry): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
     const validatedData = experienceEntrySchema.parse(data);
-    const updatedCvShell = await cvRepository.addComponent(cvId, userId, 'work_experience', validatedData);
-    const currentCvData = await assembleCvData(updatedCvShell, userId); // Get current state for delta
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
-  },
-  async updateWorkExperience(userId: string, cvId: number, index: number, updates: Partial<ExperienceEntry>): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId); // Get previous state for delta
-
-    const componentToUpdate = await findNthComponent(cvShell, 'work_experience', index);
-    await cvRepository.updateComponent(componentToUpdate.id, updates);
-    
-    const updatedShell = await cvRepository.findById(cvId);
-    const currentCvData = await assembleCvData(updatedShell!, userId); // Get current state for delta
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
-  },
-  async deleteWorkExperience(userId: string, cvId: number, index: number): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId); // Get previous state for delta
-
-    const componentToDelete = await findNthComponent(cvShell, 'work_experience', index);
-    const updatedShell = await cvRepository.deleteComponent(cvId, componentToDelete.id);
-    const currentCvData = await assembleCvData(updatedShell, userId); // Get current state for delta
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
+    const experiences = (cv.experience as ExperienceEntry[] | undefined) ?? [];
+    const updatedExperience = [...experiences, validatedData];
+    return this.updateCV(userId, cvId, { experience: updatedExperience });
   },
 
-  // --- Education ---
-  async addEducation(userId: string, cvId: number, data: EducationEntry): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId);
-    
+  /**
+   * Updates a specific work experience entry in a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param index The index of the entry to update.
+   * @param updates Partial data for the update.
+   * @returns The updated CV data.
+   */
+  async updateWorkExperience(userId: string, cvId: number, index: number, updates: Partial<ExperienceEntry>): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
+    const experiences = (cv.experience as ExperienceEntry[] | undefined) ?? [];
+    if (index < 0 || index >= experiences.length) {
+      throw new NotFoundError('Work experience entry not found');
+    }
+    const updatedExperiences = experiences.map((exp, i) =>
+      i === index ? { ...exp, ...updates } : exp
+    );
+    return this.updateCV(userId, cvId, { experience: updatedExperiences });
+  },
+
+  /**
+   * Deletes a specific work experience entry from a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param index The index of the entry to delete.
+   * @returns The updated CV data.
+   */
+  async deleteWorkExperience(userId: string, cvId: number, index: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
+    const experiences = (cv.experience as ExperienceEntry[] | undefined) ?? [];
+    if (index < 0 || index >= experiences.length) {
+      throw new NotFoundError('Work experience entry not found');
+    }
+    const updatedExperiences = experiences.filter((_, i) => i !== index);
+    return this.updateCV(userId, cvId, { experience: updatedExperiences });
+  },
+
+  /**
+   * Adds an education entry to a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param data The education entry to add.
+   * @returns The updated CV data.
+   */
+  async addEducation(userId: string, cvId: number, data: EducationEntry): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
     const validatedData = educationEntrySchema.parse(data);
-    const updatedCvShell = await cvRepository.addComponent(cvId, userId, 'education', validatedData);
-    const currentCvData = await assembleCvData(updatedCvShell, userId);
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
-  },
-  async updateEducation(userId: string, cvId: number, index: number, updates: Partial<EducationEntry>): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId);
-
-    const componentToUpdate = await findNthComponent(cvShell, 'education', index);
-    await cvRepository.updateComponent(componentToUpdate.id, updates);
-    
-    const updatedShell = await cvRepository.findById(cvId);
-    const currentCvData = await assembleCvData(updatedShell!, userId);
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
-  },
-  async deleteEducation(userId: string, cvId: number, index: number): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId);
-
-    const componentToDelete = await findNthComponent(cvShell, 'education', index);
-    const updatedShell = await cvRepository.deleteComponent(cvId, componentToDelete.id);
-    const currentCvData = await assembleCvData(updatedShell, userId);
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
+    const education = (cv.education as EducationEntry[] | undefined) ?? [];
+    const updatedEducation = [...education, validatedData];
+    return this.updateCV(userId, cvId, { education: updatedEducation });
   },
 
-  // --- Skills ---
-  async addSkill(userId: string, cvId: number, data: SkillEntry): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId);
+  /**
+   * Updates a specific education entry in a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param index The index of the entry to update.
+   * @param updates Partial data for the update.
+   * @returns The updated CV data.
+   */
+  async updateEducation(userId: string, cvId: number, index: number, updates: Partial<EducationEntry>): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
+    const education = (cv.education as EducationEntry[] | undefined) ?? [];
+    if (index < 0 || index >= education.length) {
+      throw new NotFoundError('Education entry not found');
+    }
+    const updatedEducation = education.map((edu, i) =>
+      i === index ? { ...edu, ...updates } : edu
+    );
+    return this.updateCV(userId, cvId, { education: updatedEducation });
+  },
 
+  /**
+   * Deletes a specific education entry from a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param index The index of the entry to delete.
+   * @returns The updated CV data.
+   */
+  async deleteEducation(userId: string, cvId: number, index: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
+    const education = (cv.education as EducationEntry[] | undefined) ?? [];
+    if (index < 0 || index >= education.length) {
+      throw new NotFoundError('Education entry not found');
+    }
+    const updatedEducation = education.filter((_, i) => i !== index);
+    return this.updateCV(userId, cvId, { education: updatedEducation });
+  },
+
+  /**
+   * Adds a skill entry to a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param data The skill entry to add.
+   * @returns The updated CV data.
+   */
+  async addSkill(userId: string, cvId: number, data: SkillEntry): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
     const validatedData = skillEntrySchema.parse(data);
-    const updatedCvShell = await cvRepository.addComponent(cvId, userId, 'skill', validatedData);
-    const currentCvData = await assembleCvData(updatedCvShell, userId);
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
-  },
-  async updateSkill(userId: string, cvId: number, index: number, updates: SkillEntry): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId);
-
-    const componentToUpdate = await findNthComponent(cvShell, 'skill', index);
-    await cvRepository.updateComponent(componentToUpdate.id, updates);
-    
-    const updatedShell = await cvRepository.findById(cvId);
-    const currentCvData = await assembleCvData(updatedShell!, userId);
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
-  },
-  async deleteSkill(userId: string, cvId: number, index: number): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId);
-
-    const componentToDelete = await findNthComponent(cvShell, 'skill', index);
-    const updatedShell = await cvRepository.deleteComponent(cvId, componentToDelete.id);
-    const currentCvData = await assembleCvData(updatedShell, userId);
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
+    const skills = (cv.skills as SkillEntry[] | undefined) ?? [];
+    const updatedSkills = [...skills, validatedData];
+    return this.updateCV(userId, cvId, { skills: updatedSkills });
   },
 
-  // --- Languages ---
-  async addLanguage(userId: string, cvId: number, data: LanguageEntry): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId);
+  /**
+   * Updates a specific skill entry in a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param index The index of the entry to update.
+   * @param updates Partial data for the update.
+   * @returns The updated CV data.
+   */
+  async updateSkill(userId: string, cvId: number, index: number, updates: Partial<SkillEntry>): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
+    const skills = (cv.skills as SkillEntry[] | undefined) ?? [];
+    if (index < 0 || index >= skills.length) {
+      throw new NotFoundError('Skill entry not found');
+    }
+    const updatedSkills = skills.map((skill, i) =>
+      i === index ? { ...skill, ...updates } : skill
+    );
+    return this.updateCV(userId, cvId, { skills: updatedSkills });
+  },
 
+  /**
+   * Deletes a specific skill entry from a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param index The index of the entry to delete.
+   * @returns The updated CV data.
+   */
+  async deleteSkill(userId: string, cvId: number, index: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
+    const skills = (cv.skills as SkillEntry[] | undefined) ?? [];
+    if (index < 0 || index >= skills.length) {
+      throw new NotFoundError('Skill entry not found');
+    }
+    const updatedSkills = skills.filter((_, i) => i !== index);
+    return this.updateCV(userId, cvId, { skills: updatedSkills });
+  },
+
+  /**
+   * Adds a language entry to a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param data The language entry to add.
+   * @returns The updated CV data.
+   */
+  async addLanguage(userId: string, cvId: number, data: LanguageEntry): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
     const validatedData = languageEntrySchema.parse(data);
-    const updatedCvShell = await cvRepository.addComponent(cvId, userId, 'language', validatedData);
-    const currentCvData = await assembleCvData(updatedCvShell, userId);
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
-  },
-  async updateLanguage(userId: string, cvId: number, index: number, updates: Partial<LanguageEntry>): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId);
-
-    const componentToUpdate = await findNthComponent(cvShell, 'language', index);
-    await cvRepository.updateComponent(componentToUpdate.id, updates);
-    
-    const updatedShell = await cvRepository.findById(cvId);
-    const currentCvData = await assembleCvData(updatedShell!, userId);
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
-  },
-  async deleteLanguage(userId: string, cvId: number, index: number): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-    const previousCvData = await assembleCvData(cvShell, userId);
-
-    const componentToDelete = await findNthComponent(cvShell, 'language', index);
-    const updatedShell = await cvRepository.deleteComponent(cvId, componentToDelete.id);
-    const currentCvData = await assembleCvData(updatedShell, userId);
-
-    await createNewVersion(cvId, userId, previousCvData, currentCvData);
-
-    return currentCvData;
+    const languages = (cv.languages as LanguageEntry[] | undefined) ?? [];
+    const updatedLanguages = [...languages, validatedData];
+    return this.updateCV(userId, cvId, { languages: updatedLanguages });
   },
 
-  // --- CV Versioning API Methods ---
+  /**
+   * Updates a specific language entry in a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param index The index of the entry to update.
+   * @param updates Partial data for the update.
+   * @returns The updated CV data.
+   */
+  async updateLanguage(userId: string, cvId: number, index: number, updates: Partial<LanguageEntry>): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
+    const languages = (cv.languages as LanguageEntry[] | undefined) ?? [];
+    if (index < 0 || index >= languages.length) {
+      throw new NotFoundError('Language entry not found');
+    }
+    const updatedLanguages = languages.map((lang, i) =>
+      i === index ? { ...lang, ...updates } : lang
+    );
+    return this.updateCV(userId, cvId, { languages: updatedLanguages });
+  },
+
+  /**
+   * Deletes a specific language entry from a CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param index The index of the entry to delete.
+   * @returns The updated CV data.
+   */
+  async deleteLanguage(userId: string, cvId: number, index: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const cv = await this.getCVById(userId, cvId); // Performs auth check
+    const languages = (cv.languages as LanguageEntry[] | undefined) ?? [];
+    if (index < 0 || index >= languages.length) {
+      throw new NotFoundError('Language entry not found');
+    }
+    const updatedLanguages = languages.filter((_, i) => i !== index);
+    return this.updateCV(userId, cvId, { languages: updatedLanguages });
+  },
+
+  /**
+   * Retrieves all versions for a given CV.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @returns An array of CV version summaries.s
+   */
   async listVersions(userId: string, cvId: number): Promise<{ versionNumber: number; createdAt: Date }[]> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-
+    await this.getCVById(userId, cvId); // Performs auth check
     const versions = await cvRepository.getVersions(cvId);
     return versions.map(v => ({ versionNumber: v.version_number, createdAt: v.created_at }));
   },
 
+  /**
+   * Retrieves a specific CV version's data by its number.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param versionNumber The version number to retrieve.
+   * @returns The full CV data for the specified version.
+   */
   async getVersionDetails(userId: string, cvId: number, versionNumber: number): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-
-    // Start with a blank CV (or a base version if one exists)
-    let historicalCvData: CvData = {
-        personal_info: { firstName: '', lastName: '' },
-        experience: [],
-        education: [],
-        skills: [],
-        languages: [],
-    };
-    
-    // Apply all patches up to the requested version
-    const versions = await cvRepository.getVersions(cvId);
-    for (const version of versions) {
-        if (version.version_number <= versionNumber) {
-            // Apply the patch to the historical data
-            jsonpatch.applyPatch(historicalCvData, version.delta as unknown as jsonpatch.Operation[]);
-        } else {
-            break; // Stop if we've passed the target version
-        }
+    await this.getCVById(userId, cvId); // Performs auth check
+    const cvVersion = await cvRepository.getVersionByNumber(cvId, versionNumber);
+    if (!cvVersion) {
+      throw new NotFoundError(`CV Version ${versionNumber} not found`);
     }
-
-    return historicalCvData;
+    return cvVersion.snapshot as any;
   },
 
-  async restoreVersion(userId: string, cvId: number, versionNumber: number): Promise<CvData> {
-    const cvShell = await cvRepository.findById(cvId);
-    if (!cvShell || cvShell.user_id !== userId) throw new UnauthorizedError('CV not found or access denied');
-
-    const versionToRestore = await this.getVersionDetails(userId, cvId, versionNumber);
-    
-    // 1. Delete all existing components for the CV.
-    const currentComponents = await cvRepository.findComponentsByIds(cvShell.component_ids);
-    await Promise.all(currentComponents.map(c => cvRepository.deleteComponentOnly(c.id)));
-
-    const newComponentIds: number[] = [];
-
-    // 2. Create new components for each item in versionToRestore.experience, .education, etc.
-    // Re-add personal_info if it's handled as a component
-    if (versionToRestore.personal_info) {
-        const newPersonalInfoComponent = await cvRepository.addComponentOnly(userId, 'personal_info', versionToRestore.personal_info);
-        newComponentIds.push(newPersonalInfoComponent.id);
-    }
-
-    for (const exp of versionToRestore.experience) {
-        const newComponent = await cvRepository.addComponentOnly(userId, 'work_experience', exp);
-        newComponentIds.push(newComponent.id);
-    }
-    for (const edu of versionToRestore.education) {
-        const newComponent = await cvRepository.addComponentOnly(userId, 'education', edu);
-        newComponentIds.push(newComponent.id);
-    }
-    for (const skill of versionToRestore.skills) {
-        const newComponent = await cvRepository.addComponentOnly(userId, 'skill', skill);
-        newComponentIds.push(newComponent.id);
-    }
-    for (const lang of versionToRestore.languages) {
-        const newComponent = await cvRepository.addComponentOnly(userId, 'language', lang);
-        newComponentIds.push(newComponent.id);
-    }
-
-    // 3. Update the cvShell.component_ids to reflect the new component IDs.
-    await cvRepository.update(cvId, { component_ids: newComponentIds });
-
-    // 4. Create a new version representing this restore operation
-    const previousCvData = await assembleCvData(cvShell, cvShell.user_id);
-    await createNewVersion(cvId, cvShell.user_id, previousCvData, versionToRestore);
-
-    return versionToRestore;
+  /**
+   * Restores a specific CV version, overwriting the current CV and creating a new version.
+   * @param userId The ID of the user.
+   * @param cvId The ID of the CV.
+   * @param versionNumber The version number to restore.
+   * @returns The restored CV data.
+   */
+  async restoreVersion(userId: string, cvId: number, versionNumber: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
+    const versionToRestore = await this.getVersionDetails(userId, cvId, versionNumber); // Performs auth check internally
+    return this.updateCV(userId, cvId, versionToRestore);
   },
 };

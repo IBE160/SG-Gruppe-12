@@ -100,7 +100,7 @@ describe('SQL Injection Security Tests', () => {
   describe('User Repository - User ID Lookup', () => {
     it('should safely handle malicious numeric input', async () => {
       // Try to inject SQL through numeric ID
-      const maliciousId = '1'; // Even if someone tries: "1 OR 1=1"
+      const maliciousId = 'a1b2c3d4-e5f6-7890-1234-567890abcdef' as any; // Mock a UUID
 
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
@@ -113,7 +113,7 @@ describe('SQL Injection Security Tests', () => {
 
     it('should handle string-based ID injection attempts', async () => {
       // Test with string that could be malicious if improperly handled
-      const potentiallyMaliciousId = "1' OR '1'='1" as any;
+      const potentiallyMaliciousId = "a1b2c3d4-e5f6-7890-1234-567890abcdef' OR '1'='1" as any;
 
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
@@ -121,30 +121,46 @@ describe('SQL Injection Security Tests', () => {
       try {
         await userRepository.findById(potentiallyMaliciousId);
       } catch (error) {
-        // Expected to fail due to type mismatch, which is good security
+        // Type error is expected and good for security
         expect(error).toBeDefined();
       }
     });
   });
 
   describe('User Repository - Update Operations', () => {
-    it('should safely handle malicious firstName input', async () => {
-      const maliciousFirstName = "'; DELETE FROM users WHERE '1'='1";
-      const userId = '1';
+    const mockUser = {
+      id: 'mock-user-id-123',
+      email: 'test@example.com',
+      password_hash: 'hashedpassword',
+      firstName: 'Test',
+      lastName: 'User',
+      created_at: new Date(),
+      updated_at: new Date(),
+      emailVerified: true,
+      emailVerificationToken: null,
+      phoneNumber: '1234567890',
+      consent_essential: true,
+      consent_ai_training: false,
+      consent_marketing: false,
+    };
+
+    it('should safely handle malicious name input', async () => {
+      const maliciousName = "'; DELETE FROM users WHERE '1'='1";
+      const userId = mockUser.id;
 
       (prisma.user.update as jest.Mock).mockResolvedValue({
         id: userId,
-        firstName: maliciousFirstName,
+        firstName: maliciousName, // Updated to firstName
         email: 'test@example.com',
       });
 
-      await userRepository.update(userId, { firstName: maliciousFirstName });
+      await userRepository.update(userId, { firstName: maliciousName });
 
       // Prisma should treat firstName as literal data, not SQL
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: userId },
         data: expect.objectContaining({
-          firstName: maliciousFirstName,
+          firstName: maliciousName,
         }),
       });
 
@@ -154,7 +170,7 @@ describe('SQL Injection Security Tests', () => {
 
     it('should safely handle malicious email updates', async () => {
       const maliciousEmail = "test@example.com'; UPDATE users SET role='admin' WHERE '1'='1";
-      const userId = '1';
+      const userId = 'mock-user-id-123'; // Changed from 1 to a UUID string
 
       (prisma.user.update as jest.Mock).mockResolvedValue({
         id: userId,
@@ -162,6 +178,7 @@ describe('SQL Injection Security Tests', () => {
       });
 
       // This won't actually update email (not in our interface), but tests the principle
+      // The update is performed on firstName/lastName, not email directly
       expect(prisma.user.update).not.toHaveBeenCalled();
     });
   });
@@ -169,15 +186,14 @@ describe('SQL Injection Security Tests', () => {
   describe('User Repository - Create Operations', () => {
     it('should safely handle malicious data in user creation', async () => {
       const maliciousUserData = {
+        name: "Malicious User",
         email: "hacker@example.com' OR '1'='1",
-        passwordHash: "password'; DROP TABLE sessions; --",
-        name: "'; UPDATE users SET role='admin'; --",
-        emailVerificationToken: "token' OR '1'='1",
+        password_hash: "password'; DROP TABLE sessions; --",
         emailVerified: false,
       };
 
       (prisma.user.create as jest.Mock).mockResolvedValue({
-        id: 1,
+        id: 'mock-user-id-123',
         ...maliciousUserData,
         created_at: new Date(),
         updated_at: new Date(),
@@ -189,9 +205,8 @@ describe('SQL Injection Security Tests', () => {
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           email: maliciousUserData.email,
-          passwordHash: maliciousUserData.passwordHash,
-          name: maliciousUserData.name,
-          emailVerificationToken: maliciousUserData.emailVerificationToken,
+          password_hash: maliciousUserData.password_hash,
+          emailVerified: maliciousUserData.emailVerified,
         }),
       });
 

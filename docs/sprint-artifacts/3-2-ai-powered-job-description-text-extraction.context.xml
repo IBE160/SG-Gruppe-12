@@ -1,0 +1,449 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>2</storyId>
+    <title>AI-Powered Job Description Text Extraction</title>
+    <status>drafted</status>
+    <generatedAt>fredag 28. november 2025</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>C:\Users\kayle\Desktop\SG-Gruppe-12/docs/sprint-artifacts/3-2-ai-powered-job-description-text-extraction.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>system</asA>
+    <iWant>to accurately extract key information (skills, competencies, responsibilities) from raw job descriptions using AI</iWant>
+    <soThat>it can be used for matching</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Implement `KeywordExtractionService`**
+- [ ] Subtask 1.1: Create `src/services/KeywordExtractionService.ts` to encapsulate LLM interaction.
+- [ ] Subtask 1.2: Implement prompt formatting logic within `KeywordExtractionService` using `prompts/job-extraction.prompt.ts`.
+- [ ] Subtask 1.3: Integrate with Vercel AI SDK to call Google Gemini 2.5 Flash for text extraction.
+- [ ] Subtask 1.4: Implement robust JSON response validation using Zod schemas for the LLM output.
+- [ ] Subtask 1.5: Implement error handling within the service for LLM API failures, timeouts, or malformed responses.
+- [ ] Subtask 1.6: Configure LLM provider API key and model selection in `src/config/ai-providers.ts`.
+
+**Task 2: Update `JobAnalysisController` and `JobAnalysisService`**
+- [ ] Subtask 2.1: Modify `src/controllers/job.controller.ts` to expose `POST /api/job/analyze` endpoint.
+- [ ] Subtask 2.2: Update `JobAnalysisController` to call `JobAnalysisService` for orchestrating the analysis.
+- [ ] Subtask 2.3: Modify `src/services/JobAnalysisService.ts` to integrate `KeywordExtractionService` for keyword extraction.
+- [ ] Subtask 2.4: Ensure `JobAnalysisService` passes the job description from the API request to the `KeywordExtractionService`.
+
+**Task 3: Implement Caching for LLM Responses**
+- [ ] Subtask 3.1: Integrate `CacheService` (using Redis) within `JobAnalysisService` to cache `KeywordExtractionService` results.
+- [ ] Subtask 3.2: Define cache key generation based on `hash(jobDescription)` (as per Tech Spec recommendation).
+- [ ] Subtask 3.3: Implement cache invalidation/TTL for cached job analyses (e.g., 7 days).
+
+**Task 4: Input Validation**
+- [ ] Subtask 4.1: Create `src/validators/job.validator.ts` with Zod schema for `POST /api/job/analyze` request body (`jobDescription`, `cvId`).
+- [ ] Subtask 4.2: Apply the validation middleware (`validate.middleware.ts`) to the `POST /api/job/analyze` route.
+
+### Testing Tasks
+
+**Task 5: Unit Tests (`Jest`)**
+- [ ] Subtask 5.1: Write unit tests for `KeywordExtractionService` to verify prompt formatting and LLM response parsing (mocking LLM API calls).
+- [ ] Subtask 5.2: Write unit tests for the Zod schemas in `job.validator.ts`.
+
+**Task 6: Integration Tests (`Supertest`)**
+- [ ] Subtask 6.1: Write integration tests for `POST /api/job/analyze` endpoint.
+- [ ] Subtask 6.2: **TC-01:** Verify the successful extraction path with a valid job description (asserting structured JSON output).
+- [ ] Subtask 6.3: **TC-03:** Verify error handling for invalid or missing `jobDescription` (400 response).
+- [ ] Subtask 6.4: **TC-04:** Verify performance for non-cached requests meets the <5s NFR.
+- [ ] Subtask 6.5: **TC-05:** Verify caching mechanism: subsequent calls for the same job description return from cache (faster response).
+
+**Task 7: Security & NFR Verification**
+- [ ] Subtask 7.1: Verify that raw job descriptions are not stored indefinitely post-analysis.
+- [ ] Subtask 7.2: Confirm that rate limiting middleware is applied to the LLM endpoint.</tasks>
+  </story>
+
+  <acceptanceCriteria>### Functional Acceptance Criteria
+
+*   **AC-1:** The backend API endpoint (`POST /api/job/analyze`) *must* successfully accept a job description as a string in the request body.
+*   **AC-2:** The AI service (e.g., Gemini) *must* process the provided job description and extract key skills, competencies, and responsibilities.
+*   **AC-3:** The extracted information *must* be returned in a structured JSON format, as defined by the `Prompt Contract` in the Epic 3 Tech Spec.
+*   **AC-4:** Error handling *must* be implemented for LLM failures or invalid/unexpected responses (e.g., non-JSON output), gracefully informing the caller.
+*   **AC-5:** The response time for job description text extraction *must* be within NFRs (under 5 seconds for non-cached requests).
+
+### Non-Functional Acceptance Criteria
+
+*   **AC-NF1 (Performance):** For non-cached requests, the total response time for extraction must be under 5 seconds.
+*   **AC-NF2 (Reliability):** Error handling for LLM communication and response parsing must be robust.
+*   **AC-NF3 (Security/Privacy):** Raw job description text will not be stored indefinitely and will be handled in compliance with GDPR.</acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Epic 3: Job Ad Analysis &amp; Match Scoring</section>
+        <snippet>This epic introduces the functionality that allows users to paste a job advertisement and receive a structured, AI-driven analysis. This epic connects the structured CV data stored in Epic 2 with the requirements extracted from the job post, enabling the system to calculate a match score, highlight strengths and weaknesses, and identify missing keywords.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>ibe160 - Epic Breakdown</title>
+        <section>Story 3.2: AI-Powered Job Description Text Extraction (MVP)</section>
+        <snippet>As a user, I want the system to intelligently extract key requirements and keywords from a job description, so that I can understand what the employer is looking for. The system uses Google Gemini 2.5 Flash via Vercel AI SDK to extract relevant keywords, skills, and responsibilities. And The extracted information is presented in a structured, readable format.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-3.md</path>
+        <title>Epic 3 – Job Ad Analysis &amp; Match Scoring</title>
+        <section>1. Overview</section>
+        <snippet>Epic 3 introduces the functionality that allows users to paste a job advertisement and receive a structured, AI-driven analysis. This epic connects the structured CV data stored in Epic 2 with the requirements extracted from the job post, enabling the system to calculate a match score, highlight strengths and weaknesses, and identify missing keywords.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-3.md</path>
+        <title>Epic 3 – Job Ad Analysis &amp; Match Scoring</title>
+        <section>5. API Design</section>
+        <snippet>Endpoint: POST /api/job/analyze. Purpose: Accept a job description and a reference to a CV, return a structured analysis of how well they match. Request Body includes jobDescription and cvId. Response Body includes matchScore, presentKeywords, missingKeywords, strengthsSummary, weaknessesSummary, rawKeywords.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-3.md</path>
+        <title>Epic 3 – Job Ad Analysis &amp; Match Scoring</title>
+        <section>6. Backend Service Design</section>
+        <snippet>The backend logic for this epic will be divided into several distinct services: JobAnalysisController, JobAnalysisService, KeywordExtractionService, MatchScoringService, SummaryService, CacheService. KeywordExtractionService is responsible for LLM communication, prompt formatting, and JSON response validation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-3.md</path>
+        <title>Epic 3 – Job Ad Analysis &amp; Match Scoring</title>
+        <section>7. Processing Flow</section>
+        <snippet>Backend loads structured CV data, sends job description to LLM, LLM returns extracted keywords, backend compares keywords with CV data, builds present/missing keywords, calculates matchScore, generates summaries, stores in cache, returns result.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-3.md</path>
+        <title>Epic 3 – Job Ad Analysis &amp; Match Scoring</title>
+        <section>9. Prompt Contract (LLM)</section>
+        <snippet>The backend must use a clear prompt contract when calling the LLM. The prompt should explain that the input is a job description, ask for structured JSON output only, request explicit keyword lists, and avoid fabricating extra content.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-3.md</path>
+        <title>Epic 3 – Job Ad Analysis &amp; Match Scoring</title>
+        <section>10. Caching Strategy</section>
+        <snippet>To reduce latency and LLM cost, repeated analyses of the same job description should be cached. Cache key: hash(jobDescription + ":" + cvId). Cache value: Serialized JobAnalysisResult. TTL: 7 days (configurable).</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-3.md</path>
+        <title>Epic 3 – Job Ad Analysis &amp; Match Scoring</title>
+        <section>11. Non-Functional Requirements</section>
+        <snippet>Performance: under 5 seconds for non-cached requests, under 500 ms for cached. Security &amp; Privacy: Raw job descriptions must not be stored indefinitely, GDPR compliance. Observability: Log errors and slow calls.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>2. Technology Stack</section>
+        <snippet>Runtime: Node.js v20.x LTS. Framework: Express.js 4.x. Language: TypeScript 5.3+. ORM: Prisma 5.x. Validation: Zod 3.22+. AI Integration: Vercel AI SDK 3.x (Gemini 2.5 Flash primary, GPT-4/Claude fallback).</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>3. Project Structure</section>
+        <snippet>Directory Hierarchy includes src/services/, src/controllers/, src/prompts/, src/validators/, src/config/ for clear separation of concerns.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>7. AI Service Integration</section>
+        <snippet>Uses Vercel AI SDK for unified LLM interface. Primary provider: Google Gemini 2.5 Flash. Includes prompt template versioning and rate limiting/caching for AI endpoints.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>14. Security Measures</section>
+        <snippet>Includes Input Sanitization, HTTPS Enforcement, and Encryption at Rest for database and file storage.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>15. Performance Considerations</section>
+        <snippet>Database Connection Pooling, Query Optimization, and Compression Middleware are implemented to enhance performance.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-frontend.md</path>
+        <title>Frontend Architecture Specification</title>
+        <section>1. Executive Summary</section>
+        <snippet>Framework: Next.js 14. State Management: Zustand. UI Components: shadcn/ui. Styling: Tailwind CSS. Forms: React Hook Form + Zod validation. API Integration: Vercel AI SDK + fetch for backend REST APIs.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>AI CV and Application - Product Requirements Document</title>
+        <section>Functional Requirements</section>
+        <snippet>FR-3.2: AI-Powered Keyword Extraction (MVP) - The platform must automatically extract keywords from the pasted job description.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>AI CV and Application - Product Requirements Document</title>
+        <section>Non-Functional Requirements</section>
+        <snippet>Performance: CV Parsing Speed: CV parsing operations must complete within 2–4 seconds to maintain user flow. Security: LLM Security: External LLM calls must be rigorously sandboxed.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification-COMPLETE.md</path>
+        <title>AI CV &amp; Job Application Assistant</title>
+        <section>4.3 Job Analysis Results</section>
+        <snippet>Wireframe for Job Analysis Results screen, showing match score, key requirements, gaps to address, and important keywords.</snippet>
+      </doc>
+      <doc>
+        <path>docs/UX-PRD-EPIC-ALIGNMENT-RESOLUTION.md</path>
+        <title>UX-PRD-Epic Alignment Resolution Summary</title>
+        <section>3. CRITICAL GAP: CV Parsing Not Explicit (RESOLVED ✅)</section>
+        <snippet>Resolution: Added Story 2.2: AI-Powered CV Parsing from File Upload to Epic 2 in docs/epics.md. This ensures CV parsing is an explicit MVP requirement.</snippet>
+      </doc>
+      <doc>
+        <path>README.md</path>
+        <title>AI CV &amp; Job Application Assistant Monorepo</title>
+        <section>Project Structure</section>
+        <snippet>This monorepo contains the `frontend` and `backend` (src) applications for the AI CV &amp; Job Application Assistant. `src/`: Node.js/Express.js application for the backend API.</snippet>
+      </doc>
+      <doc>
+        <path>frontend/README.md</path>
+        <title>AI CV &amp; Job Application Assistant - Frontend</title>
+        <section>🎨 Design System</section>
+        <snippet>This project implements the complete UX design specification from `docs/ux-design-specification-COMPLETE.md`. Design System: shadcn/ui (Tailwind CSS-based).</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <code-artifact>
+        <path>src/validators/job.validator.ts</path>
+        <kind>validator</kind>
+        <symbol>analyzeJobDescriptionSchema</symbol>
+        <lines>L4-L6</lines>
+        <reason>Zod schema for validating job description input.</reason>
+      </code-artifact>
+      <code-artifact>
+        <path>src/validators/job.validator.ts</path>
+        <kind>validator</kind>
+        <symbol>AnalyzeJobDescriptionInput</symbol>
+        <lines>L10</lines>
+        <reason>TypeScript type for job description input.</reason>
+      </code-artifact>
+      <code-artifact>
+        <path>src/services/parsing.service.ts</path>
+        <kind>service</kind>
+        <symbol>parsingService.parseCV</symbol>
+        <lines>L17-L46</lines>
+        <reason>Service for AI-powered CV parsing, pattern for LLM calls and Zod validation of AI output.</reason>
+      </code-artifact>
+      <code-artifact>
+        <path>src/services/job-analysis.service.ts</path>
+        <kind>service</kind>
+        <symbol>jobAnalysisService.analyzeJobDescription</symbol>
+        <lines>L37-L78</lines>
+        <reason>Core service for analyzing job descriptions, responsible for orchestration of AI calls and initial matching.</reason>
+      </code-artifact>
+      <code-artifact>
+        <path>src/services/job-analysis.service.ts</path>
+        <kind>function</kind>
+        <symbol>callAIService</symbol>
+        <lines>L8-L16</lines>
+        <reason>Placeholder for actual AI service call, showing expected signature and delay simulation.</reason>
+      </code-artifact>
+      <code-artifact>
+        <path>src/services/cv.service.ts</path>
+        <kind>service</kind>
+        <symbol>cvService</symbol>
+        <reason>CV management service, will provide structured CV data for job analysis.</reason>
+      </code-artifact>
+      <code-artifact>
+        <path>src/routes/job.routes.ts</path>
+        <kind>route</kind>
+        <symbol>/analyze</symbol>
+        <lines>L12-L16</lines>
+        <reason>Defines the API endpoint for job analysis.</reason>
+      </code-artifact>
+      <code-artifact>
+        <path>src/prompts/job-extraction.prompt.ts</path>
+        <kind>prompt</kind>
+        <symbol>JobExtractionPrompt.v1</symbol>
+        <lines>L3-L25</lines>
+        <reason>Versioned prompt template for extracting job description keywords.</reason>
+      </code-artifact>
+      <code-artifact>
+        <path>src/middleware/validate.middleware.ts</path>
+        <kind>middleware</kind>
+        <symbol>validate</symbol>
+        <lines>L18-L30</lines>
+        <reason>Generic validation middleware using Zod schemas, to be used on job analysis input.</reason>
+      </code-artifact>
+      <code-artifact>
+        <path>src/middleware/rate-limit.middleware.ts</path>
+        <kind>middleware</kind>
+        <symbol>aiLimiter</symbol>
+        <lines>L21-L26</lines>
+        <reason>Rate limiting middleware for AI processing endpoints.</reason>
+      </code-artifact>
+      <code-artifact>
+        <path>src/config/ai-providers.ts</path>
+        <kind>config</kind>
+        <symbol>genAI</symbol>
+        <lines>L1-L21</lines>
+        <reason>Configuration for Google Generative AI, including API key handling.</reason>
+      </code-artifact>
+      <code-artifact>
+        <path>src/controllers/job.controller.ts</path>
+        <kind>controller</kind>
+        <symbol>jobController.analyzeJob</symbol>
+        <lines>L6-L21</lines>
+        <reason>Controller for handling job analysis requests, orchestrating service calls.</reason>
+      </code-artifact>
+    </code>
+    <dependencies>
+      <root>
+        <package name="@google/generative-ai" version="^0.24.1" />
+        <package name="@hookform/resolvers" version="^5.2.2" />
+        <package name="@prisma/client" version="^5.7.1" />
+        <package name="@sentry/integrations" version="^7.114.0" />
+        <package name="@sentry/node" version="^10.27.0" />
+        <package name="bcrypt" version="^5.1.1" />
+        <package name="bull" version="^4.16.5" />
+        <package name="cookie-parser" version="^1.4.6" />
+        <package name="cors" version="^2.8.5" />
+        <package name="docx" version="^8.2.3" />
+        <package name="dotenv" version="^17.2.3" />
+        <package name="express" version="5.1.0" />
+        <package name="express-rate-limit" version="^7.1.5" />
+        <package name="file-type" version="^21.1.1" />
+        <package name="helmet" version="^7.1.0" />
+        <package name="html-pdf-node" version="^1.0.7" />
+        <package name="jsonwebtoken" version="^9.0.2" />
+        <package name="lucide-react" version="^0.365.0" />
+        <package name="multer" version="^2.0.2" />
+        <package name="next" version="^14.2.0" />
+        <package name="pg" version="^8.16.3" />
+        <package name="prisma" version="^5.7.1" />
+        <package name="rate-limit-redis" version="^4.3.0" />
+        <package name="react" version="^18.3.0" />
+        <package name="react-dom" version="^18.3.0" />
+        <package name="react-hook-form" version="^7.66.1" />
+        <package name="swr" version="^2.3.6" />
+        <package name="tailwind-merge" version="^2.2.2" />
+        <package name="tailwindcss-animate" version="^1.0.7" />
+        <package name="uuid" version="^9.0.1" />
+        <package name="zod" version="^4.1.13" />
+        <package name="zustand" version="^5.0.8" />
+        <!-- Dev Dependencies -->
+        <package name="@testing-library/jest-dom" version="^6.9.1" />
+        <package name="@testing-library/react" version="^16.3.0" />
+        <package name="@types/bcrypt" version="^5.0.2" />
+        <package name="@types/bull" version="^3.15.9" />
+        <package name="@types/cookie-parser" version="^1.4.6" />
+        <package name="@types/cors" version="^2.8.17" />
+        <package name="@types/express" version="^4.17.21" />
+        <package name="@types/jest" version="^29.5.11" />
+        <package name="@types/jsonwebtoken" version="^9.0.5" />
+        <package name="@types/multer" version="^2.0.0" />
+        <package name="@types/node" version="^20.11.30" />
+        <package name="@types/react" version="^18.2.73" />
+        <package name="@types/react-dom" version="^18.2.22" />
+        <package name="@types/supertest" version="^2.0.16" />
+        <package name="@types/uuid" version="^9.0.1" />
+        <package name="eslint" version="^9.0.0" />
+        <package name="eslint-config-next" version="^16.0.4" />
+        <package name="jest" version="^29.7.0" />
+        <package name="jest-environment-jsdom" version="^29.7.0" />
+        <package name="nodemon" version="3.1.11" />
+        <package name="postcss" version="^8.4.38" />
+        <package name="supertest" version="^6.3.3" />
+        <package name="tailwindcss" version="^3.4.1" />
+        <package name="ts-jest" version="^29.4.5" />
+        <package name="ts-node" version="^10.9.2" />
+        <package name="ts-node-dev" version="^2.0.0" />
+        <package name="typescript" version="^5.9.3" />
+      </root>
+      <frontend>
+        <package name="@hookform/resolvers" version="^3.3.2" />
+        <package name="axios" version="^1.13.2" />
+        <package name="next" version="^14.0.4" />
+        <package name="react" version="^18" />
+        <package name="react-dom" version="^18" />
+        <package name="react-hook-form" version="^7.48.2" />
+        <package name="swr" version="^2.3.6" />
+        <package name="zod" version="^3.22.4" />
+        <!-- Dev Dependencies -->
+        <package name="@types/node" version="^20" />
+        <package name="@types/react" version="^18" />
+        <package name="@types/react-dom" version="^18" />
+        <package name="autoprefixer" version="^10.0.1" />
+        <package name="eslint" version="^8" />
+        <package name="eslint-config-next" version="^14.0.4" />
+        <package name="postcss" version="^8" />
+        <package name="tailwindcss" version="^3.3.0" />
+        <package name="typescript" version="^5" />
+      </frontend>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>
+      <type>LLM Output Validation</type>
+      <description>All LLM outputs must be validated against Zod schemas to ensure data integrity and correct type mapping. (Source: src/services/parsing.service.ts L36-L40)</description>
+    </constraint>
+    <constraint>
+      <type>Rate Limiting</type>
+      <description>AI processing endpoints are subject to rate limiting to prevent abuse and manage costs. (Source: src/middleware/rate-limit.middleware.ts L21-L26)</description>
+    </constraint>
+    <constraint>
+      <type>AI API Key Configuration</type>
+      <description>GOOGLE_AI_API_KEY must be set in environment variables for AI services to function correctly. (Source: src/config/ai-providers.ts L14)</description>
+    </constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>Job Analysis API</name>
+      <kind>REST endpoint</kind>
+      <signature>POST /api/v1/jobs/analyze</signature>
+      <path>src/routes/job.routes.ts</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Unit testing will be conducted using Jest, and integration testing will use Supertest. Frontend testing (though not directly part of this backend story) uses Jest, React Testing Library, and Playwright for E2E. Prompt templates must be versioned and tested.
+    </standards>
+    <locations>
+      <location>src/tests/unit/</location>
+      <location>src/tests/integration/</location>
+      <location>src/prompts/</location>
+    </locations>
+    <ideas>
+      <idea>
+        <type>Unit Test</type>
+        <description>Verify prompt formatting and LLM response parsing in `KeywordExtractionService` (mocking LLM API calls).</description>
+        <acRef>AC-2, AC-3, AC-4</acRef>
+      </idea>
+      <idea>
+        <type>Unit Test</type>
+        <description>Verify Zod schemas in `job.validator.ts` for input and LLM output.</description>
+        <acRef>AC-1, AC-3, AC-4</acRef>
+      </idea>
+      <idea>
+        <type>Integration Test</type>
+        <description>Verify the successful extraction path with a valid job description via `POST /api/job/analyze` (asserting structured JSON output).</description>
+        <acRef>AC-1, AC-2, AC-3</acRef>
+      </idea>
+      <idea>
+        <type>Integration Test</type>
+        <description>Verify error handling for invalid or missing `jobDescription` (400 response).</description>
+        <acRef>AC-1, AC-4</acRef>
+      </idea>
+      <idea>
+        <type>Integration Test</type>
+        <description>Verify performance for non-cached requests meets the &lt;5s NFR.</description>
+        <acRef>AC-NF1</acRef>
+      </idea>
+      <idea>
+        <type>Integration Test</type>
+        <description>Verify caching mechanism: subsequent calls for the same job description return from cache (faster response).</description>
+        <acRef>AC-NF1</acRef>
+      </idea>
+      <idea>
+        <type>Security/NFR Test</type>
+        <description>Verify that raw job descriptions are not stored indefinitely post-analysis.</description>
+        <acRef>AC-NF3</acRef>
+      </idea>
+      <idea>
+        <type>Security/NFR Test</type>
+        <description>Confirm that rate limiting middleware is applied to the LLM endpoint.</description>
+        <acRef>AC-NF1, AC-NF3</acRef>
+      </idea>
+    </ideas>
+  </tests>
+</story-context>

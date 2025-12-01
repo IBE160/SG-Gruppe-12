@@ -15,11 +15,10 @@ describe('Email Service', () => {
   });
 
   const mockUser: User = {
-    id: '1',
+    id: 'clsy96f0100001a1d6n8u2g2t',
     name: 'Test User',
     email: 'test@example.com',
-    passwordHash: 'hashedpassword',
-    role: 'USER',
+    password_hash: 'hashedpassword',
     created_at: new Date(),
     updated_at: new Date(),
     consent_essential: true,

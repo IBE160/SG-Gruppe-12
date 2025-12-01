@@ -1,25 +1,32 @@
 // src/middleware/upload.middleware.ts
 import multer from 'multer';
 import { Request } from 'express';
-import { BadRequestError } from '../utils/errors.util';
+import { BadRequestError } from '../utils/errors.util'; // Assuming you have an errors.util.ts
+import * as path from 'path';
+import fs from 'fs'; // Import fs to delete temporary files
 
-// Configure storage - using memory storage for now, will be updated for streaming
-const storage = multer.memoryStorage();
+// Configure storage - using disk storage to avoid memory issues
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../../uploads'); // Temporary upload directory
+    fs.mkdirSync(uploadPath, { recursive: true }); // Create directory if it doesn't exist
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
 
-// Allowed MIME types
-const allowedMimeTypes = [
-  'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'text/plain',
-];
-
-// File filter to allow only PDF, DOCX, and TXT
+// File filter to allow only PDF, DOCX, and TXT (MIME type validation will be done later in the service)
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  // Check declared MIME type first (file-type detection happens after upload)
-  if (allowedMimeTypes.includes(file.mimetype)) {
+  const allowedExtensions = ['.pdf', '.docx', '.doc', '.txt'];
+  const ext = path.extname(file.originalname).toLowerCase();
+
+  if (allowedExtensions.includes(ext)) {
     cb(null, true);
   } else {
-    cb(new BadRequestError(`Invalid file type. Only PDF, DOCX, and TXT are allowed. Detected: ${file.mimetype}`));
+    cb(new BadRequestError(`Invalid file type. Only PDF, DOCX, DOC, and TXT are allowed. Received: ${ext}`));
   }
 };
 

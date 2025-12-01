@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { ValidationError } from './validate.middleware';
 
 export function errorMiddleware(
   err: any,
@@ -11,14 +12,20 @@ export function errorMiddleware(
   const statusCode = err.statusCode || err.status || 500;
   const message = err.message || 'Internal Server Error';
 
-  res.status(statusCode).json({
+  const responseBody: any = {
     success: false,
-    error: {
-      message,
-      ...(process.env.NODE_ENV === 'development' && {
-        stack: err.stack,
-        details: err
-      })
-    }
-  });
+    message,
+  };
+
+  // Include validation errors if present
+  if (err instanceof ValidationError && err.errors) {
+    responseBody.errors = err.errors;
+  }
+
+  // Include stack in development mode
+  if (process.env.NODE_ENV === 'development') {
+    responseBody.stack = err.stack;
+  }
+
+  res.status(statusCode).json(responseBody);
 }
