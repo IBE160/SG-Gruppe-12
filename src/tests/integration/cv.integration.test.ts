@@ -23,12 +23,13 @@ jest.mock('../../middleware/auth.middleware', () => ({
   }),
 }));
 
-// Mock validation middleware
-jest.mock('../../middleware/validate.middleware', () => ({
-  validate: jest.fn(() => (req: Request, res: Response, next: NextFunction) => {
-    next(); // Simply pass through for now, actual validation should be tested separately
-  }),
-}));
+// Mock validation middleware - use actual validation logic
+jest.mock('../../middleware/validate.middleware', () => {
+  const originalModule = jest.requireActual('../../middleware/validate.middleware');
+  return {
+    validate: originalModule.validate, // Use the real validate middleware
+  };
+});
 
 // Mock cvService
 jest.mock('../../services/cv.service');
@@ -36,8 +37,14 @@ jest.mock('../../services/cv.service');
 const app = express();
 app.use(express.json()); // Enable json body parsing
 app.use(authenticate); // Apply mock auth
-app.post('/api/v1/cvs/:cvId/experience', validate(experienceEntrySchema), cvController.addExperience);
-app.patch('/api/v1/cvs/:cvId/experience/:experienceIndex', validate(experienceEntrySchema.partial()), cvController.updateExperience);
+
+// Create validation schemas wrapped with body property
+const { z } = require('zod');
+const addExperienceSchema = z.object({ body: experienceEntrySchema, params: z.any(), query: z.any() });
+const updateExperienceSchema = z.object({ body: experienceEntrySchema.partial(), params: z.any(), query: z.any() });
+
+app.post('/api/v1/cvs/:cvId/experience', validate(addExperienceSchema), cvController.addExperience);
+app.patch('/api/v1/cvs/:cvId/experience/:experienceIndex', validate(updateExperienceSchema), cvController.updateExperience);
 app.delete('/api/v1/cvs/:cvId/experience/:experienceIndex', cvController.deleteExperience);
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => { // Error handling middleware for integration tests
   if (err instanceof AppError) {
@@ -96,15 +103,12 @@ describe('CV API - Work Experience Endpoints', () => {
     });
 
     it('should return 400 if validation fails', async () => {
-        (validate as jest.Mock).mockImplementationOnce(() => (req: Request, res: Response, next: NextFunction) => {
-            res.status(400).json({ success: false, message: 'Validation failed', errors: [{field: 'title', message: 'Title is required'}] });
-        });
-        const invalidExperience = { ...mockExperience, title: '' }; // Invalid title
+        const invalidExperience = { ...mockExperience, title: '' }; // Invalid title (empty string should fail required validation)
         const response = await request(app)
           .post(`/api/v1/cvs/${mockCvId}/experience`)
           .send(invalidExperience)
           .expect(400);
-      
+
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe('Validation failed');
     });
@@ -135,15 +139,12 @@ describe('CV API - Work Experience Endpoints', () => {
     });
 
     it('should return 400 if validation fails', async () => {
-        (validate as jest.Mock).mockImplementationOnce(() => (req: Request, res: Response, next: NextFunction) => {
-            res.status(400).json({ success: false, message: 'Validation failed', errors: [{field: 'startDate', message: 'Invalid Date'}] });
-        });
-        const invalidUpdates = { startDate: 'invalid-date' };
+        const invalidUpdates = { title: '' }; // Empty title should fail validation
         const response = await request(app)
           .patch(`/api/v1/cvs/${mockCvId}/experience/0`)
           .send(invalidUpdates)
           .expect(400);
-      
+
         expect(response.body.success).toBe(false);
         expect(response.body.message).toBe('Validation failed');
     });

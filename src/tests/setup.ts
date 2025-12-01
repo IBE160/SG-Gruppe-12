@@ -1,16 +1,12 @@
 
-import { PrismaClient } from '@prisma/client';
-import { mockDeep, mockReset, DeepMockProxy } from 'jest-mock-extended';
+import { jest } from '@jest/globals';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 
-import { prisma } from '../config/database';
+// Load environment variables from .env.test
+dotenv.config({ path: path.resolve(__dirname, '../.env.test') });
 
-jest.mock('../config/database', () => ({
-  __esModule: true,
-  prisma: mockDeep<PrismaClient>(),
-}));
-
-beforeEach(() => {
-  mockReset(prismaMock);
-});
-
-export const prismaMock = prisma as unknown as DeepMockProxy<PrismaClient>;
+jest.mock('ioredis');
+jest.mock('rate-limit-redis');
+jest.mock('file-type');
+jest.mock('../services/storage.service');

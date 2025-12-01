@@ -8,7 +8,7 @@ import { authenticate } from '@/middleware/auth.middleware';
 // Mocks
 jest.mock('../../middleware/auth.middleware', () => ({
   authenticate: jest.fn((req, res, next) => {
-    req.user = { id: 'mock-user-id-1' }; // Mock authenticated user
+    req.user = { userId: 'mock-user-id-1' }; // Mock authenticated user with userId field
     next();
   }),
 }));
@@ -26,7 +26,7 @@ cvRouter.post('/:cvId/restore-version/:versionNumber', authenticate, cvControlle
 app.use('/api/v1/cvs', cvRouter);
 
 describe('CV Versioning API Endpoints', () => {
-    const mockCvId = 'mock-cv-id-101';
+    const mockCvId = 101; // Use number instead of string
     const mockUserId = 'mock-user-id-1';
 
     beforeEach(() => {

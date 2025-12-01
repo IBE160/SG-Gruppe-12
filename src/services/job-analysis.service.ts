@@ -25,7 +25,7 @@ const getUserCVData = async (userId: string) => {
 };
 
 export const jobAnalysisService = {
-  async analyzeJobDescription(userId: string, jobDescription: string) {
+  async analyzeJobDescription(userId: string, jobDescription: string, cvId?: string) {
     if (!jobDescription || jobDescription.length < 10) {
       logger.warn(`User ${userId} submitted an invalid job description.`);
       throw new AppError('Invalid job description provided.', 400);

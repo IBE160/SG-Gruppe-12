@@ -1,8 +1,10 @@
-// src/tests/__mocks__/rate-limit-redis.ts
-export class RedisStore {
-  constructor() {}
-  increment() {}
-  decrement() {}
-  resetKey() {}
+class RedisStore {
+  constructor(options: any) {}
+  async incr(key: string): Promise<[number, number]> {
+    return [1, 0];
+  }
+  async decrement(key: string): Promise<void> {}
+  async resetKey(key: string): Promise<void> {}
 }
 
+export default RedisStore;

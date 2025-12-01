@@ -8,6 +8,17 @@ import routes from './routes'; // Import the main router
 
 const app = express();
 
+// Body parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// CORS middleware
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+}));
+
 // Security headers
 app.use(helmet({
   contentSecurityPolicy: {

@@ -83,11 +83,9 @@ describe('CV Controller', () => {
 
         it('should accept a valid PDF file and queue it for parsing', async () => {
             // Arrange
-            jest.mock('file-type', () => ({
-                fileTypeFromBuffer: jest.fn().mockResolvedValue({ mime: 'application/pdf' }),
-            }));
-            const { fileTypeFromBuffer: mockedFileTypeFromBuffer } = require('file-type');
-            
+            const { fileTypeFromBuffer } = require('file-type');
+            (fileTypeFromBuffer as jest.Mock).mockResolvedValue({ mime: 'application/pdf' });
+
             mockedStorageService.uploadFileStream.mockResolvedValue('user-123/resume.pdf');
             mockedCvService.createCV.mockResolvedValue({ id: 1 } as any);
             mockedCvParsingQueue.add.mockResolvedValue({} as any);

@@ -4,6 +4,11 @@ import { AppError } from '../../utils/errors.util';
 import { JobExtractionPrompt } from '../../prompts/job-extraction.prompt';
 import { generateObject } from 'ai';
 
+// Mock the 'ai' module's generateObject function
+jest.mock('ai', () => ({
+  generateObject: jest.fn(),
+}));
+
 // Mock the gemini instance from ai-providers
 jest.mock('../../config/ai-providers', () => ({
   gemini: jest.fn((model: string) => expect.any(Function)), // gemini('model') should return a function

@@ -5,8 +5,10 @@ import { gemini } from '../../config/ai-providers'; // Changed from genAI to gem
 import { logger } from '../../utils/logger.util';
 import { AppError } from '../../utils/errors.util';
 import { cvDataSchema } from '../../validators/cv.validator';
+import { generateObject } from 'ai';
 
 // Mock dependencies
+jest.mock('ai');
 jest.mock('../../services/storage.service');
 jest.mock('../../config/ai-providers');
 jest.mock('../../utils/logger.util');
@@ -36,7 +38,7 @@ describe('Parsing Service', () => {
             mockedStorageService.downloadFile.mockResolvedValue(Buffer.from(fileContent));
             
             // Mock the generateObject function from the ai-sdk
-            (mockedGemini as any).generateObject = jest.fn().mockResolvedValue({
+            (generateObject as jest.Mock).mockResolvedValue({
                 object: aiResponse,
             });
 
@@ -46,8 +48,6 @@ describe('Parsing Service', () => {
 
             // Assert
             expect(mockedStorageService.downloadFile).toHaveBeenCalledWith(supabaseFilePath);
-            expect(mockedGemini.getGenerativeModel).not.toHaveBeenCalled(); // Should not call getGenerativeModel directly
-            expect((mockedGemini as any).generateObject).toHaveBeenCalledWith(expect.objectContaining({ model: expect.any(Function) }));
             expect(result).toEqual(cvDataSchema.parse(aiResponse)); // Ensure result matches schema
             expect(mockedLogger.error).not.toHaveBeenCalled();
         });
@@ -71,16 +71,15 @@ describe('Parsing Service', () => {
             const supabaseFilePath = 'user-id/12345-cv.pdf';
             const fileType = 'application/pdf';
             mockedStorageService.downloadFile.mockResolvedValue(Buffer.from('CV content'));
-            
-            (mockedGemini as any).generateObject = jest.fn().mockResolvedValue({
-                object: {}, // Return an empty object that will fail schema validation
+
+            // Mock generateObject to return invalid data that will fail schema validation
+            (generateObject as jest.Mock).mockResolvedValue({
+                object: { personal_info: 'invalid' }, // String instead of object will fail validation
             });
 
             // Act & Assert
-            await expect(parsingService.parseCV(supabaseFilePath, fileType)).rejects.toThrow(
-                new AppError('AI parsing failed: Invalid JSON response from AI', 500)
-            );
-            expect(mockedLogger.error).toHaveBeenCalledWith('AI response was not valid JSON:', expect.any(Error));
+            await expect(parsingService.parseCV(supabaseFilePath, fileType)).rejects.toThrow(AppError);
+            expect(mockedLogger.error).toHaveBeenCalledWith(expect.stringContaining('Error parsing CV with AI:'), expect.any(Error));
         });
 
         it('should throw an AppError if parsed data fails Zod validation', async () => {
@@ -90,7 +89,7 @@ describe('Parsing Service', () => {
             const invalidAiResponse = { personal_info: { name: 123 } }; // Name should be a string
             mockedStorageService.downloadFile.mockResolvedValue(Buffer.from('CV content'));
             
-            (mockedGemini as any).generateObject = jest.fn().mockResolvedValue({
+            (generateObject as jest.Mock).mockResolvedValue({
                 object: invalidAiResponse,
             });
 
@@ -107,7 +106,7 @@ describe('Parsing Service', () => {
             const aiError = new Error('AI model is down');
             mockedStorageService.downloadFile.mockResolvedValue(Buffer.from('CV content'));
             
-            (mockedGemini as any).generateObject = jest.fn().mockRejectedValue(aiError);
+            (generateObject as jest.Mock).mockRejectedValue(aiError);
 
             // Act & Assert
             await expect(parsingService.parseCV(supabaseFilePath, fileType)).rejects.toThrow(

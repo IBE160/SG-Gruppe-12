@@ -30,4 +30,4 @@ if (process.env.NODE_ENV === 'test') {
   });
 }
 
-export { redis };
+export { redis, Redis, IORedisMock };

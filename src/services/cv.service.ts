@@ -2,7 +2,7 @@
 import { cvRepository } from '../repositories/cv.repository';
 import { NotFoundError, UnauthorizedError } from '../utils/errors.util';
 import { Prisma } from '@prisma/client'; // Import Prisma for JsonValue casting
-import { CvData, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '../types/cv.types';
+import { CvData, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry, PersonalInfo } from '../types/cv.types';
 import {
   experienceEntrySchema,
   educationEntrySchema,
@@ -28,11 +28,11 @@ export const cvService = {
   async createCV(userId: string, data: { title?: string; file_path?: string; } & Partial<CvData>): Promise<CvData & { id: number }> {
     const newCV = await cvRepository.create(userId, data);
     const initialCvData: CvData = {
-      personal_info: newCV.personal_info as any,
-      education: newCV.education as any,
-      experience: newCV.experience as any,
-      skills: newCV.skills as any,
-      languages: newCV.languages as any,
+      personal_info: newCV.personal_info as unknown as PersonalInfo,
+      education: newCV.education as unknown as EducationEntry[],
+      experience: newCV.experience as unknown as ExperienceEntry[],
+      skills: newCV.skills as unknown as SkillEntry[],
+      languages: newCV.languages as unknown as LanguageEntry[],
       summary: newCV.summary || undefined,
     };
     await createNewVersion(newCV.id, initialCvData);
@@ -57,11 +57,11 @@ export const cvService = {
       id: cv.id,
       title: cv.title || undefined,
       file_path: cv.file_path || undefined,
-      personal_info: cv.personal_info as any,
-      education: cv.education as any,
-      experience: cv.experience as any,
-      skills: cv.skills as any,
-      languages: cv.languages as any,
+      personal_info: cv.personal_info as unknown as PersonalInfo,
+      education: cv.education as unknown as EducationEntry[],
+      experience: cv.experience as unknown as ExperienceEntry[],
+      skills: cv.skills as unknown as SkillEntry[],
+      languages: cv.languages as unknown as LanguageEntry[],
       summary: cv.summary || undefined,
     };
   },
@@ -78,22 +78,22 @@ export const cvService = {
     const updatedCV = await cvRepository.updateCV(cvId, {
       ...existingCV, // Merge existing data to ensure full snapshot
       ...updates,
-      personal_info: updates.personal_info as unknown as Prisma.InputJsonValue | undefined,
-      education: updates.education as unknown as Prisma.InputJsonValue | undefined,
-      experience: updates.experience as unknown as Prisma.InputJsonValue | undefined,
-      skills: updates.skills as unknown as Prisma.InputJsonValue | undefined,
-      languages: updates.languages as unknown as Prisma.InputJsonValue | undefined,
+      personal_info: updates.personal_info,
+      education: updates.education,
+      experience: updates.experience,
+      skills: updates.skills,
+      languages: updates.languages,
     });
 
     const newCvData: CvData & { id: number; title?: string; file_path?: string; } = {
       id: updatedCV.id,
       title: updatedCV.title || undefined,
       file_path: updatedCV.file_path || undefined,
-      personal_info: updatedCV.personal_info as any,
-      education: updatedCV.education as any,
-      experience: updatedCV.experience as any,
-      skills: updatedCV.skills as any,
-      languages: updatedCV.languages as any,
+      personal_info: updatedCV.personal_info as unknown as PersonalInfo,
+      education: updatedCV.education as unknown as EducationEntry[],
+      experience: updatedCV.experience as unknown as ExperienceEntry[],
+      skills: updatedCV.skills as unknown as SkillEntry[],
+      languages: updatedCV.languages as unknown as LanguageEntry[],
       summary: updatedCV.summary || undefined,
     };
 
@@ -111,7 +111,8 @@ export const cvService = {
   async addWorkExperience(userId: string, cvId: number, data: ExperienceEntry): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
     const validatedData = experienceEntrySchema.parse(data);
-    const updatedExperience = [...(cv.experience || []), validatedData];
+    const experiences = (cv.experience as ExperienceEntry[] | undefined) ?? [];
+    const updatedExperience = [...experiences, validatedData];
     return this.updateCV(userId, cvId, { experience: updatedExperience });
   },
 
@@ -125,7 +126,7 @@ export const cvService = {
    */
   async updateWorkExperience(userId: string, cvId: number, index: number, updates: Partial<ExperienceEntry>): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
-    const experiences = cv.experience || [];
+    const experiences = (cv.experience as ExperienceEntry[] | undefined) ?? [];
     if (index < 0 || index >= experiences.length) {
       throw new NotFoundError('Work experience entry not found');
     }
@@ -144,7 +145,7 @@ export const cvService = {
    */
   async deleteWorkExperience(userId: string, cvId: number, index: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
-    const experiences = cv.experience || [];
+    const experiences = (cv.experience as ExperienceEntry[] | undefined) ?? [];
     if (index < 0 || index >= experiences.length) {
       throw new NotFoundError('Work experience entry not found');
     }
@@ -162,7 +163,8 @@ export const cvService = {
   async addEducation(userId: string, cvId: number, data: EducationEntry): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
     const validatedData = educationEntrySchema.parse(data);
-    const updatedEducation = [...(cv.education || []), validatedData];
+    const education = (cv.education as EducationEntry[] | undefined) ?? [];
+    const updatedEducation = [...education, validatedData];
     return this.updateCV(userId, cvId, { education: updatedEducation });
   },
 
@@ -176,7 +178,7 @@ export const cvService = {
    */
   async updateEducation(userId: string, cvId: number, index: number, updates: Partial<EducationEntry>): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
-    const education = cv.education || [];
+    const education = (cv.education as EducationEntry[] | undefined) ?? [];
     if (index < 0 || index >= education.length) {
       throw new NotFoundError('Education entry not found');
     }
@@ -195,7 +197,7 @@ export const cvService = {
    */
   async deleteEducation(userId: string, cvId: number, index: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
-    const education = cv.education || [];
+    const education = (cv.education as EducationEntry[] | undefined) ?? [];
     if (index < 0 || index >= education.length) {
       throw new NotFoundError('Education entry not found');
     }
@@ -213,7 +215,8 @@ export const cvService = {
   async addSkill(userId: string, cvId: number, data: SkillEntry): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
     const validatedData = skillEntrySchema.parse(data);
-    const updatedSkills = [...(cv.skills || []), validatedData];
+    const skills = (cv.skills as SkillEntry[] | undefined) ?? [];
+    const updatedSkills = [...skills, validatedData];
     return this.updateCV(userId, cvId, { skills: updatedSkills });
   },
 
@@ -227,7 +230,7 @@ export const cvService = {
    */
   async updateSkill(userId: string, cvId: number, index: number, updates: Partial<SkillEntry>): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
-    const skills = cv.skills || [];
+    const skills = (cv.skills as SkillEntry[] | undefined) ?? [];
     if (index < 0 || index >= skills.length) {
       throw new NotFoundError('Skill entry not found');
     }
@@ -246,7 +249,7 @@ export const cvService = {
    */
   async deleteSkill(userId: string, cvId: number, index: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
-    const skills = cv.skills || [];
+    const skills = (cv.skills as SkillEntry[] | undefined) ?? [];
     if (index < 0 || index >= skills.length) {
       throw new NotFoundError('Skill entry not found');
     }
@@ -264,7 +267,8 @@ export const cvService = {
   async addLanguage(userId: string, cvId: number, data: LanguageEntry): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
     const validatedData = languageEntrySchema.parse(data);
-    const updatedLanguages = [...(cv.languages || []), validatedData];
+    const languages = (cv.languages as LanguageEntry[] | undefined) ?? [];
+    const updatedLanguages = [...languages, validatedData];
     return this.updateCV(userId, cvId, { languages: updatedLanguages });
   },
 
@@ -278,7 +282,7 @@ export const cvService = {
    */
   async updateLanguage(userId: string, cvId: number, index: number, updates: Partial<LanguageEntry>): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
-    const languages = cv.languages || [];
+    const languages = (cv.languages as LanguageEntry[] | undefined) ?? [];
     if (index < 0 || index >= languages.length) {
       throw new NotFoundError('Language entry not found');
     }
@@ -297,7 +301,7 @@ export const cvService = {
    */
   async deleteLanguage(userId: string, cvId: number, index: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
-    const languages = cv.languages || [];
+    const languages = (cv.languages as LanguageEntry[] | undefined) ?? [];
     if (index < 0 || index >= languages.length) {
       throw new NotFoundError('Language entry not found');
     }
@@ -342,32 +346,6 @@ export const cvService = {
    */
   async restoreVersion(userId: string, cvId: number, versionNumber: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const versionToRestore = await this.getVersionDetails(userId, cvId, versionNumber); // Performs auth check internally
-
-    // Overwrite the current CV with the restored snapshot
-    const updatedCV = await cvRepository.updateCV(cvId, {
-      personal_info: versionToRestore.personal_info as unknown as Prisma.InputJsonValue | undefined,
-      education: versionToRestore.education as unknown as Prisma.InputJsonValue | undefined,
-      experience: versionToRestore.experience as unknown as Prisma.InputJsonValue | undefined,
-      skills: versionToRestore.skills as unknown as Prisma.InputJsonValue | undefined,
-      languages: versionToRestore.languages as unknown as Prisma.InputJsonValue | undefined,
-      summary: versionToRestore.summary || undefined,
-      title: versionToRestore.title || undefined,
-      file_path: versionToRestore.file_path || undefined,
-    });
-
-    const restoredCvData: CvData & { id: number; title?: string; file_path?: string; } = {
-      id: updatedCV.id,
-      title: updatedCV.title || undefined,
-      file_path: updatedCV.file_path || undefined,
-      personal_info: updatedCV.personal_info as any,
-      education: updatedCV.education as any,
-      experience: updatedCV.experience as any,
-      skills: updatedCV.skills as any,
-      languages: updatedCV.languages as any,
-      summary: updatedCV.summary || undefined,
-    };
-
-    await createNewVersion(cvId, restoredCvData); // Create a new version after restoration
-    return restoredCvData;
+    return this.updateCV(userId, cvId, versionToRestore);
   },
 };

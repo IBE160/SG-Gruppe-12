@@ -109,9 +109,7 @@ describe('Auth Service', () => {
         expect(emailService.sendVerificationEmail).toHaveBeenCalledTimes(1);
 
         // Assert - verify returned user
-        expect(result.user).toEqual(mockUserReturned); // Compare against returned user
-        expect(result.accessToken).toBeDefined();
-        expect(result.refreshToken).toBeDefined();
+        expect(result).toEqual(mockUserReturned); // Compare against returned user
       });
 
       it('should register user with AI training consent when provided', async () => {
@@ -137,8 +135,8 @@ describe('Auth Service', () => {
             consent_marketing: true,
           })
         );
-        expect(result.user.consent_ai_training).toBe(true);
-        expect(result.user.consent_marketing).toBe(true);
+        expect(result.consent_ai_training).toBe(true);
+        expect(result.consent_marketing).toBe(true);
       });
 
       it('should register user with default consent values when not provided', async () => {

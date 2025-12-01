@@ -7,7 +7,7 @@ import { PrismaClient } from '@prisma/client';
 
 
 jest.mock('../../config/database', () => ({
-  prisma: require('jest-mock-extended').mockDeep<PrismaClient>(),
+  prisma: require('jest-mock-extended').mockDeep(),
 }));
 
 const prismaMock = prisma as unknown as DeepMockProxy<PrismaClient>;

@@ -60,15 +60,10 @@ describe('Auth Service', () => {
         consent_marketing: false,
       };
       const hashedPassword = 'hashedPassword123';
-      const mockAccessToken = 'mockAccessToken';
-      const mockRefreshToken = 'mockRefreshToken';
 
       (hashPassword as jest.Mock).mockResolvedValue(hashedPassword);
       (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
       (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
-      (jwtService.generateAccessToken as jest.Mock).mockReturnValue(mockAccessToken);
-      (jwtService.generateRefreshToken as jest.Mock).mockReturnValue(mockRefreshToken);
-
 
       const result = await authService.register(mockUserData);
 
@@ -89,7 +84,7 @@ describe('Auth Service', () => {
         expect.objectContaining({ id: '1', email: mockUserData.email }),
         expect.any(String)
       );
-      expect(result).toEqual({ user: mockUserReturned, accessToken: mockAccessToken, refreshToken: mockRefreshToken });
+      expect(result).toEqual(mockUserReturned);
     });
 
     it('should handle default consent values if not provided', async () => {
@@ -99,24 +94,20 @@ describe('Auth Service', () => {
           password: 'Password123!',
         };
         const hashedPassword = 'hashedPassword123';
-        const mockAccessToken = 'mockAccessToken';
-        const mockRefreshToken = 'mockRefreshToken';
 
         (hashPassword as jest.Mock).mockResolvedValue(hashedPassword);
         (userRepository.create as jest.Mock).mockResolvedValue(mockUser);
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
-        (jwtService.generateAccessToken as jest.Mock).mockReturnValue(mockAccessToken);
-        (jwtService.generateRefreshToken as jest.Mock).mockReturnValue(mockRefreshToken);
-  
+
         const result = await authService.register(mockUserData);
-  
+
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
             consent_ai_training: false,
             consent_marketing: false,
           })
         );
-        expect(result).toEqual({ user: mockUserReturned, accessToken: mockAccessToken, refreshToken: mockRefreshToken });
+        expect(result).toEqual(mockUserReturned);
       });
   });
 

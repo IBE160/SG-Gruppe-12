@@ -57,7 +57,12 @@ describe('CV Service', () => {
     it('should return a CV if found and user is owner', async () => {
       (cvRepository.findById as jest.Mock).mockResolvedValue(mockCV);
       const result = await cvService.getCVById(mockUserId, mockCvId);
-      expect(result).toEqual(mockCV);
+      expect(result).toEqual({
+        id: mockCV.id,
+        title: mockCV.title || undefined,
+        file_path: mockCV.file_path || undefined,
+        ...mockCvData
+      });
     });
 
     it('should throw UnauthorizedError if user is not owner', async () => {

@@ -1,17 +1,15 @@
-import rateLimit, { MemoryStore } from 'express-rate-limit';
-const RedisStore = require('rate-limit-redis');
+import rateLimit, { MemoryStore, Store, LegacyStore } from 'express-rate-limit';
+import RedisStore from 'rate-limit-redis';
 import { redis } from '../config/redis';
+import { SendCommandFn } from 'rate-limit-redis';
 
 // Helper function to create a new store instance based on the environment
-const createStore = () => {
+const createStore = (): Store | LegacyStore => {
   if (process.env.NODE_ENV === 'test') {
     return new MemoryStore();
   } else {
     return new RedisStore({
-      // @ts-expect-error - Known issue with rate-limit-redis and ioredis types
-      sendCommand: (...args: string[]) => redis.call(...args),
-      // Optional: Add a unique prefix to each Redis store if needed for better isolation
-      // prefix: 'rate_limit:', 
+      sendCommand: redis.call.bind(redis) as SendCommandFn,
     });
   }
 };

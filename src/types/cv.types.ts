@@ -1,15 +1,18 @@
 // src/types/cv.types.ts
 
+import { Prisma } from '@prisma/client';
+
 // Type for the entire CV data structure expected by the services
 // This will align with the JSON structure stored in CVComponent content fields
-export interface CvData {
-  personal_info?: PersonalInfo;
-  education?: EducationEntry[];
-  experience?: ExperienceEntry[];
-  skills?: SkillEntry[];
-  languages?: LanguageEntry[];
+export interface CvData { 
+  title?: string; 
+  file_path?: string; 
+  personal_info?: PersonalInfo; 
+  education?: EducationEntry[]; 
+  experience?: ExperienceEntry[]; 
+  skills?: SkillEntry[]; 
+  languages?: LanguageEntry[]; 
   summary?: string;
-  // Other potential top-level CV fields
 }
 
 export interface PersonalInfo {

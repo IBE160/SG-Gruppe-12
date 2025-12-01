@@ -6,7 +6,7 @@ import { AuthRequest } from '../middleware/auth.middleware'; // Assuming AuthReq
 export const jobController = {
   async analyzeJob(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { jobDescription } = req.body;
+      const { jobDescription, cvId } = req.body;
       const userId = req.user?.userId; // Assuming user is authenticated
 
       if (!userId) {
@@ -14,7 +14,7 @@ export const jobController = {
       }
 
       // For now, just acknowledge receipt. Actual analysis will be in jobAnalysisService.
-      const analysisResult = await jobAnalysisService.analyzeJobDescription(userId, jobDescription);
+      const analysisResult = await jobAnalysisService.analyzeJobDescription(userId, jobDescription, cvId);
 
       res.status(200).json({
         success: true,

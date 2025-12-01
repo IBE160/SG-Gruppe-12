@@ -3,7 +3,7 @@ import { cvController } from '../controllers/cv.controller';
 import { authenticate } from '../middleware/auth.middleware'; // Assuming this exists
 import { cvUploadMiddleware } from '../middleware/upload.middleware';
 import { validate } from '../middleware/validate.middleware'; // Assuming validate middleware exists
-import { createCVSchema, updateCVSchema, experienceEntrySchema, educationEntrySchema, skillEntrySchema, languageEntrySchema } from '../validators/cv.validator'; // Import all Zod schemas
+import { createCVInputSchema as createCVSchema, experienceEntrySchema, educationEntrySchema, skillEntrySchema, languageEntrySchema } from '../validators/cv.validator'; // Import all Zod schemas
 import { z } from 'zod'; // Import z from zod for custom schemas
 
 const router = Router();
@@ -73,11 +73,8 @@ router.delete(
 );
 
 // Routes for Skills management
-// For skills, the body is expected to be a simple string, e.g., { "skill": "JavaScript" }
 const skillBodySchema = z.object({
-  body: z.object({
-    skill: skillEntrySchema,
-  })
+  body: skillEntrySchema,
 });
 
 router.post(
@@ -125,7 +122,7 @@ router.delete(
 
 // Route to trigger the document generation job
 router.get(
-  '/:cvId/download/:format(pdf|docx)',
+  '/:cvId/download/:format',
   authenticate,
   validate(z.object({
     params: z.object({
