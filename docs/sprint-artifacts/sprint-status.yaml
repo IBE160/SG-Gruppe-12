@@ -75,12 +75,12 @@ development_status:
   epic-4-retrospective: optional
 
   epic-5: contexted
-  5-1-gdpr-consent-management: backlog
-  5-2-data-export-deletion-right-to-be-forgotten: backlog
-  5-3-data-encryption-in-transit-at-rest: backlog
-  5-4-role-based-authentication-authorization: backlog
-  5-5-rigorous-llm-sandboxing-data-minimization: backlog
-  5-6-minimal-auditable-logging: backlog
-  5-7-ai-fairness-bias-mitigation: backlog
+  5-1-gdpr-consent-management: done
+  5-2-data-export-deletion-right-to-be-forgotten: done
+  5-3-data-encryption-in-transit-at-rest: done
+  5-4-role-based-authentication-authorization: done
+  5-5-rigorous-llm-sandboxing-data-minimization: done
+  5-6-minimal-auditable-logging: done
+  5-7-ai-fairness-bias-mitigation: done
   epic-5-retrospective: optional# Sprint Status
 # This file tracks the progress of epics and stories through the development lifecycle.
