@@ -33,7 +33,7 @@ const EducationList: React.FC<EducationListProps> = ({ educationEntries, onEdit,
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-500">{edu.startDate} - {edu.endDate || 'Present'}</p>
+            <p className="text-sm text-gray-500">{edu.start_date} - {edu.end_date || 'Present'}</p>
             <p className="mt-2">{edu.description}</p>
           </CardContent>
         </Card>

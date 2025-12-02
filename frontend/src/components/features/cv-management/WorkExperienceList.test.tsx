@@ -14,16 +14,16 @@ describe('WorkExperienceList Component', () => {
       title: 'Software Engineer',
       company: 'Tech Corp',
       location: 'Remote',
-      startDate: '2020-01-01',
-      endDate: '2022-12-31',
+      start_date: '2020-01-01',
+      end_date: '2022-12-31',
       description: 'Developed amazing things.',
     },
     {
       title: 'Senior Engineer',
       company: 'Innovate LLC',
       location: 'New York, NY',
-      startDate: '2023-01-01',
-      endDate: '', // Present
+      start_date: '2023-01-01',
+      end_date: '', // Present
       description: 'Led a team of developers.',
     },
   ];

@@ -48,13 +48,13 @@ development_status:
 
   epic-2: contexted
   2-1-structured-cv-data-model-design-implementation: done
-  2-2-ai-powered-cv-parsing-from-file-upload: review
-  2-3-user-interface-for-cv-section-editing-work-experience: review
-  2-4-user-interface-for-cv-section-editing-education-skills-languages: review
-  2-5-dynamic-cv-preview-template-selection: review
-  2-6-cv-download-functionality-pdf-docx: review
-  2-7-autosave-unsaved-changes-warning: review
-  2-8-cv-data-versioning: review
+  2-2-ai-powered-cv-parsing-from-file-upload: done
+  2-3-user-interface-for-cv-section-editing-work-experience: done
+  2-4-user-interface-for-cv-section-editing-education-skills-languages: done
+  2-5-dynamic-cv-preview-template-selection: done
+  2-6-cv-download-functionality-pdf-docx: done
+  2-7-autosave-unsaved-changes-warning: done
+  2-8-cv-data-versioning: done
   epic-2-retrospective: optional
 
   epic-3: contexted

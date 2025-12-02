@@ -34,7 +34,7 @@ const WorkExperienceList: React.FC<WorkExperienceListProps> = ({ experiences, on
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600">{exp.location}</p>
-            <p className="text-sm text-gray-500">{exp.startDate} - {exp.endDate || 'Present'}</p>
+            <p className="text-sm text-gray-500">{exp.start_date} - {exp.end_date || 'Present'}</p>
             <p className="mt-2">{exp.description}</p>
           </CardContent>
         </Card>
