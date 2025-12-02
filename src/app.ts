@@ -1,26 +1,15 @@
-import * as express from 'express';
+import express from 'express';
 import { Request, Response } from 'express';
 import helmet from 'helmet';
-import * as cors from 'cors';
-import cookieParser = require('cookie-parser');
+import cors from 'cors';
+import cookieParser from 'cookie-parser'; // Note: cookie-parser does not have a default export in @types/cookie-parser
 // import { loggingMiddleware } from './middleware/logging.middleware'; // Will add later
 import { errorMiddleware } from './middleware/error.middleware';
 import routes from './routes';
 
 const app = express();
 
-// Body parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-
-// CORS middleware
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-}));
-
-// Security headers
+// Security headers (first, before anything else)
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -37,12 +26,9 @@ app.use(helmet({
   }
 }));
 
-// Routes
-app.use('/api/v1', routes); // Use the main router under /api/v1
-
-// CORS configuration
+// CORS middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Use environment variable for frontend URL
   credentials: true,
 }));
 
@@ -52,7 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Routes
-app.use('/api/v1', routes);
+app.use('/api/v1', routes); // Use the main router under /api/v1
 
 // Basic health check endpoint
 app.get('/', (_req: Request, res: Response) => {

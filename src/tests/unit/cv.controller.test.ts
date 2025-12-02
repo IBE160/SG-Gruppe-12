@@ -35,7 +35,7 @@ describe('CV Controller', () => {
 
     beforeEach(() => {
         req = {
-            user: { userId: 'user-123' },
+            user: { userId: 'user-123', role: 'USER' },
             file: {
                 path: '/tmp/test-file.pdf',
                 originalname: 'test-file.pdf',

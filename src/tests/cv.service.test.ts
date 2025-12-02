@@ -11,8 +11,8 @@ describe('CV Service', () => {
   const mockUserId = 'user-123';
   const mockCvId = 1;
   const mockCvData: CvData = {
-    personal_info: { name: 'John Doe' },
-    experience: [{ title: 'Developer', company: 'Tech Inc', start_date: '2022-01-01' }],
+    personal_info: { firstName: 'John', lastName: 'Doe', name: 'John Doe' },
+    experience: [{ title: 'Developer', company: 'Tech Inc', startDate: '2022-01-01' }],
     education: [],
     skills: [],
     languages: [],
@@ -79,7 +79,7 @@ describe('CV Service', () => {
         (cvRepository.createVersion as jest.Mock).mockResolvedValue({});
 
 
-        const newExperience = { title: 'New Job', company: 'NewCo', start_date: '2023-01-01' };
+        const newExperience = { title: 'New Job', company: 'NewCo', startDate: '2023-01-01' };
         await cvService.addWorkExperience(mockUserId, mockCvId, newExperience);
 
         expect(cvRepository.updateCV).toHaveBeenCalled();

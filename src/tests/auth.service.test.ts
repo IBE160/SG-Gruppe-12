@@ -161,8 +161,8 @@ describe('Auth Service', () => {
 
       expect(userRepository.findByEmail).toHaveBeenCalledWith(mockLoginData.email);
       expect(comparePassword).toHaveBeenCalledWith(mockLoginData.password, mockUser.password_hash);
-      expect(jwtService.generateAccessToken).toHaveBeenCalledWith(mockUser.id);
-      expect(jwtService.generateRefreshToken).toHaveBeenCalledWith(mockUser.id);
+      expect(jwtService.generateAccessToken).toHaveBeenCalledWith(mockUser.id, 'USER');
+      expect(jwtService.generateRefreshToken).toHaveBeenCalledWith(mockUser.id, 'USER');
       expect(userRepository.updateLastLogin).toHaveBeenCalledWith(mockUser.id);
       expect(result).toEqual({ user: mockUserReturned, accessToken: mockAccessToken, refreshToken: mockRefreshToken });
     });

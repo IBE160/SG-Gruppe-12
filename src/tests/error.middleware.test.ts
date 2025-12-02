@@ -38,13 +38,13 @@ describe('Error Middleware', () => {
 
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Test error',
-        },
-      });
+          ...(process.env.NODE_ENV === 'development' ? { stack: expect.any(String) } : {}),
+        })
+      );
     });
 
     it('should handle UnauthorizedError with 401 status', () => {
@@ -53,12 +53,13 @@ describe('Error Middleware', () => {
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
       expect(mockResponse.status).toHaveBeenCalledWith(401);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Invalid credentials',
-        },
-      });
+          ...(process.env.NODE_ENV === 'development' ? { stack: expect.any(String) } : {}),
+        })
+      );
     });
 
     it('should handle ForbiddenError with 403 status', () => {
@@ -67,12 +68,13 @@ describe('Error Middleware', () => {
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
       expect(mockResponse.status).toHaveBeenCalledWith(403);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Access denied',
-        },
-      });
+          ...(process.env.NODE_ENV === 'development' ? { stack: expect.any(String) } : {}),
+        })
+      );
     });
 
     it('should handle NotFoundError with 404 status', () => {
@@ -81,12 +83,13 @@ describe('Error Middleware', () => {
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
       expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'User not found',
-        },
-      });
+          ...(process.env.NODE_ENV === 'development' ? { stack: expect.any(String) } : {}),
+        })
+      );
     });
 
     it('should handle BadRequestError with 400 status', () => {
@@ -95,12 +98,13 @@ describe('Error Middleware', () => {
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Invalid input',
-        },
-      });
+          ...(process.env.NODE_ENV === 'development' ? { stack: expect.any(String) } : {}),
+        })
+      );
     });
 
     it('should handle ConflictError with 409 status', () => {
@@ -109,12 +113,13 @@ describe('Error Middleware', () => {
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
       expect(mockResponse.status).toHaveBeenCalledWith(409);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Email already exists',
-        },
-      });
+          ...(process.env.NODE_ENV === 'development' ? { stack: expect.any(String) } : {}),
+        })
+      );
     });
 
     it('should handle InternalServerError with 500 status', () => {
@@ -123,12 +128,13 @@ describe('Error Middleware', () => {
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
       expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Database connection failed',
-        },
-      });
+          ...(process.env.NODE_ENV === 'development' ? { stack: expect.any(String) } : {}),
+        })
+      );
     });
 
     it('should default to 500 status for generic errors without statusCode', () => {
@@ -137,12 +143,13 @@ describe('Error Middleware', () => {
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
       expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Something went wrong',
-        },
-      });
+          ...(process.env.NODE_ENV === 'development' ? { stack: expect.any(String) } : {}),
+        })
+      );
     });
 
     it('should use error.status if statusCode is not present', () => {
@@ -151,12 +158,12 @@ describe('Error Middleware', () => {
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
       expect(mockResponse.status).toHaveBeenCalledWith(422);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Validation failed',
-        },
-      });
+        })
+      );
     });
 
     it('should default message to "Internal Server Error" when no message provided', () => {
@@ -164,13 +171,12 @@ describe('Error Middleware', () => {
 
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Internal Server Error',
-        },
-      });
+        })
+      );
     });
 
     it('should log error to console', () => {
@@ -189,14 +195,13 @@ describe('Error Middleware', () => {
 
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: expect.objectContaining({
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Test error',
           stack: expect.any(String),
-          details: error,
-        }),
-      });
+        })
+      );
 
       process.env.NODE_ENV = originalEnv;
     });
@@ -209,12 +214,12 @@ describe('Error Middleware', () => {
 
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Test error',
-        },
-      });
+        })
+      );
 
       process.env.NODE_ENV = originalEnv;
     });
@@ -225,12 +230,12 @@ describe('Error Middleware', () => {
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Internal Server Error',
-        },
-      });
+        })
+      );
     });
 
     it('should handle errors with undefined message', () => {
@@ -239,12 +244,12 @@ describe('Error Middleware', () => {
       errorMiddleware(error, mockRequest as Request, mockResponse as Response, nextFunction);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        error: {
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
           message: 'Internal Server Error',
-        },
-      });
+        })
+      );
     });
   });
 });

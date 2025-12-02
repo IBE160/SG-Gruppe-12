@@ -40,7 +40,7 @@ export const parsingService = {
       // Validate against Zod schema to ensure data integrity and correct type mapping
       const validatedCVData = cvDataSchema.parse(parsedData);
 
-      return validatedCVData;
+      return validatedCVData as CvData;
     } catch (error: any) {
       logger.error(`Error parsing CV with AI: ${error.message}`, error);
       if (error instanceof AppError) {

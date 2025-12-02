@@ -19,18 +19,7 @@ jest.mock('../../config/database', () => ({
   },
 }));
 
-// Mock audit service
-jest.mock('../../services/audit.service', () => ({
-  auditService: {
-    logSecurityEvent: jest.fn().mockResolvedValue(undefined),
-    log: jest.fn().mockResolvedValue(undefined),
-  },
-}));
 
-import request from 'supertest';
-import app from '../../app';
-import { prisma } from '../../config/database';
-import { jwtService } from '../../utils/jwt.util';
 
 // Mock jwtService
 jest.mock('../../utils/jwt.util', () => ({

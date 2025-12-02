@@ -28,11 +28,11 @@ export const cvService = {
   async createCV(userId: string, data: { title?: string; file_path?: string; } & Partial<CvData>): Promise<CvData & { id: number }> {
     const newCV = await cvRepository.create(userId, data);
     const initialCvData: CvData = {
-      personal_info: newCV.personal_info as PersonalInfo,
-      education: newCV.education as EducationEntry[],
-      experience: newCV.experience as ExperienceEntry[],
-      skills: newCV.skills as SkillEntry[],
-      languages: newCV.languages as LanguageEntry[],
+      personal_info: newCV.personal_info as unknown as PersonalInfo,
+      education: newCV.education as unknown as EducationEntry[],
+      experience: newCV.experience as unknown as ExperienceEntry[],
+      skills: newCV.skills as unknown as SkillEntry[],
+      languages: newCV.languages as unknown as LanguageEntry[],
       summary: newCV.summary || undefined,
     };
     await createNewVersion(newCV.id, initialCvData);
@@ -57,11 +57,11 @@ export const cvService = {
       id: cv.id,
       title: cv.title || undefined,
       file_path: cv.file_path || undefined,
-      personal_info: cv.personal_info as PersonalInfo,
-      education: cv.education as EducationEntry[],
-      experience: cv.experience as ExperienceEntry[],
-      skills: cv.skills as SkillEntry[],
-      languages: cv.languages as LanguageEntry[],
+      personal_info: cv.personal_info as unknown as PersonalInfo,
+      education: cv.education as unknown as EducationEntry[],
+      experience: cv.experience as unknown as ExperienceEntry[],
+      skills: cv.skills as unknown as SkillEntry[],
+      languages: cv.languages as unknown as LanguageEntry[],
       summary: cv.summary || undefined,
     };
   },
@@ -89,11 +89,11 @@ export const cvService = {
       id: updatedCV.id,
       title: updatedCV.title || undefined,
       file_path: updatedCV.file_path || undefined,
-      personal_info: updatedCV.personal_info as PersonalInfo,
-      education: updatedCV.education as EducationEntry[],
-      experience: updatedCV.experience as ExperienceEntry[],
-      skills: updatedCV.skills as SkillEntry[],
-      languages: updatedCV.languages as LanguageEntry[],
+      personal_info: updatedCV.personal_info as unknown as PersonalInfo,
+      education: updatedCV.education as unknown as EducationEntry[],
+      experience: updatedCV.experience as unknown as ExperienceEntry[],
+      skills: updatedCV.skills as unknown as SkillEntry[],
+      languages: updatedCV.languages as unknown as LanguageEntry[],
       summary: updatedCV.summary || undefined,
     };
 
@@ -112,7 +112,7 @@ export const cvService = {
     const cv = await this.getCVById(userId, cvId); // Performs auth check
     const validatedData = experienceEntrySchema.parse(data);
     const experiences = (cv.experience as ExperienceEntry[] | undefined) ?? [];
-    const updatedExperience = [...experiences, validatedData];
+    const updatedExperience = [...experiences, validatedData as any];
     return this.updateCV(userId, cvId, { experience: updatedExperience });
   },
 
@@ -347,5 +347,20 @@ export const cvService = {
   async restoreVersion(userId: string, cvId: number, versionNumber: number): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const versionToRestore = await this.getVersionDetails(userId, cvId, versionNumber); // Performs auth check internally
     return this.updateCV(userId, cvId, versionToRestore);
+  },
+
+  /**
+   * Lists all CVs for a user.
+   * @param userId The ID of the user.
+   * @returns Array of CVs with their basic info.
+   */
+  async listCVs(userId: string): Promise<Array<{ id: number; title: string | null; createdAt: Date; updatedAt: Date }>> {
+    const cvs = await cvRepository.findByUserId(userId);
+    return cvs.map(cv => ({
+      id: cv.id,
+      title: cv.title,
+      createdAt: cv.created_at,
+      updatedAt: cv.updated_at,
+    }));
   },
 };

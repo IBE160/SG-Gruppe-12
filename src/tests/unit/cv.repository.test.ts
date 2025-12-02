@@ -17,8 +17,8 @@ describe('CV Repository Unit Tests', () => {
   const userId = 'test-user-id';
   const cvId = 1;
   const mockCvData: CvData = {
-    personal_info: { name: 'John Doe', email: 'john.doe@example.com' },
-    experience: [{ title: 'Developer', company: 'Tech Corp', start_date: '2020-01-01' }],
+    personal_info: { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
+    experience: [{ title: 'Developer', company: 'Tech Corp', startDate: '2020-01-01' }],
   };
 
   const mockCreatedCV = {

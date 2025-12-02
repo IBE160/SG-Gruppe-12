@@ -25,8 +25,8 @@ jest.mock('@/config/database', () => ({
 describe('CV Repository', () => {
   const mockUserId = 'user-123';
   const mockCvData: CvData = {
-    personal_info: { name: 'John Doe' },
-    experience: [{ title: 'Developer', company: 'Tech Inc', start_date: '2022-01-01' }],
+    personal_info: { firstName: 'John', lastName: 'Doe', name: 'John Doe' },
+    experience: [{ title: 'Developer', company: 'Tech Inc', startDate: '2022-01-01' }],
     education: [],
     skills: [],
     languages: [],

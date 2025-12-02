@@ -29,10 +29,28 @@ describe('Parsing Service', () => {
             const fileType = 'application/pdf';
             const fileContent = 'This is the content of the CV.';
             const aiResponse = {
-                personal_info: { name: 'John Doe', email: 'john.doe@example.com' },
-                experience: [{ title: 'Software Engineer', company: 'Tech Corp', start_date: '2020-01-01', description: 'Developed stuff.' }],
-                education: [{ institution: 'State University', degree: 'B.S. in Computer Science', start_date: '2016-08-01', end_date: '2020-05-01' }],
-                skills: [{ name: 'TypeScript' }, { name: 'React' }],
+                personal_info: {
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    email: 'john.doe@example.com',
+                    phone: '+1234567890',
+                    location: 'San Francisco, CA'
+                },
+                experience: [{
+                    title: 'Software Engineer',
+                    company: 'Tech Corp',
+                    start_date: '2020-01-01',
+                    end_date: '2023-01-01',
+                    description: 'Developed stuff.'
+                }],
+                education: [{
+                    institution: 'State University',
+                    degree: 'B.S. in Computer Science',
+                    start_date: '2016-08-01',
+                    end_date: '2020-05-01'
+                }],
+                skills: [{ name: 'TypeScript', level: 'Advanced' }, { name: 'React', level: 'Advanced' }],
+                languages: [],
             };
 
             mockedStorageService.downloadFile.mockResolvedValue(Buffer.from(fileContent));

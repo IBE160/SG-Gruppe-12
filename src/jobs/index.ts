@@ -1,8 +1,8 @@
-import * as Queue from 'bull';
-import IORedis from 'ioredis';
+import Queue from 'bull';
+import IORedis, { Redis } from 'ioredis';
 import IORedisMock from 'ioredis-mock';
 
-let redisConnection: IORedis.Redis | IORedisMock.IORedisMock | undefined;
+let redisConnection: Redis | typeof IORedisMock.prototype | undefined;
 
 if (process.env.NODE_ENV === 'test') {
   redisConnection = new IORedisMock(); // Use ioredis-mock instance for testing
@@ -24,7 +24,7 @@ const defaultJobOptions = {
 
 // Define the Bull queue for CV parsing jobs
 export const cvParsingQueue = new Queue('cv-parsing', {
-  createClient: () => redisConnection!, // Pass the instantiated client
+  createClient: () => redisConnection as any, // Pass the instantiated client
   defaultJobOptions,
 });
 
@@ -51,7 +51,7 @@ cvParsingQueue.on('error', (error) => {
 
 // Define the Bull queue for document generation jobs
 export const documentGenerationQueue = new Queue('document-generation', {
-  createClient: () => redisConnection!, // Pass the instantiated client
+  createClient: () => redisConnection as any, // Pass the instantiated client
   defaultJobOptions,
 });
 

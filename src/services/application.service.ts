@@ -1,5 +1,5 @@
 // src/services/application.service.ts
-import { genAI } from '../config/ai-providers';
+import { gemini } from '../config/ai-providers';
 import { applicationRepository } from '../repositories/application.repository';
 import { cvRepository } from '../repositories/cv.repository';
 import { prisma } from '../config/database';
@@ -463,7 +463,7 @@ export const applicationService = {
    * Calls the AI provider to generate tailored CV content.
    */
   async callAIForTailoredCV(cvData: CvData, jobData: JobData): Promise<TailoredCvResult> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = gemini('gemini-1.5-flash');
     const prompt = TailoredCvPrompt.v1(cvData, jobData);
 
     const result = await model.generateContent(prompt);
@@ -497,7 +497,7 @@ export const applicationService = {
     jobData: JobData,
     options?: CoverLetterOptions
   ): Promise<CoverLetterResult> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = gemini('gemini-1.5-flash');
     const prompt = CoverLetterPrompt.v1(cvData, jobData, options || {});
 
     const result = await model.generateContent(prompt);

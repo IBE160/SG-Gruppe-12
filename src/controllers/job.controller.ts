@@ -29,6 +29,28 @@ export const jobController = {
   },
 
   /**
+   * GET /api/v1/jobs
+   * Gets all job postings for the current user.
+   */
+  async getJobPostings(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+
+      if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized: User ID not found.' });
+      }
+
+      const jobPostings = await jobAnalysisService.getJobPostings(userId);
+
+      res.status(200).json({
+        data: jobPostings,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
    * GET /api/v1/jobs/:id
    * Gets a specific job posting by ID.
    */

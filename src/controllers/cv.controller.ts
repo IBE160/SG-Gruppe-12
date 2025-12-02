@@ -210,7 +210,7 @@ export const cvController = {
   async getAll(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.userId;
-      const cvs = await cvService.getUserCVs(userId);
+      const cvs = await cvService.listCVs(userId);
 
       res.status(200).json({
         success: true,

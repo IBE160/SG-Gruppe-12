@@ -58,9 +58,9 @@ jest.mock('rate-limit-redis', () => {
     __esModule: true,
     default: class RedisStore {
       constructor() {}
-      increment() { return Promise.resolve({ totalHits: 1, resetTime: new Date() }); }
-      decrement() { return Promise.resolve(); }
-      resetKey() { return Promise.resolve(); }
+      increment = jest.fn().mockResolvedValue({ totalHits: 1, resetTime: new Date() });
+      decrement = jest.fn().mockResolvedValue(undefined);
+      resetKey = jest.fn().mockResolvedValue(undefined);
     },
   };
 });
@@ -73,30 +73,24 @@ jest.mock('../../services/audit.service', () => ({
   },
 }));
 
-// Mock authentication middleware
-jest.mock('../../middleware/auth.middleware', () => ({
-  authenticate: jest.fn((_req: any, _res: any, next: any) => {
-    _req.user = { id: '1' };
-    next();
-  }),
-}));
-
-// Mock cvService
-jest.mock('../../services/cv.service');
-
 import request from 'supertest';
 import express from 'express';
 import { cvController } from '@/controllers/cv.controller';
 import { cvService } from '@/services/cv.service';
 import { authenticate } from '@/middleware/auth.middleware';
+import { AuthRequest } from '@/middleware/auth.middleware';
+import { Response, NextFunction } from 'express';
+import { JwtPayload } from '@/utils/jwt.util';
 
-// Mocks
+
+// Mock authentication middleware
 jest.mock('../../middleware/auth.middleware', () => ({
-  authenticate: jest.fn((req, res, next) => {
-    req.user = { userId: 'mock-user-id-1' }; // Mock authenticated user with userId field
+  authenticate: jest.fn((req: AuthRequest, res: Response, next: NextFunction) => {
+    req.user = { userId: 'mock-user-id-1', role: 'USER' } as JwtPayload; // Mock authenticated user with userId and role
     next();
   }),
 }));
+// Mock cvService
 jest.mock('../../services/cv.service');
 
 // App setup

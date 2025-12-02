@@ -74,7 +74,6 @@ export const gdprService = {
             },
           },
         },
-        cv_components: true,
         job_postings: true,
         application_analyses: true,
       },
@@ -111,12 +110,6 @@ export const gdprService = {
           versionNumber: v.version_number,
           createdAt: v.created_at,
         })),
-      })),
-      cvComponents: user.cv_components.map((comp) => ({
-        id: comp.id,
-        componentType: comp.component_type,
-        content: comp.content,
-        createdAt: comp.created_at,
       })),
       jobPostings: user.job_postings.map((job) => ({
         id: job.id,
@@ -155,7 +148,6 @@ export const gdprService = {
         _count: {
           select: {
             cvs: true,
-            cv_components: true,
             job_postings: true,
             application_analyses: true,
           },
@@ -176,7 +168,6 @@ export const gdprService = {
       memberSince: user.created_at,
       dataCounts: {
         cvs: user._count.cvs,
-        cvComponents: user._count.cv_components,
         jobPostings: user._count.job_postings,
         applications: user._count.application_analyses,
       },
@@ -210,31 +201,25 @@ export const gdprService = {
     logger.info(`GDPR: Deleted ${deletedApplications.count} applications for user ${userId}`);
 
     // 2. Delete CV versions (cascade from CVs, but let's be explicit)
-    const userCvIds = await prisma.cV.findMany({
+    const userCvIds = await prisma.cv.findMany({
       where: { user_id: userId },
       select: { id: true },
     });
 
     if (userCvIds.length > 0) {
-      const deletedVersions = await prisma.cVVersion.deleteMany({
+      const deletedVersions = await prisma.cvVersion.deleteMany({
         where: { cv_id: { in: userCvIds.map(cv => cv.id) } },
       });
       logger.info(`GDPR: Deleted ${deletedVersions.count} CV versions for user ${userId}`);
     }
 
-    // 3. Delete CVs
-    const deletedCvs = await prisma.cV.deleteMany({
+    // 3. Delete CVs (cascade will delete versions)
+    const deletedCvs = await prisma.cv.deleteMany({
       where: { user_id: userId },
     });
     logger.info(`GDPR: Deleted ${deletedCvs.count} CVs for user ${userId}`);
 
-    // 4. Delete CV components
-    const deletedComponents = await prisma.cVComponent.deleteMany({
-      where: { user_id: userId },
-    });
-    logger.info(`GDPR: Deleted ${deletedComponents.count} CV components for user ${userId}`);
-
-    // 5. Anonymize job postings (set user_id to null per schema design)
+    // 4. Anonymize job postings (set user_id to null per schema design)
     const anonymizedJobs = await prisma.jobPosting.updateMany({
       where: { user_id: userId },
       data: { user_id: null },

@@ -26,6 +26,48 @@ const getUserCVData = async (userId: string) => {
 };
 
 export const jobAnalysisService = {
+  /**
+   * Retrieves all job postings for a specific user.
+   * @param userId The ID of the user.
+   * @returns Array of job postings.
+   */
+  async getJobPostings(userId: string) {
+    const jobPostings = await prisma.jobPosting.findMany({
+      where: {
+        OR: [
+          { user_id: userId },
+          { user_id: null }, // Include public job postings
+        ],
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
+    return jobPostings;
+  },
+
+  /**
+   * Retrieves a job posting by ID for a specific user.
+   * @param userId The ID of the user.
+   * @param jobPostingId The ID of the job posting.
+   * @returns The job posting data.
+   */
+  async getJobPosting(userId: string, jobPostingId: number) {
+    const jobPosting = await prisma.jobPosting.findUnique({
+      where: { id: jobPostingId },
+    });
+
+    if (!jobPosting) {
+      throw new AppError('Job posting not found', 404);
+    }
+
+    // Check if the job posting belongs to the user (if user_id is set)
+    if (jobPosting.user_id && jobPosting.user_id !== userId) {
+      throw new AppError('Unauthorized to access this job posting', 403);
+    }
+
+    return jobPosting;
+  },
+
   async analyzeJobDescription(userId: string, jobDescription: string, cvId?: string) {
     if (!jobDescription || jobDescription.length < 10) {
       logger.warn(`User ${userId} submitted an invalid job description.`);

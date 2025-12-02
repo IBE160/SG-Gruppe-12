@@ -8,6 +8,7 @@ import { validate } from '../../middleware/validate.middleware'; // Mock this fo
 import { experienceEntrySchema } from '../../validators/cv.validator';
 import { AppError } from '../../utils/errors.util'; // Import AppError
 import { JwtPayload } from '../../utils/jwt.util'; // Import JwtPayload
+import { CvData } from '../../types/cv.types'; // Import CvData type
 
 // Define a local AuthRequest interface for testing purposes to extend Request
 interface AuthRequest extends Request {
@@ -18,7 +19,7 @@ interface AuthRequest extends Request {
 // Mock authentication middleware
 jest.mock('../../middleware/auth.middleware', () => ({
   authenticate: jest.fn((req: AuthRequest, res: Response, next: NextFunction) => {
-    req.user = { userId: 'mockUserId' }; // Mock authenticated user
+    req.user = { userId: 'mockUserId', role: 'USER' }; // Mock authenticated user
     next();
   }),
 }));
@@ -56,18 +57,35 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => { // Er
 describe('CV API - Work Experience Endpoints', () => {
   const mockCvId = '123';
   const mockUserId = 'mockUserId';
-  const mockExperience = {
-    title: 'Software Engineer',
-    company: 'Tech Solutions',
-    start_date: '2020-01-01', // Added missing field
-    description: 'Developed software solutions.',
-  };
-  const mockCvData = {
-    personal_info: { firstName: 'Test', lastName: 'User' },
+  const mockCvData: CvData = {
+    personal_info: { firstName: 'Test', lastName: 'User', email: 'test@example.com' },
     education: [],
     experience: [],
     skills: [],
     languages: [],
+    summary: 'Mock CV Summary'
+  };
+
+  const mockCV = {
+    id: parseInt(mockCvId, 10),
+    user_id: mockUserId,
+    title: 'Test CV',
+    file_path: null,
+    created_at: new Date(),
+    updated_at: new Date(),
+    personal_info: mockCvData.personal_info,
+    education: mockCvData.education,
+    experience: mockCvData.experience,
+    skills: mockCvData.skills,
+    languages: mockCvData.languages,
+    summary: mockCvData.summary,
+  };
+
+  const mockExperience = {
+    title: 'Software Engineer',
+    company: 'Tech Solutions',
+    startDate: '2020-01-01', // Changed from start_date
+    description: 'Developed software solutions.',
   };
 
   beforeEach(() => {
@@ -75,7 +93,7 @@ describe('CV API - Work Experience Endpoints', () => {
     (cvService.getCVById as jest.Mock).mockResolvedValue(mockCV);
     (cvService.addWorkExperience as jest.Mock).mockResolvedValue({
       ...mockCV,
-      experience: [...mockCV.experience, mockExperience],
+      experience: [...(mockCV.experience || []), mockExperience],
     });
     (cvService.updateWorkExperience as jest.Mock).mockResolvedValue({
       ...mockCV,
