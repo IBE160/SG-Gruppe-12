@@ -961,3 +961,98 @@ Claude Code was instrumental in this comprehensive debugging and stabilization e
 - `b41cdec` - fix: Update build script to use cd instead of workspace flag
 
 The project now has a robust, fully functional CI pipeline that validates code quality on every commit. All Epic 2 frontend tests pass, ensuring stable CV management, parsing, and preview functionality. The codebase is ready for continued development with confidence.
+
+---
+
+## December 1, 2025 – Epic 5 Completion & Test Infrastructure Improvements *(Vera Kironaki, with Claude Code)*
+
+### Goal
+
+Complete Epic 5 (Trust & Data Governance) implementation and improve test coverage/reliability.
+
+### What We Did
+
+We worked with Claude Code to finalize Epic 5 security features and fix test infrastructure:
+
+#### Epic 5 Implementation (Trust & Data Governance)
+
+1. **AES-256 Encryption at Rest (`src/utils/encryption.util.ts`):**
+   - Implemented `EncryptionService` with AES-256-GCM encryption
+   - Added IV generation and authentication tag handling
+   - Key derivation from environment variable
+
+2. **Role-Based Access Control (`src/middleware/rbac.middleware.ts`):**
+   - Created `requireRole()` middleware for route protection
+   - Implemented `hasPermission()` helper for granular checks
+   - Defined role hierarchy: USER, ADMIN, SUPER_ADMIN
+
+3. **LLM Sandboxing (`src/services/llm-sandbox.service.ts`):**
+   - Built `LLMSandboxService` with prompt safety validation
+   - Input sanitization to prevent prompt injection
+   - Output filtering to remove sensitive data patterns
+
+4. **Audit Logging (`src/services/audit.service.ts`):**
+   - Comprehensive audit logging for security events
+   - GDPR-compliant data access tracking
+   - Integration with database for persistent logs
+
+5. **Enhanced Rate Limiting (`src/middleware/rate-limit.middleware.ts`):**
+   - Added audit logging integration
+   - JSON error responses for API consistency
+   - Configurable limits per endpoint type
+
+#### Test Infrastructure Improvements
+
+1. **Fixed Mock Ordering Issues:**
+   - Moved all `jest.mock()` calls before import statements
+   - Critical for modules with side effects (JWT, Redis)
+
+2. **Added JWT Environment Variables:**
+   - Set `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET` before imports
+   - Prevents jwt.util.ts initialization errors
+
+3. **Fixed Redis Mock for Bull Queues:**
+   - Added `options: { host, port, password }` to Redis mock
+   - Required for Bull queue initialization
+
+4. **Fixed SafeUser Expectations:**
+   - Updated test assertions to match actual service behavior
+   - Services return SafeUser (without passwordHash, emailVerificationToken)
+
+5. **New Test Files Created:**
+   - `src/tests/auth.middleware.test.ts` (13 tests)
+   - `src/tests/error.middleware.test.ts` (37 tests)
+
+### Files Changed
+
+**Epic 5 (Security):**
+- src/utils/encryption.util.ts (new)
+- src/middleware/rbac.middleware.ts (new)
+- src/services/llm-sandbox.service.ts (new)
+- src/services/audit.service.ts (new)
+- src/middleware/rate-limit.middleware.ts (updated)
+
+**Test Infrastructure (14 files):**
+- src/tests/auth.service.test.ts
+- src/tests/cv.service.test.ts
+- src/tests/user.repository.test.ts
+- src/tests/integration/auth.routes.test.ts
+- src/tests/integration/user.routes.test.ts
+- src/tests/integration/cv.integration.test.ts
+- src/tests/integration/cv.versions.test.ts
+- src/tests/integration/database.test.ts
+- src/tests/jwt.util.test.ts
+- src/tests/unit/auth.service.test.ts
+- src/tests/unit/user.service.test.ts
+- src/tests/user.service.test.ts
+- src/tests/auth.middleware.test.ts (new)
+- src/tests/error.middleware.test.ts (new)
+
+### Result
+
+- **Epic 5:** Complete with all security features implemented
+- **Test Pass Rate:** Improved from 93% to 95% (307/324 passing)
+- **New Tests Added:** 50 tests (auth middleware + error middleware)
+- **Commits:**
+  - Epic 5 commits (encryption, RBAC, LLM sandbox, audit, rate limiting)
+  - `875a1d4` - test: fix test infrastructure and add middleware tests
