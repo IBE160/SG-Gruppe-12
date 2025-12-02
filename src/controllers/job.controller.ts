@@ -21,6 +21,7 @@ export const jobController = {
       const analysisResult = await jobAnalysisService.analyzeJobDescription(userId, jobDescription, cvId);
 
       res.status(200).json({
+        success: true,
         data: analysisResult,
       });
     } catch (error) {

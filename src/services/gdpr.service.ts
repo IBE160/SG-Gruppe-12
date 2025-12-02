@@ -29,12 +29,6 @@ export interface UserDataExport {
       createdAt: Date;
     }>;
   }>;
-  cvComponents: Array<{
-    id: number;
-    componentType: string;
-    content: unknown;
-    createdAt: Date;
-  }>;
   jobPostings: Array<{
     id: number;
     title: string;

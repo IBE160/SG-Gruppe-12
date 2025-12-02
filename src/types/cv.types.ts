@@ -21,8 +21,8 @@ export interface ExperienceEntry {
   title: string;
   company: string;
   location?: string;
-  startDate: string; // ISO 8601 date string
-  endDate?: string; // ISO 8601 date string or 'present'
+  start_date: string; // ISO 8601 date string
+  end_date?: string; // ISO 8601 date string or 'present'
   description?: string; // Markdown or rich text allowed
 }
 
@@ -31,8 +31,8 @@ export interface EducationEntry {
   degree: string;
   fieldOfStudy?: string;
   location?: string;
-  startDate?: string; // ISO 8601 date string
-  endDate?: string; // ISO 8601 date string
+  start_date?: string; // ISO 8601 date string
+  end_date?: string; // ISO 8601 date string
   description?: string;
 }
 

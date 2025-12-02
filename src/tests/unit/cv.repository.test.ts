@@ -18,7 +18,7 @@ describe('CV Repository Unit Tests', () => {
   const cvId = 1;
   const mockCvData: CvData = {
     personal_info: { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' },
-    experience: [{ title: 'Developer', company: 'Tech Corp', startDate: '2020-01-01' }],
+    experience: [{ title: 'Developer', company: 'Tech Corp', start_date: '2020-01-01' }],
   };
 
   const mockCreatedCV = {
@@ -68,11 +68,11 @@ describe('CV Repository Unit Tests', () => {
 
   describe('create', () => {
     it('should create a new CV', async () => {
-      prismaMock.cV.create.mockResolvedValue(mockCreatedCV);
+      prismaMock.cv.create.mockResolvedValue(mockCreatedCV);
 
       const result = await cvRepository.create(userId, { title: 'My CV', ...mockCvData });
 
-      expect(prismaMock.cV.create).toHaveBeenCalledWith({
+      expect(prismaMock.cv.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           user_id: userId,
           title: 'My CV',
@@ -85,18 +85,18 @@ describe('CV Repository Unit Tests', () => {
 
   describe('findById', () => {
     it('should find a CV by ID', async () => {
-      prismaMock.cV.findUnique.mockResolvedValue(mockFoundCV);
+      prismaMock.cv.findUnique.mockResolvedValue(mockFoundCV);
 
       const result = await cvRepository.findById(cvId);
 
-      expect(prismaMock.cV.findUnique).toHaveBeenCalledWith({
+      expect(prismaMock.cv.findUnique).toHaveBeenCalledWith({
         where: { id: cvId },
       });
       expect(result).toEqual(mockFoundCV);
     });
 
     it('should return null if CV not found', async () => {
-      prismaMock.cV.findUnique.mockResolvedValue(null);
+      prismaMock.cv.findUnique.mockResolvedValue(null);
       const result = await cvRepository.findById(999);
       expect(result).toBeNull();
     });
@@ -105,11 +105,11 @@ describe('CV Repository Unit Tests', () => {
   describe('findByUserId', () => {
     it('should find all CVs for a user', async () => {
       const mockUserCVs = [mockFoundCV];
-      prismaMock.cV.findMany.mockResolvedValue(mockUserCVs);
+      prismaMock.cv.findMany.mockResolvedValue(mockUserCVs);
 
       const result = await cvRepository.findByUserId(userId);
 
-      expect(prismaMock.cV.findMany).toHaveBeenCalledWith({
+      expect(prismaMock.cv.findMany).toHaveBeenCalledWith({
         where: { user_id: userId },
         orderBy: { created_at: 'desc' },
       });
@@ -120,11 +120,11 @@ describe('CV Repository Unit Tests', () => {
   describe('updateCV', () => {
     it('should update a CV', async () => {
       const updatedTitle = 'Updated CV Title';
-      prismaMock.cV.update.mockResolvedValue(mockUpdatedCV);
+      prismaMock.cv.update.mockResolvedValue(mockUpdatedCV);
 
       const result = await cvRepository.updateCV(cvId, { title: updatedTitle });
 
-      expect(prismaMock.cV.update).toHaveBeenCalledWith({
+      expect(prismaMock.cv.update).toHaveBeenCalledWith({
         where: { id: cvId },
         data: expect.objectContaining({ title: updatedTitle }),
       });
@@ -134,11 +134,11 @@ describe('CV Repository Unit Tests', () => {
 
   describe('delete', () => {
     it('should delete a CV', async () => {
-      prismaMock.cV.delete.mockResolvedValue(mockFoundCV);
+      prismaMock.cv.delete.mockResolvedValue(mockFoundCV);
 
       await cvRepository.delete(cvId);
 
-      expect(prismaMock.cV.delete).toHaveBeenCalledWith({
+      expect(prismaMock.cv.delete).toHaveBeenCalledWith({
         where: { id: cvId },
       });
     });
@@ -147,11 +147,11 @@ describe('CV Repository Unit Tests', () => {
   describe('createVersion', () => {
     it('should create a new CV version', async () => {
       const versionNumber = 1;
-      prismaMock.cVVersion.create.mockResolvedValue(mockCreatedVersion);
+      prismaMock.cvVersion.create.mockResolvedValue(mockCreatedVersion);
 
       const result = await cvRepository.createVersion(cvId, versionNumber, mockCvData);
 
-      expect(prismaMock.cVVersion.create).toHaveBeenCalledWith({
+      expect(prismaMock.cvVersion.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           cv_id: cvId,
           version_number: versionNumber,
@@ -165,11 +165,11 @@ describe('CV Repository Unit Tests', () => {
   describe('getVersions', () => {
     it('should retrieve all versions for a CV', async () => {
       const mockVersions = [mockCreatedVersion];
-      prismaMock.cVVersion.findMany.mockResolvedValue(mockVersions);
+      prismaMock.cvVersion.findMany.mockResolvedValue(mockVersions);
 
       const result = await cvRepository.getVersions(cvId);
 
-      expect(prismaMock.cVVersion.findMany).toHaveBeenCalledWith({
+      expect(prismaMock.cvVersion.findMany).toHaveBeenCalledWith({
         where: { cv_id: cvId },
         orderBy: { version_number: 'asc' },
       });
@@ -179,13 +179,13 @@ describe('CV Repository Unit Tests', () => {
 
   describe('getLatestVersionNumber', () => {
     it('should return the latest version number', async () => {
-      prismaMock.cVVersion.findFirst.mockResolvedValue({ version_number: 5 } as any);
+      prismaMock.cvVersion.findFirst.mockResolvedValue({ version_number: 5 } as any);
       const result = await cvRepository.getLatestVersionNumber(cvId);
       expect(result).toBe(5);
     });
 
     it('should return 0 if no versions exist', async () => {
-      prismaMock.cVVersion.findFirst.mockResolvedValue(null);
+      prismaMock.cvVersion.findFirst.mockResolvedValue(null);
       const result = await cvRepository.getLatestVersionNumber(cvId);
       expect(result).toBe(0);
     });
@@ -195,18 +195,18 @@ describe('CV Repository Unit Tests', () => {
     it('should retrieve a specific CV version by number', async () => {
       const versionNumber = 1;
       const mockVersion = mockCreatedVersion;
-      prismaMock.cVVersion.findUnique.mockResolvedValue(mockVersion);
+      prismaMock.cvVersion.findUnique.mockResolvedValue(mockVersion);
 
       const result = await cvRepository.getVersionByNumber(cvId, versionNumber);
 
-      expect(prismaMock.cVVersion.findUnique).toHaveBeenCalledWith({
+      expect(prismaMock.cvVersion.findUnique).toHaveBeenCalledWith({
         where: { cv_id_version_number: { cv_id: cvId, version_number: versionNumber } },
       });
       expect(result).toEqual(mockVersion);
     });
 
     it('should return null if version not found', async () => {
-      prismaMock.cVVersion.findUnique.mockResolvedValue(null);
+      prismaMock.cvVersion.findUnique.mockResolvedValue(null);
       const result = await cvRepository.getVersionByNumber(cvId, 999);
       expect(result).toBeNull();
     });

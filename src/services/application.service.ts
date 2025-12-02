@@ -7,7 +7,7 @@ import { AppError, NotFoundError } from '../utils/errors.util';
 import { logger } from '../utils/logger.util';
 import { TailoredCvPrompt, CvData, JobData } from '../prompts/tailored-cv.prompt';
 import { CoverLetterPrompt, CoverLetterOptions } from '../prompts/cover-letter.prompt';
-import { CV, JobPosting } from '@prisma/client';
+import { Cv, JobPosting } from '@prisma/client';
 import {
   llmSafetyService,
   ValidationContext,
@@ -71,7 +71,7 @@ interface LanguageContent {
 
 // Shared context for generation
 interface GenerationContext {
-  cv: CV;
+  cv: Cv;
   jobPosting: JobPosting;
   cvData: CvData;
   jobData: JobData;
@@ -256,13 +256,13 @@ export const applicationService = {
     }
 
     // Build CV data from JSON fields
+    // Note: CvData here is from prompts/tailored-cv.prompt.ts, not types/cv.types.ts
     const cvData: CvData = {
-      personal_info: cv.personal_info as any,
-      experience: cv.experience as any,
-      education: cv.education as any,
-      skills: cv.skills as any,
-      languages: cv.languages as any,
       summary: cv.summary || undefined,
+      experience: (cv.experience as any[]) || [],
+      education: (cv.education as any[]) || [],
+      skills: (cv.skills as any[]) || [],
+      languages: (cv.languages as any[]) || undefined,
     };
 
     // Build job data

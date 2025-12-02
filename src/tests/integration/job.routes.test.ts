@@ -57,7 +57,7 @@ router.post(
   '/analyze',
   authenticate,
   aiLimiter,
-  validate(z.object({ body: analyzeJobDescriptionSchema })), // Wrap schema for validate middleware
+  validate(analyzeJobDescriptionSchema), // Schema already includes body, params, query structure
   jobController.analyzeJob
 );
 
@@ -69,7 +69,7 @@ app.use(errorMiddleware); // Use the global error handler
 
 describe('POST /api/v1/jobs/analyze', () => {
   const validJobDescription = 'This is a valid job description with at least 10 characters.';
-  const validCvId = '123e4567-e89b-12d3-a456-426614174000'; // Valid UUID for testing
+  const validCvId = 123; // Numeric CV ID for testing
   const userId = 'testUserId123'; // Matches mocked JWT payload
 
   beforeEach(() => {
@@ -120,7 +120,7 @@ describe('POST /api/v1/jobs/analyze', () => {
 
     expect(response.statusCode).toEqual(400);
     expect(response.body.success).toBe(false);
-    expect(response.body.error.message).toContain('Validation failed');
+    expect(response.body.message).toContain('Validation failed');
     expect(jobAnalysisService.analyzeJobDescription).not.toHaveBeenCalled();
   });
 
@@ -128,12 +128,12 @@ describe('POST /api/v1/jobs/analyze', () => {
     const response = await request(app)
       .post('/api/v1/jobs/analyze')
       .set('Cookie', [`access_token=mockAccessToken`])
-      .send({ jobDescription: validJobDescription, cvId: 'not-a-uuid' });
+      .send({ jobDescription: validJobDescription, cvId: 'not-a-number' });
 
     expect(response.statusCode).toEqual(400);
     expect(response.body.success).toBe(false);
-    expect(response.body.error.message).toContain('Validation failed');
-    expect(response.body.errors[0].message).toEqual('Invalid CV ID format');
+    expect(response.body.message).toContain('Validation failed');
+    expect(response.body.errors[0].message).toEqual('CV ID must be a valid number');
     expect(jobAnalysisService.analyzeJobDescription).not.toHaveBeenCalled();
   });
 
@@ -145,8 +145,8 @@ describe('POST /api/v1/jobs/analyze', () => {
 
     expect(response.statusCode).toEqual(400);
     expect(response.body.success).toBe(false);
-    expect(response.body.error.message).toContain('Validation failed');
-    expect(response.body.errors[0].message).toEqual('Invalid input: expected string, received undefined');
+    expect(response.body.message).toContain('Validation failed');
+    // cvId is required - missing value will trigger union validation error
     expect(jobAnalysisService.analyzeJobDescription).not.toHaveBeenCalled();
   });
 

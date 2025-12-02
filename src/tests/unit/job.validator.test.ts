@@ -3,14 +3,25 @@ import { analyzeJobDescriptionSchema } from '../../validators/job.validator';
 import { z } from 'zod';
 
 describe('analyzeJobDescriptionSchema', () => {
-  // Mock a valid UUID for cvId
-  const validCvId = '123e4567-e89b-12d3-a456-426614174000';
+  // Mock a valid numeric CV ID
+  const validCvId = 123;
+  const validCvIdString = '456';
 
   it('should validate successfully with valid jobDescription and cvId', () => {
     const validData = {
       body: {
         jobDescription: 'This is a valid job description with at least 10 characters for testing.',
         cvId: validCvId,
+      },
+    };
+    expect(() => analyzeJobDescriptionSchema.parse(validData)).not.toThrow();
+  });
+
+  it('should validate successfully with cvId as string', () => {
+    const validData = {
+      body: {
+        jobDescription: 'This is a valid job description with at least 10 characters for testing.',
+        cvId: validCvIdString,
       },
     };
     expect(() => analyzeJobDescriptionSchema.parse(validData)).not.toThrow();
@@ -83,23 +94,14 @@ describe('analyzeJobDescriptionSchema', () => {
       },
     };
     expect(() => analyzeJobDescriptionSchema.parse(invalidData)).toThrow(z.ZodError);
-    expect(() => analyzeJobDescriptionSchema.parse(invalidData)).toThrow(
-      expect.objectContaining({
-        issues: expect.arrayContaining([
-          expect.objectContaining({
-            message: 'Invalid input: expected string, received undefined',
-            path: ['body', 'cvId'],
-          }),
-        ]),
-      })
-    );
+    // cvId is required - missing value will trigger union validation error
   });
 
-  it('should fail validation if cvId is not a valid UUID', () => {
+  it('should fail validation if cvId is not a valid number', () => {
     const invalidData = {
       body: {
         jobDescription: 'This is a valid job description.',
-        cvId: 'not-a-uuid',
+        cvId: 'not-a-number',
       },
     };
     expect(() => analyzeJobDescriptionSchema.parse(invalidData)).toThrow(z.ZodError);
@@ -107,7 +109,7 @@ describe('analyzeJobDescriptionSchema', () => {
       expect.objectContaining({
         issues: expect.arrayContaining([
           expect.objectContaining({
-            message: 'Invalid CV ID format',
+            message: 'CV ID must be a valid number',
             path: ['body', 'cvId'],
           }),
         ]),

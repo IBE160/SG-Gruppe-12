@@ -2,7 +2,7 @@
 import { cvService } from '@/services/cv.service';
 import { cvRepository } from '@/repositories/cv.repository';
 import { NotFoundError, UnauthorizedError } from '@/utils/errors.util';
-import { CV, CVVersion, Prisma } from '@prisma/client';
+import { Cv, CvVersion, Prisma } from '@prisma/client';
 import { CvData } from '@/types/cv.types';
 
 jest.mock('@/repositories/cv.repository');
@@ -12,14 +12,14 @@ describe('CV Service', () => {
   const mockCvId = 1;
   const mockCvData: CvData = {
     personal_info: { firstName: 'John', lastName: 'Doe', name: 'John Doe' },
-    experience: [{ title: 'Developer', company: 'Tech Inc', startDate: '2022-01-01' }],
+    experience: [{ title: 'Developer', company: 'Tech Inc', start_date: '2022-01-01' }],
     education: [],
     skills: [],
     languages: [],
     summary: 'A summary',
   };
 
-  const mockCV: CV = {
+  const mockCV: Cv = {
     id: mockCvId,
     user_id: mockUserId,
     title: 'My CV',
