@@ -84,7 +84,8 @@ describe('CV API - Work Experience Endpoints', () => {
   const mockExperience = {
     title: 'Software Engineer',
     company: 'Tech Solutions',
-    startDate: '2020-01-01', // Changed from start_date
+    start_date: '2020-01-01',
+    end_date: '2023-01-01',
     description: 'Developed software solutions.',
   };
 

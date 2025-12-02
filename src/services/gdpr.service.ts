@@ -103,7 +103,7 @@ export const gdprService = {
       },
       cvs: user.cvs.map((cv) => ({
         id: cv.id,
-        title: cv.title,
+        title: cv.title || 'Untitled CV',
         createdAt: cv.created_at,
         updatedAt: cv.updated_at,
         versions: cv.versions.map((v) => ({

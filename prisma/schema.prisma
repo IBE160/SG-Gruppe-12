@@ -34,14 +34,14 @@ model User {
   consent_ai_training     Boolean               @default(false)
   consent_marketing       Boolean               @default(false)
 
-  cvs                     CV[]
+  cvs                     Cv[]
   job_postings            JobPosting[]
   application_analyses    ApplicationAnalysis[]
 
   @@map("users")
 }
 
-model CV {
+model Cv {
   id            Int      @id @default(autoincrement())
   user_id       String
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -60,7 +60,7 @@ model CV {
   updated_at    DateTime @updatedAt
 
   application_analyses ApplicationAnalysis[]
-  versions             CVVersion[]
+  versions             CvVersion[]
 
   @@map("cvs")
 }
@@ -85,7 +85,7 @@ model ApplicationAnalysis {
   user_id                       String
   user                          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   cv_id                         Int
-  cv                            CV       @relation(fields: [cv_id], references: [id])
+  cv                            Cv       @relation(fields: [cv_id], references: [id])
   job_posting_id                Int
   job_posting                   JobPosting @relation(fields: [job_posting_id], references: [id])
   generated_application_content String?
@@ -97,10 +97,10 @@ model ApplicationAnalysis {
   @@map("application_analyses")
 }
 
-model CVVersion {
+model CvVersion {
   id             Int      @id @default(autoincrement())
   cv_id          Int
-  cv             CV       @relation(fields: [cv_id], references: [id], onDelete: Cascade)
+  cv             Cv       @relation(fields: [cv_id], references: [id], onDelete: Cascade)
   version_number Int
   snapshot       Json     // Stores the full CV data as a snapshot
   created_at     DateTime @default(now())

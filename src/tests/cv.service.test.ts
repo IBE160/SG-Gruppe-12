@@ -79,7 +79,7 @@ describe('CV Service', () => {
         (cvRepository.createVersion as jest.Mock).mockResolvedValue({});
 
 
-        const newExperience = { title: 'New Job', company: 'NewCo', startDate: '2023-01-01' };
+        const newExperience = { title: 'New Job', company: 'NewCo', start_date: '2023-01-01' };
         await cvService.addWorkExperience(mockUserId, mockCvId, newExperience);
 
         expect(cvRepository.updateCV).toHaveBeenCalled();

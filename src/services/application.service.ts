@@ -7,7 +7,7 @@ import { AppError, NotFoundError } from '../utils/errors.util';
 import { logger } from '../utils/logger.util';
 import { TailoredCvPrompt, CvData, JobData } from '../prompts/tailored-cv.prompt';
 import { CoverLetterPrompt, CoverLetterOptions } from '../prompts/cover-letter.prompt';
-import { CV, JobPosting, CVComponent } from '@prisma/client';
+import { CV, JobPosting } from '@prisma/client';
 import {
   llmSafetyService,
   ValidationContext,
@@ -255,9 +255,15 @@ export const applicationService = {
       throw new NotFoundError('Job posting not found');
     }
 
-    // Fetch CV components and build data
-    const components = await cvRepository.findComponentsByIds(cv.component_ids);
-    const cvData = this.buildCvDataFromComponents(components);
+    // Build CV data from JSON fields
+    const cvData: CvData = {
+      personal_info: cv.personal_info as any,
+      experience: cv.experience as any,
+      education: cv.education as any,
+      skills: cv.skills as any,
+      languages: cv.languages as any,
+      summary: cv.summary || undefined,
+    };
 
     // Build job data
     const jobData: JobData = {
@@ -322,8 +328,10 @@ export const applicationService = {
 
   /**
    * Builds CvData structure from CV components with proper typing.
+   * @deprecated No longer used - CV data is now stored directly in JSON fields
    */
-  buildCvDataFromComponents(components: CVComponent[]): CvData {
+  /*
+  buildCvDataFromComponents(components: any[]): CvData {
     const cvData: CvData = {
       experience: [],
       education: [],
@@ -399,7 +407,8 @@ export const applicationService = {
     }
 
     return cvData;
-  },
+  }
+  */
 
   /**
    * Wraps an AI call with retry logic and exponential backoff.
@@ -461,9 +470,12 @@ export const applicationService = {
 
   /**
    * Calls the AI provider to generate tailored CV content.
+   * @deprecated Needs to be updated to use Vercel AI SDK generateText or generateObject
    */
   async callAIForTailoredCV(cvData: CvData, jobData: JobData): Promise<TailoredCvResult> {
-    const model = gemini('gemini-1.5-flash');
+    // TODO: Update to use Vercel AI SDK methods
+    throw new AppError('AI generation temporarily disabled - needs SDK update', 501);
+    /* const model = gemini('gemini-1.5-flash');
     const prompt = TailoredCvPrompt.v1(cvData, jobData);
 
     const result = await model.generateContent(prompt);
@@ -487,17 +499,21 @@ export const applicationService = {
     }
 
     return parsed;
+    */
   },
 
   /**
    * Calls the AI provider to generate cover letter.
+   * @deprecated Needs to be updated to use Vercel AI SDK generateText or generateObject
    */
   async callAIForCoverLetter(
     cvData: CvData,
     jobData: JobData,
     options?: CoverLetterOptions
   ): Promise<CoverLetterResult> {
-    const model = gemini('gemini-1.5-flash');
+    // TODO: Update to use Vercel AI SDK methods
+    throw new AppError('AI generation temporarily disabled - needs SDK update', 501);
+    /* const model = gemini('gemini-1.5-flash');
     const prompt = CoverLetterPrompt.v1(cvData, jobData, options || {});
 
     const result = await model.generateContent(prompt);
@@ -521,5 +537,6 @@ export const applicationService = {
     }
 
     return parsed;
+    */
   },
 };
