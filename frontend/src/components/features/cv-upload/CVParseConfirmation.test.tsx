@@ -177,12 +177,8 @@ describe('CVParseConfirmation Component', () => {
       expect(screen.getByDisplayValue('Software Engineer')).toBeInTheDocument();
     });
 
-    const deleteButtons = screen.getAllByRole('button', { name: '' });
-    const experienceDeleteButton = deleteButtons.find(btn => btn.querySelector('.lucide-trash-2'));
-
-    if (experienceDeleteButton) {
-      fireEvent.click(experienceDeleteButton);
-    }
+    const deleteButton = screen.getByRole('button', { name: 'Remove Experience 1' });
+    fireEvent.click(deleteButton);
 
     await waitFor(() => {
       expect(screen.queryByDisplayValue('Software Engineer')).not.toBeInTheDocument();

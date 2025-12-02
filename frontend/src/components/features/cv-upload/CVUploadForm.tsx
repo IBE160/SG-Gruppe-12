@@ -16,9 +16,23 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword', 'text/plain'];
 
 const formSchema = z.object({
-  cvFile: z.instanceof(FileList).refine(fileList => fileList.length > 0, "CV file is required.")
-    .refine(fileList => fileList[0].size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
-    .refine(fileList => ACCEPTED_FILE_TYPES.includes(fileList[0].type), "Only PDF, DOCX, DOC, and TXT files are accepted."),
+  cvFile: z.any()
+    .refine((files) => {
+      // Handle FileList or array-like objects (for test environments)
+      if (!files) return false;
+      const fileList = files instanceof FileList ? files : (files.length !== undefined ? files : null);
+      return fileList && fileList.length > 0;
+    }, "CV file is required.")
+    .refine((files) => {
+      if (!files || files.length === 0) return true;
+      const file = files[0];
+      return file && file.size <= MAX_FILE_SIZE;
+    }, `Max file size is 5MB.`)
+    .refine((files) => {
+      if (!files || files.length === 0) return true;
+      const file = files[0];
+      return file && ACCEPTED_FILE_TYPES.includes(file.type);
+    }, "Only PDF, DOCX, DOC, and TXT files are accepted."),
 });
 
 type FormValues = z.infer<typeof formSchema>;

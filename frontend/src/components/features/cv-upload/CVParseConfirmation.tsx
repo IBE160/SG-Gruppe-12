@@ -95,7 +95,8 @@ export function CVParseConfirmation({ cvId, onConfirm, onCancel }: CVParseConfir
     };
 
     fetchCvData();
-  }, [cvId, toast, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cvId]);
 
   const onSubmit = async (data: CvData) => {
     try {
@@ -225,6 +226,7 @@ export function CVParseConfirmation({ cvId, onConfirm, onCancel }: CVParseConfir
                         variant="ghost"
                         size="sm"
                         onClick={() => removeExperience(index)}
+                        aria-label={`Remove Experience ${index + 1}`}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
@@ -292,6 +294,7 @@ export function CVParseConfirmation({ cvId, onConfirm, onCancel }: CVParseConfir
                         variant="ghost"
                         size="sm"
                         onClick={() => removeEducation(index)}
+                        aria-label={`Remove Education ${index + 1}`}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
@@ -355,7 +358,7 @@ export function CVParseConfirmation({ cvId, onConfirm, onCancel }: CVParseConfir
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div>
                         <Label htmlFor={`skills.${index}.name`}>Skill Name *</Label>
-                        <Input {...form.register(`skills.${index}.name`)} />
+                        <Input id={`skills.${index}.name`} {...form.register(`skills.${index}.name`)} />
                         {form.formState.errors.skills?.[index]?.name && (
                           <p className="text-sm text-destructive mt-1">{form.formState.errors.skills[index]?.name?.message}</p>
                         )}
@@ -395,6 +398,7 @@ export function CVParseConfirmation({ cvId, onConfirm, onCancel }: CVParseConfir
                       variant="ghost"
                       size="sm"
                       onClick={() => removeSkill(index)}
+                      aria-label={`Remove Skill ${index + 1}`}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
@@ -453,6 +457,7 @@ export function CVParseConfirmation({ cvId, onConfirm, onCancel }: CVParseConfir
                       variant="ghost"
                       size="sm"
                       onClick={() => removeLanguage(index)}
+                      aria-label={`Remove Language ${index + 1}`}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>

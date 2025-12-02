@@ -22,4 +22,8 @@ module.exports = {
     '/node_modules/(?!(@testing-library/jest-dom))'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
+  testEnvironmentOptions: {
+    customExportConditions: [''],
+  },
 };

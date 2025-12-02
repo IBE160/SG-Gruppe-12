@@ -3,7 +3,6 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import CVVersionHistory from './CVVersionHistory';
-import { useCvStore } from '@/store/cvStore';
 import * as api from '@/lib/api/cv';
 
 // Mock the API client
@@ -13,13 +12,6 @@ jest.mock('@/lib/api/cv', () => ({
   restoreCvVersion: jest.fn(),
 }));
 
-// Mock useToast
-jest.mock('@/components/ui/use-toast', () => ({
-  useToast: jest.fn(() => ({
-    toast: jest.fn(),
-  })),
-}));
-
 describe('CVVersionHistory Component', () => {
   const mockCvId = 'mock-cv-id';
   const mockVersions = [
@@ -27,10 +19,16 @@ describe('CVVersionHistory Component', () => {
     { versionNumber: 2, createdAt: '2023-01-01T11:00:00Z' },
   ];
   const mockCvData = { personal_info: { firstName: 'John' } } as any;
+  const mockSetCV = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    useCvStore.setState({ cv: null, setCV: jest.fn() }); // Reset Zustand store
+    // Mock Zustand store for this test
+    const { useCvStore } = require('@/store/cvStore');
+    useCvStore.mockImplementation((selector: any) => {
+      const state = { cv: null, setCV: mockSetCV };
+      return selector ? selector(state) : state;
+    });
     (api.listCvVersions as jest.Mock).mockResolvedValue(mockVersions);
     (api.getCvVersionDetails as jest.Mock).mockResolvedValue(mockCvData);
     (api.restoreCvVersion as jest.Mock).mockResolvedValue(mockCvData);
@@ -48,7 +46,6 @@ describe('CVVersionHistory Component', () => {
   });
 
   it('calls setCV with version details when "View" is clicked', async () => {
-    const setCvSpy = jest.spyOn(useCvStore.getState(), 'setCV');
     render(<CVVersionHistory cvId={mockCvId} />);
 
     // Wait for the versions to be loaded and the button to be enabled
@@ -59,12 +56,11 @@ describe('CVVersionHistory Component', () => {
 
     await waitFor(() => {
       expect(api.getCvVersionDetails).toHaveBeenCalledWith(mockCvId, 1);
-      expect(setCvSpy).toHaveBeenCalledWith(mockCvData);
+      expect(mockSetCV).toHaveBeenCalledWith(mockCvData);
     });
   });
 
   it('calls restoreCvVersion and updates CV store when "Restore" is clicked', async () => {
-    const setCvSpy = jest.spyOn(useCvStore.getState(), 'setCV');
     render(<CVVersionHistory cvId={mockCvId} />);
 
     const restoreButton = await screen.findByRole('button', { name: 'Restore Version 1' });
@@ -75,7 +71,7 @@ describe('CVVersionHistory Component', () => {
     await waitFor(() => {
       expect(global.confirm).toHaveBeenCalledTimes(1);
       expect(api.restoreCvVersion).toHaveBeenCalledWith(mockCvId, 1);
-      expect(setCvSpy).toHaveBeenCalledWith(mockCvData);
+      expect(mockSetCV).toHaveBeenCalledWith(mockCvData);
     });
   });
 });
