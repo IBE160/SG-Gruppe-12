@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run start --workspace=src",
     "dev": "npm run dev --workspace=src & npm run dev --workspace=frontend",
-    "build": "npm run build --workspace=src && npm run build --workspace=frontend",
+    "build": "cd src && npm run build && cd ../frontend && npm run build",
     "test": "npm run test:src && npm run test:frontend",
     "test:src": "dotenv -e src/.env.test -- npx jest --config=src/jest.config.js",
     "test:frontend": "npx jest --config=frontend/jest.config.js",
