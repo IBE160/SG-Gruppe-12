@@ -1,10 +1,10 @@
 // frontend/src/store/cvStore.ts
 import { create } from 'zustand';
-import { CVData, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry, PersonalInfo } from '@/types/cv';
+import { CvData, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry, PersonalInfo } from '@/types/cv';
 
 interface CvState {
-  cv: CVData | null;
-  setCV: (cv: CVData) => void;
+  cv: CvData | null;
+  setCV: (cv: CvData) => void;
   updatePersonalInfo: (personalInfo: PersonalInfo) => void;
   updateExperience: (experience: ExperienceEntry[]) => void;
   updateEducation: (education: EducationEntry[]) => void;
@@ -13,7 +13,7 @@ interface CvState {
   reset: () => void;
 }
 
-const initialState: CVData = {
+const initialState: CvData = {
   personal_info: {
     firstName: '',
     lastName: '',

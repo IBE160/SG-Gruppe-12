@@ -26,7 +26,7 @@ const formSchema = z.object({
 });
 
 interface SkillsManagerProps {
-  cvId: number;
+  cvId: string;
   initialSkills?: SkillEntry[];
   onSave?: (updatedSkills: SkillEntry[]) => void;
 }

@@ -95,7 +95,6 @@ export function CVParseConfirmation({ cvId, onConfirm, onCancel }: CVParseConfir
     };
 
     fetchCvData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cvId]);
 
   const onSubmit = async (data: CvData) => {

@@ -1,5 +1,5 @@
 // frontend/src/lib/api/cv.ts
-import { CVData, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '@/types/cv';
+import { CvData, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '@/types/cv';
 import { apiClient, API_BASE_URL } from './client';
 
 interface ApiResponse<T> {
@@ -7,8 +7,8 @@ interface ApiResponse<T> {
   data: T;
 }
 
-export const getCV = async (cvId: string): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}`);
+export const getCV = async (cvId: string): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}`);
   return response.data;
 };
 
@@ -32,88 +32,88 @@ export const parseCV = async (file: File): Promise<{ cvId: string; message: stri
 };
 
 // --- Experience ---
-export const addExperience = async (cvId: string, data: ExperienceEntry): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/experience`, {
+export const addExperience = async (cvId: string, data: ExperienceEntry): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/experience`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
   return response.data;
 };
 
-export const updateExperience = async (cvId: string, index: number, updates: Partial<ExperienceEntry>): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/experience/${index}`, {
+export const updateExperience = async (cvId: string, index: number, updates: Partial<ExperienceEntry>): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/experience/${index}`, {
     method: 'PATCH',
     body: JSON.stringify(updates),
   });
   return response.data;
 };
 
-export const deleteExperience = async (cvId: string, index: number): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/experience/${index}`, {
+export const deleteExperience = async (cvId: string, index: number): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/experience/${index}`, {
     method: 'DELETE',
   });
   return response.data;
 };
 
 // --- Education ---
-export const addEducation = async (cvId: string, data: EducationEntry): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/education`, {
+export const addEducation = async (cvId: string, data: EducationEntry): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/education`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
   return response.data;
 };
 
-export const updateEducation = async (cvId: string, index: number, updates: Partial<EducationEntry>): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/education/${index}`, {
+export const updateEducation = async (cvId: string, index: number, updates: Partial<EducationEntry>): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/education/${index}`, {
     method: 'PATCH',
     body: JSON.stringify(updates),
   });
   return response.data;
 };
 
-export const deleteEducation = async (cvId: string, index: number): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/education/${index}`, {
+export const deleteEducation = async (cvId: string, index: number): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/education/${index}`, {
     method: 'DELETE',
   });
   return response.data;
 };
 
 // --- Skills ---
-export const addSkill = async (cvId: string, data: { skill: SkillEntry }): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/skills`, {
+export const addSkill = async (cvId: string, data: { skill: SkillEntry }): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/skills`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
   return response.data;
 };
 
-export const deleteSkill = async (cvId: string, index: number): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/skills/${index}`, {
+export const deleteSkill = async (cvId: string, index: number): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/skills/${index}`, {
     method: 'DELETE',
   });
   return response.data;
 };
 
 // --- Languages ---
-export const addLanguage = async (cvId: string, data: LanguageEntry): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/languages`, {
+export const addLanguage = async (cvId: string, data: LanguageEntry): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/languages`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
   return response.data;
 };
 
-export const updateLanguage = async (cvId: string, index: number, updates: Partial<LanguageEntry>): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/languages/${index}`, {
+export const updateLanguage = async (cvId: string, index: number, updates: Partial<LanguageEntry>): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/languages/${index}`, {
     method: 'PATCH',
     body: JSON.stringify(updates),
   });
   return response.data;
 };
 
-export const deleteLanguage = async (cvId: string, index: number): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/languages/${index}`, {
+export const deleteLanguage = async (cvId: string, index: number): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/languages/${index}`, {
     method: 'DELETE',
   });
   return response.data;
@@ -136,13 +136,13 @@ export const listCvVersions = async (cvId: string): Promise<{ versionNumber: num
   return response.data;
 };
 
-export const getCvVersionDetails = async (cvId: string, versionNumber: number): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/versions/${versionNumber}`);
+export const getCvVersionDetails = async (cvId: string, versionNumber: number): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/versions/${versionNumber}`);
   return response.data;
 };
 
-export const restoreCvVersion = async (cvId: string, versionNumber: number): Promise<CVData> => {
-  const response = await apiClient<ApiResponse<CVData>>(`/cvs/${cvId}/restore-version/${versionNumber}`, {
+export const restoreCvVersion = async (cvId: string, versionNumber: number): Promise<CvData> => {
+  const response = await apiClient<ApiResponse<CvData>>(`/cvs/${cvId}/restore-version/${versionNumber}`, {
     method: 'POST',
   });
   return response.data;

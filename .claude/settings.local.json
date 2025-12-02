@@ -4,7 +4,15 @@
       "Bash(git add:*)",
       "Bash(git push:*)",
       "Bash(npx jest:*)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run lint:*)",
+      "Bash(ESLINT_USE_FLAT_CONFIG=true npm run lint:*)",
+      "Bash(echo:*)",
+      "Bash(git commit:*)",
+      "Bash(npm run test:frontend:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm run:*)"
     ],
     "deny": [],
     "ask": []

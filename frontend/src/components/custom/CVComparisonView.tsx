@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Pencil, RotateCcw, Eye, EyeOff } from "lucide-react"
-import { CVData, Change } from "@/types/cv"
+import { CvData, Change } from "@/types/cv"
 
 interface CVComparisonViewProps {
-  originalCV: CVData
-  tailoredCV: CVData
+  originalCV: CvData
+  tailoredCV: CvData
   changes: Change[]
   onEdit?: (section: string) => void
   onRestore?: (section: string) => void
@@ -150,7 +150,7 @@ export function CVComparisonView({
                     <h3 className="font-semibold text-gray-900 mb-2">Skills</h3>
                     <div className="flex flex-wrap gap-2">
                       {originalCV.skills?.map((skill, idx) => (
-                        <Badge key={idx} variant="outline">{skill}</Badge>
+                        <Badge key={idx} variant="outline">{skill.name}</Badge>
                       ))}
                     </div>
                   </div>
@@ -195,7 +195,7 @@ export function CVComparisonView({
                             highlightChanges && !originalCV.skills?.includes(skill) && "bg-green-50 border-green-300"
                           )}
                         >
-                          {skill}
+                          {skill.name}
                         </Badge>
                       ))}
                     </div>
@@ -224,7 +224,7 @@ export function CVComparisonView({
                   <h3 className="font-semibold text-gray-900 mb-3">Skills</h3>
                   <div className="flex flex-wrap gap-2">
                     {originalCV.skills?.map((skill, idx) => (
-                      <Badge key={idx} variant="outline">{skill}</Badge>
+                      <Badge key={idx} variant="outline">{skill.name}</Badge>
                     ))}
                   </div>
                 </div>
@@ -263,7 +263,7 @@ export function CVComparisonView({
                   <h3 className="font-semibold text-gray-900 mb-3">Skills</h3>
                   <div className="flex flex-wrap gap-2">
                     {tailoredCV.skills?.map((skill, idx) => (
-                      <Badge key={idx} variant="outline">{skill}</Badge>
+                      <Badge key={idx} variant="outline">{skill.name}</Badge>
                     ))}
                   </div>
                 </div>

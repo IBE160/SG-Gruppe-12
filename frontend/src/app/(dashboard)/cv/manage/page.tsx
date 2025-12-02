@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { CVData, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '@/types/cv';
+import { CvData, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '@/types/cv';
 import { useCvStore } from '@/store/cvStore';
 import { useUiStore } from '@/store/uiStore';
 import { useAutosave } from '@/lib/hooks/useAutosave';
@@ -15,13 +15,13 @@ import { useUnsavedChanges } from '@/lib/hooks/useUnsavedChanges';
 import CVPreview from '@/components/features/cv-management/CVPreview';
 import TemplateSelector from '@/components/features/cv-management/TemplateSelector';
 import WorkExperienceList from '@/components/features/cv-management/WorkExperienceList';
-import WorkExperienceForm from '@/components/features/cv-management/WorkExperienceForm';
+import { WorkExperienceForm } from '@/components/features/cv-management/WorkExperienceForm';
 import EducationList from '@/components/features/cv-management/EducationList';
-import EducationForm from '@/components/features/cv-management/EducationForm';
+import { EducationForm } from '@/components/features/cv-management/EducationForm';
 import SkillsList from '@/components/features/cv-management/SkillsList';
-import SkillsForm from '@/components/features/cv-management/SkillsForm';
+import { SkillsManager as SkillsForm } from '@/components/features/cv-management/SkillsManager';
 import LanguagesList from '@/components/features/cv-management/LanguagesList';
-import LanguagesForm from '@/components/features/cv-management/LanguagesForm';
+import { LanguagesForm } from '@/components/features/cv-management/LanguagesForm';
 import CVVersionHistory from '@/components/features/cv-management/CVVersionHistory'; // Import new component
 import { Skeleton } from '@/components/ui/skeleton';
 import * as api from '@/lib/api/cv';
@@ -32,13 +32,13 @@ type EditableSection = 'experience' | 'education' | 'skill' | 'language' | null;
 
 export default function ManageCVPage() {
   const { toast } = useToast();
-  const cvId = "mock-cv-id"; // For MVP, assume a single, known CV ID.
+  const cvId = "1"; // For MVP, assume a single, known CV ID.
   
   const { cv: cvData, setCV, updateExperience, updateEducation, updateSkills, updateLanguages } = useCvStore();
   const { hasUnsavedChanges, setHasUnsavedChanges } = useUiStore();
   
   // Fetch initial data and populate the store
-  const { error, isLoading } = useSWR<CVData>(cvId ? `/api/v1/cvs/${cvId}` : null, fetcher, {
+  const { error, isLoading } = useSWR<CvData>(cvId ? `/api/v1/cvs/${cvId}` : null, fetcher, {
       onSuccess: (data) => setCV(data),
       revalidateOnFocus: false, // Prevent re-fetching on window focus for consistent Zustand state
   });
@@ -72,7 +72,7 @@ export default function ManageCVPage() {
             const isSkillUpdate = sectionName === 'Skills';
             const payload = isSkillUpdate ? { skill: data } : data;
 
-            let updatedCv: CVData;
+            let updatedCv: CvData;
             // For updates, pass index; for adds, just data
             if (editingIndex !== null) {
                 updatedCv = await apiUpdateFunction(cvId, editingIndex, payload);
@@ -81,7 +81,7 @@ export default function ManageCVPage() {
             }
             
             // The API returns the full updated CV. Extract the specific section to update the store.
-            const updatedSectionData = sectionName === 'Skills' ? updatedCv.skills : (updatedCv[sectionName.toLowerCase() as keyof CVData]);
+            const updatedSectionData = sectionName === 'Skills' ? updatedCv.skills : (updatedCv[sectionName.toLowerCase() as keyof CvData]);
             updateStoreFunction(updatedSectionData);
             
             setHasUnsavedChanges(false); // Mark as saved after autosave
@@ -98,7 +98,7 @@ export default function ManageCVPage() {
         const payload = sectionName === 'Skills' ? { skill: data.skill } : data; // Skills form passes { skill: string }
         const updatedCv = isUpdate ? await apiFunction(cvId, editingIndex, payload) : await apiFunction(cvId, payload);
         
-        const updatedSectionData = sectionName === 'Skills' ? updatedCv.skills : (updatedCv[sectionName.toLowerCase() as keyof CVData]);
+        const updatedSectionData = sectionName === 'Skills' ? updatedCv.skills : (updatedCv[sectionName.toLowerCase() as keyof CvData]);
         updateStore(updatedSectionData);
         
         toast({ title: 'Success', description: `${sectionName} saved.` });
@@ -115,7 +115,7 @@ export default function ManageCVPage() {
     setIsSubmitting(true);
     try {
         const updatedCv = await apiFunction(cvId, index);
-        const updatedSectionData = sectionName === 'Skills' ? updatedCv.skills : (updatedCv[sectionName.toLowerCase() as keyof CVData]);
+        const updatedSectionData = sectionName === 'Skills' ? updatedCv.skills : (updatedCv[sectionName.toLowerCase() as keyof CvData]);
         updateStore(updatedSectionData);
         toast({ title: 'Success', description: `${sectionName} deleted.` });
         setHasUnsavedChanges(false); // Mark as saved after deletion
@@ -169,11 +169,11 @@ export default function ManageCVPage() {
             {editingSection === 'experience' && (
              <div className="mb-4 p-4 border rounded-lg">
                 <h3 className="text-lg font-semibold mb-4">{editingIndex !== null ? 'Edit' : 'Add'} Experience</h3>
-                <WorkExperienceForm onSubmit={handleExperienceSubmit} onDataChange={handleDataChange(autosaveExperience)} initialData={editingIndex !== null ? cvData.experience[editingIndex] : undefined} isLoading={isSubmitting}/>
+                <WorkExperienceForm cvId={cvId} />
                 <Button variant="ghost" size="sm" onClick={handleCancel} className="mt-2">Cancel</Button>
              </div>
             )}
-            <WorkExperienceList experiences={cvData.experience} onEdit={(i) => handleEdit('experience', i)} onDelete={handleDeleteExperience} isLoading={isSubmitting}/>
+            <WorkExperienceList experiences={cvData?.experience || []} onEdit={(i) => handleEdit('experience', i)} onDelete={handleDeleteExperience} isLoading={isSubmitting}/>
           </CardContent>
         </Card>
 
@@ -184,11 +184,11 @@ export default function ManageCVPage() {
             {editingSection === 'education' && (
              <div className="mb-4 p-4 border rounded-lg">
                 <h3 className="text-lg font-semibold mb-4">{editingIndex !== null ? 'Edit' : 'Add'} Education</h3>
-                <EducationForm onSubmit={handleEducationSubmit} onDataChange={handleDataChange(autosaveEducation)} initialData={editingIndex !== null ? cvData.education[editingIndex] : undefined} isLoading={isSubmitting}/>
+                <EducationForm cvId={cvId} />
                 <Button variant="ghost" size="sm" onClick={handleCancel} className="mt-2">Cancel</Button>
              </div>
             )}
-            <EducationList educationEntries={cvData.education} onEdit={(i) => handleEdit('education', i)} onDelete={handleDeleteEducation} isLoading={isSubmitting}/>
+            <EducationList educationEntries={cvData?.education || []} onEdit={(i) => handleEdit('education', i)} onDelete={handleDeleteEducation} isLoading={isSubmitting}/>
           </CardContent>
         </Card>
         
@@ -196,8 +196,8 @@ export default function ManageCVPage() {
         <Card>
             <CardHeader><CardTitle>Skills</CardTitle></CardHeader>
             <CardContent>
-                <div className="mb-4"><SkillsForm onSubmit={handleSkillSubmit} isLoading={isSubmitting} /></div>
-                <SkillsList skills={cvData.skills} onDelete={handleDeleteSkill} isLoading={isSubmitting}/>
+                <div className="mb-4"><SkillsForm cvId={cvId} /></div>
+                <SkillsList skills={cvData?.skills || []} onDelete={handleDeleteSkill} isLoading={isSubmitting}/>
             </CardContent>
         </Card>
 
@@ -208,11 +208,11 @@ export default function ManageCVPage() {
                 {editingSection === 'language' && (
                     <div className="mb-4 p-4 border rounded-lg">
                         <h3 className="text-lg font-semibold mb-4">{editingIndex !== null ? 'Edit' : 'Add'} Language</h3>
-                        <LanguagesForm onSubmit={handleLanguageSubmit} onDataChange={handleDataChange(autosaveLanguage)} initialData={editingIndex !== null ? cvData.languages[editingIndex] : undefined} isLoading={isSubmitting}/>
+                        <LanguagesForm cvId={cvId} />
                         <Button variant="ghost" size="sm" onClick={handleCancel} className="mt-2">Cancel</Button>
                     </div>
                 )}
-                <LanguagesList languages={cvData.languages} onEdit={(i) => handleEdit('language', i)} onDelete={handleDeleteLanguage} isLoading={isSubmitting}/>
+                <LanguagesList languages={cvData?.languages || []} onEdit={(i) => handleEdit('language', i)} onDelete={handleDeleteLanguage} isLoading={isSubmitting}/>
             </CardContent>
         </Card>
 

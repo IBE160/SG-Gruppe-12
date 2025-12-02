@@ -25,7 +25,7 @@ const formSchema = z.object({
 });
 
 interface LanguagesFormProps {
-  cvId: number;
+  cvId: string;
   initialLanguages?: LanguageEntry[];
   onSave?: (updatedLanguages: LanguageEntry[]) => void;
 }

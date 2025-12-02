@@ -8,11 +8,7 @@ import './jobs/document-generation.job'; // Import the document generation job p
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV,
-  tracesSampleSample: 0.1, // Capture 10% of transactions for performance
-  integrations: [
-    new Sentry.Integrations.Http({ tracing: true }),
-    new Sentry.Integrations.Prisma({ client: prisma }),
-  ],
+  tracesSampleRate: 0.1, // Capture 10% of transactions for performance
 });
 
 const port = process.env.PORT || 3000;

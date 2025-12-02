@@ -1,18 +1,11 @@
 import Queue from 'bull';
-import IORedis, { Redis } from 'ioredis';
-import IORedisMock from 'ioredis-mock';
+import type { QueueOptions } from 'bull';
 
-let redisConnection: Redis | typeof IORedisMock.prototype | undefined;
-
-if (process.env.NODE_ENV === 'test') {
-  redisConnection = new IORedisMock(); // Use ioredis-mock instance for testing
-} else {
-  redisConnection = new IORedis({
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379', 10),
-    password: process.env.REDIS_PASSWORD || undefined,
-  });
-}
+const redisConfig = {
+  host: process.env.REDIS_HOST || 'localhost',
+  port: parseInt(process.env.REDIS_PORT || '6379', 10),
+  password: process.env.REDIS_PASSWORD || undefined,
+};
 
 const defaultJobOptions = {
   attempts: 3, // Retry a job up to 3 times
@@ -22,11 +15,15 @@ const defaultJobOptions = {
   },
 };
 
-// Define the Bull queue for CV parsing jobs
-export const cvParsingQueue = new Queue('cv-parsing', {
-  createClient: () => redisConnection as any, // Pass the instantiated client
+const queueOptions: QueueOptions = {
+  redis: process.env.NODE_ENV === 'test'
+    ? { host: 'localhost', port: 6379 } // Use simple config for tests
+    : redisConfig,
   defaultJobOptions,
-});
+};
+
+// Define the Bull queue for CV parsing jobs
+export const cvParsingQueue = new Queue('cv-parsing', queueOptions);
 
 // Define job data interface for better type safety
 export interface CVParsingJobData {
@@ -50,9 +47,20 @@ cvParsingQueue.on('error', (error) => {
 });
 
 // Define the Bull queue for document generation jobs
-export const documentGenerationQueue = new Queue('document-generation', {
-  createClient: () => redisConnection as any, // Pass the instantiated client
-  defaultJobOptions,
+export const documentGenerationQueue = new Queue('document-generation', queueOptions);
+
+export interface DocumentGenerationJobData {
+  userId: string;
+  cvId: number;
+  format: 'pdf' | 'docx';
+}
+
+documentGenerationQueue.on('global:completed', (jobId, result) => {
+  console.log(`Document Generation Job ${jobId} completed with result ${result}`);
+});
+
+documentGenerationQueue.on('global:failed', (jobId, err) => {
+  console.error(`Document Generation Job ${jobId} failed with error ${err}`);
 });
 
 export interface DocumentGenerationJobData {

@@ -1,11 +1,11 @@
 // frontend/src/components/features/cv-management/CVPreview.tsx
 import React from 'react';
-import { CVData } from '@/types/cv';
+import { CvData } from '@/types/cv';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
 interface CVPreviewProps {
-  cvData: CVData | null;
+  cvData: CvData | null;
   template: 'modern' | 'classic';
 }
 

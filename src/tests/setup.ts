@@ -9,4 +9,5 @@ dotenv.config({ path: path.resolve(__dirname, '../.env.test') });
 jest.mock('ioredis');
 jest.mock('rate-limit-redis');
 jest.mock('file-type');
+jest.mock('bull');
 jest.mock('../services/storage.service');

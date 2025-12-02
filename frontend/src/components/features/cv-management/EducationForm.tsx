@@ -29,7 +29,7 @@ const formSchema = z.object({
 });
 
 interface EducationFormProps {
-  cvId: number;
+  cvId: string;
   initialEducation?: EducationEntry[];
   onSave?: (updatedEducation: EducationEntry[]) => void;
 }

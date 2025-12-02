@@ -1,12 +1,13 @@
+// @ts-ignore - html-pdf-node doesn't have type definitions
 import htmlPdf from 'html-pdf-node';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 import Handlebars from 'handlebars';
 import fs from 'fs/promises';
 import path from 'path';
-import { CVData } from '../types/cv.types'; // Assuming this type exists
+import { CvData } from '../types/cv.types';
 
 export const documentGenerationService = {
-  async generateCVPDF(cvData: CVData, templateName: string = 'modern') {
+  async generateCVPDF(cvData: CvData, templateName: string = 'modern') {
     // Load HTML template
     const templatePath = path.join(__dirname, '../templates', `${templateName}.html`);
     // Placeholder content if template doesn't exist yet
@@ -86,7 +87,7 @@ export const documentGenerationService = {
     return pdfBuffer;
   },
 
-  async generateCVDOCX(cvData: CVData) {
+  async generateCVDOCX(cvData: CvData) {
     const doc = new Document({
       sections: [
         {
@@ -94,7 +95,7 @@ export const documentGenerationService = {
           children: [
             // Header: Name
             new Paragraph({
-              text: cvData.personal_info.name,
+              text: cvData.personal_info?.name || 'No Name',
               heading: HeadingLevel.HEADING_1,
               alignment: 'center'
             }),
@@ -102,9 +103,9 @@ export const documentGenerationService = {
             // Contact info
             new Paragraph({
               children: [
-                new TextRun(cvData.personal_info.email || ''),
+                new TextRun(cvData.personal_info?.email || ''),
                 new TextRun(' | '),
-                new TextRun(cvData.personal_info.phone || '')
+                new TextRun(cvData.personal_info?.phone || '')
               ],
               alignment: 'center'
             }),
@@ -115,7 +116,7 @@ export const documentGenerationService = {
               heading: HeadingLevel.HEADING_2
             }),
 
-            ...cvData.experience.map(exp =>
+            ...(cvData.experience || []).map((exp: any) =>
               new Paragraph({
                 children: [
                   new TextRun({ text: exp.title, bold: true }),
@@ -132,7 +133,7 @@ export const documentGenerationService = {
               heading: HeadingLevel.HEADING_2
             }),
 
-            ...cvData.education.map(edu =>
+            ...(cvData.education || []).map((edu: any) =>
               new Paragraph({
                 children: [
                   new TextRun({ text: edu.degree, bold: true }),
