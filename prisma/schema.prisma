@@ -66,14 +66,15 @@ model Cv {
 }
 
 model JobPosting {
-  id            Int      @id @default(autoincrement())
-  user_id       String?
-  user          User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
-  title         String
-  company       String?
-  description   String
-  url           String?
-  created_at    DateTime @default(now())
+  id              Int      @id @default(autoincrement())
+  user_id         String?
+  user            User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  title           String
+  company         String?
+  description     String
+  url             String?
+  extracted_data  Json?    // Stores extracted job data (keywords, skills, qualifications)
+  created_at      DateTime @default(now())
 
   application_analyses ApplicationAnalysis[]
 

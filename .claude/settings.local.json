@@ -12,7 +12,11 @@
       "Bash(git commit:*)",
       "Bash(npm run test:frontend:*)",
       "Bash(npm ls:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(dir /s /b \"C:\\Users\\kayle\\Desktop\\SG-Gruppe-12\\docs\\sprint-artifacts\\*3-1*\")",
+      "Bash(dir /b \"C:\\Users\\kayle\\Desktop\\SG-Gruppe-12\\docs\\sprint-artifacts\\stories\")",
+      "Bash(dir \"C:\\Users\\kayle\\Desktop\\SG-Gruppe-12\\frontend\\src\" /b)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

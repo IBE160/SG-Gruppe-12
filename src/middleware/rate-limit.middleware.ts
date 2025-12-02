@@ -23,13 +23,11 @@ export const rateLimitConfig = {
 // Helper function to create a new store instance based on the environment
 const createStore = (): Store | undefined => {
   if (process.env.NODE_ENV === 'test') {
-    // Return undefined to use default MemoryStore in test environment
     return undefined;
-  } else {
-    return new RedisStore({
-      sendCommand: redis.call.bind(redis) as SendCommandFn,
-    });
   }
+  return new RedisStore({
+    sendCommand: (...args: string[]) => (redis as any).call(...args),
+  });
 };
 
 // General rate limit (all endpoints)

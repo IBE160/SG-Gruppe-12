@@ -21,14 +21,14 @@ const navItems = [
     icon: Upload,
   },
   {
+    title: "Create Application",
+    href: "/create-application",
+    icon: PlusCircle,
+  },
+  {
     title: "Applications",
     href: "/applications",
     icon: FolderOpen,
-  },
-  {
-    title: "New Application",
-    href: "/applications/new",
-    icon: PlusCircle,
   },
   {
     title: "Settings",
