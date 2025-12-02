@@ -2,23 +2,63 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2 } from 'lucide-react';
-import { CvData } from '@/types/cv'; // Assuming CvData type exists in frontend types
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { CvData } from '@/types/cv';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cvDataSchema } from '@/lib/schemas/cv';
 
 interface CVParseConfirmationProps {
   cvId: string;
   onConfirm: () => void;
+  onCancel?: () => void;
 }
 
-export function CVParseConfirmation({ cvId, onConfirm }: CVParseConfirmationProps) {
-  const [cvData, setCvData] = useState<CvData | null>(null);
+export function CVParseConfirmation({ cvId, onConfirm, onCancel }: CVParseConfirmationProps) {
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const form = useForm<CvData>({
+    resolver: zodResolver(cvDataSchema),
+    defaultValues: {
+      personal_info: {},
+      education: [],
+      experience: [],
+      skills: [],
+      languages: [],
+      summary: '',
+    },
+  });
+
+  const { fields: experienceFields, append: appendExperience, remove: removeExperience } = useFieldArray({
+    control: form.control,
+    name: 'experience',
+  });
+
+  const { fields: educationFields, append: appendEducation, remove: removeEducation } = useFieldArray({
+    control: form.control,
+    name: 'education',
+  });
+
+  const { fields: skillFields, append: appendSkill, remove: removeSkill } = useFieldArray({
+    control: form.control,
+    name: 'skills',
+  });
+
+  const { fields: languageFields, append: appendLanguage, remove: removeLanguage } = useFieldArray({
+    control: form.control,
+    name: 'languages',
+  });
 
   useEffect(() => {
     const fetchCvData = async () => {
@@ -30,12 +70,23 @@ export function CVParseConfirmation({ cvId, onConfirm }: CVParseConfirmationProp
           throw new Error('Failed to fetch parsed CV data');
         }
         const result = await response.json();
-        setCvData(result.data);
+        const cvData = result.data;
+
+        // Reset form with fetched data
+        form.reset({
+          personal_info: cvData.personal_info || {},
+          education: cvData.education || [],
+          experience: cvData.experience || [],
+          skills: cvData.skills || [],
+          languages: cvData.languages || [],
+          summary: cvData.summary || '',
+        });
       } catch (err: any) {
-        setError(err.message || 'An unexpected error occurred while fetching CV data.');
+        const errorMsg = err.message || 'An unexpected error occurred while fetching CV data.';
+        setError(errorMsg);
         toast({
           title: 'Error',
-          description: error,
+          description: errorMsg,
           variant: 'destructive',
         });
       } finally {
@@ -44,7 +95,39 @@ export function CVParseConfirmation({ cvId, onConfirm }: CVParseConfirmationProp
     };
 
     fetchCvData();
-  }, [cvId, toast, error]);
+  }, [cvId, toast, form]);
+
+  const onSubmit = async (data: CvData) => {
+    try {
+      setIsSaving(true);
+      const response = await fetch(`/api/v1/cvs/${cvId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save CV data');
+      }
+
+      toast({
+        title: 'Success',
+        description: 'CV data saved successfully',
+      });
+
+      onConfirm();
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to save CV data',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -64,117 +147,350 @@ export function CVParseConfirmation({ cvId, onConfirm }: CVParseConfirmationProp
             <CardDescription>{error}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => setError(null)}>Try Again</Button>
+            <Button onClick={() => window.location.reload()}>Try Again</Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  if (!cvData) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-theme(spacing.16))]">
-        <Card className="w-full max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>No CV Data Found</CardTitle>
-            <CardDescription>Could not retrieve parsed CV data. Please try uploading again.</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <Card className="w-full max-w-2xl mx-auto my-8">
-      <CardHeader>
-        <CardTitle>Review & Confirm Your CV Data</CardTitle>
-        <CardDescription>
-          Please review the extracted information. You can edit any section after confirmation.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="max-h-[70vh]">
-        <ScrollArea className="h-full pr-4">
-          <h3 className="text-lg font-semibold mb-2">Personal Information</h3>
-          {cvData.personal_info ? (
-            <div className="pl-4 border-l-2 border-primary/50 mb-4">
-              <p><strong>Name:</strong> {cvData.personal_info.name}</p>
-              <p><strong>Email:</strong> {cvData.personal_info.email}</p>
-              <p><strong>Phone:</strong> {cvData.personal_info.phone}</p>
-              <p><strong>LinkedIn:</strong> {cvData.personal_info.linkedin}</p>
-              <p><strong>Portfolio:</strong> {cvData.personal_info.portfolio}</p>
-              <p><strong>Address:</strong> {cvData.personal_info.address}</p>
-            </div>
-          ) : <p className="text-muted-foreground">No personal information extracted.</p>}
-
-          <h3 className="text-lg font-semibold mb-2 mt-4">Experience</h3>
-          {cvData.experience && cvData.experience.length > 0 ? (
-            <div className="space-y-3 pl-4 border-l-2 border-primary/50 mb-4">
-              {cvData.experience.map((exp, index) => (
-                <div key={index} className="p-2 border rounded-md">
-                  <p><strong>Title:</strong> {exp.title}</p>
-                  <p><strong>Company:</strong> {exp.company}</p>
-                  <p><strong>Location:</strong> {exp.location}</p>
-                  <p><strong>Dates:</strong> {exp.start_date} - {exp.end_date || 'Present'}</p>
-                  <p><strong>Description:</strong> {exp.description}</p>
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <Card className="w-full max-w-4xl mx-auto my-8">
+        <CardHeader>
+          <CardTitle>Review & Edit Your CV Data</CardTitle>
+          <CardDescription>
+            Please review and edit the extracted information. All fields can be modified before saving.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="max-h-[70vh]">
+          <ScrollArea className="h-full pr-4">
+            {/* Personal Information Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-3">Personal Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4 border-l-2 border-primary/50">
+                <div>
+                  <Label htmlFor="personal_info.name">Name</Label>
+                  <Input id="personal_info.name" {...form.register('personal_info.name')} />
+                  {form.formState.errors.personal_info?.name && (
+                    <p className="text-sm text-destructive mt-1">{form.formState.errors.personal_info.name.message}</p>
+                  )}
                 </div>
-              ))}
-            </div>
-          ) : <p className="text-muted-foreground">No experience extracted.</p>}
-
-          <h3 className="text-lg font-semibold mb-2 mt-4">Education</h3>
-          {cvData.education && cvData.education.length > 0 ? (
-            <div className="space-y-3 pl-4 border-l-2 border-primary/50 mb-4">
-              {cvData.education.map((edu, index) => (
-                <div key={index} className="p-2 border rounded-md">
-                  <p><strong>Degree:</strong> {edu.degree}</p>
-                  <p><strong>Institution:</strong> {edu.institution}</p>
-                  <p><strong>Location:</strong> {edu.location}</p>
-                  <p><strong>Dates:</strong> {edu.start_date} - {edu.end_date}</p>
-                  <p><strong>Description:</strong> {edu.description}</p>
+                <div>
+                  <Label htmlFor="personal_info.email">Email</Label>
+                  <Input id="personal_info.email" type="email" {...form.register('personal_info.email')} />
+                  {form.formState.errors.personal_info?.email && (
+                    <p className="text-sm text-destructive mt-1">{form.formState.errors.personal_info.email.message}</p>
+                  )}
                 </div>
-              ))}
-            </div>
-          ) : <p className="text-muted-foreground">No education extracted.</p>}
-
-          <h3 className="text-lg font-semibold mb-2 mt-4">Skills</h3>
-          {cvData.skills && cvData.skills.length > 0 ? (
-            <div className="space-y-3 pl-4 border-l-2 border-primary/50 mb-4">
-              {cvData.skills.map((skill, index) => (
-                <div key={index} className="p-2 border rounded-md">
-                  <p><strong>Skill:</strong> {skill.name}</p>
-                  <p><strong>Proficiency:</strong> {skill.proficiency}</p>
-                  <p><strong>Keywords:</strong> {skill.keywords?.join(', ')}</p>
+                <div>
+                  <Label htmlFor="personal_info.phone">Phone</Label>
+                  <Input id="personal_info.phone" {...form.register('personal_info.phone')} />
                 </div>
-              ))}
-            </div>
-          ) : <p className="text-muted-foreground">No skills extracted.</p>}
-
-          <h3 className="text-lg font-semibold mb-2 mt-4">Languages</h3>
-          {cvData.languages && cvData.languages.length > 0 ? (
-            <div className="space-y-3 pl-4 border-l-2 border-primary/50 mb-4">
-              {cvData.languages.map((lang, index) => (
-                <div key={index} className="p-2 border rounded-md">
-                  <p><strong>Language:</strong> {lang.name}</p>
-                  <p><strong>Proficiency:</strong> {lang.proficiency}</p>
+                <div>
+                  <Label htmlFor="personal_info.address">Address</Label>
+                  <Input id="personal_info.address" {...form.register('personal_info.address')} />
                 </div>
-              ))}
+                <div>
+                  <Label htmlFor="personal_info.linkedin">LinkedIn</Label>
+                  <Input id="personal_info.linkedin" {...form.register('personal_info.linkedin')} />
+                </div>
+                <div>
+                  <Label htmlFor="personal_info.portfolio">Portfolio</Label>
+                  <Input id="personal_info.portfolio" {...form.register('personal_info.portfolio')} />
+                </div>
+              </div>
             </div>
-          ) : <p className="text-muted-foreground">No languages extracted.</p>}
 
-          <h3 className="text-lg font-semibold mb-2 mt-4">Summary</h3>
-          {cvData.summary ? (
-            <div className="pl-4 border-l-2 border-primary/50 mb-4">
-              <p>{cvData.summary}</p>
+            {/* Experience Section */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-semibold">Experience</h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendExperience({ title: '', company: '', location: '', start_date: '', end_date: '', description: '' })}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add Experience
+                </Button>
+              </div>
+              <div className="space-y-4 pl-4 border-l-2 border-primary/50">
+                {experienceFields.map((field, index) => (
+                  <div key={field.id} className="p-4 border rounded-md space-y-3">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-medium">Experience {index + 1}</h4>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeExperience(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor={`experience.${index}.title`}>Title *</Label>
+                        <Input {...form.register(`experience.${index}.title`)} />
+                        {form.formState.errors.experience?.[index]?.title && (
+                          <p className="text-sm text-destructive mt-1">{form.formState.errors.experience[index]?.title?.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor={`experience.${index}.company`}>Company *</Label>
+                        <Input {...form.register(`experience.${index}.company`)} />
+                        {form.formState.errors.experience?.[index]?.company && (
+                          <p className="text-sm text-destructive mt-1">{form.formState.errors.experience[index]?.company?.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor={`experience.${index}.location`}>Location</Label>
+                        <Input {...form.register(`experience.${index}.location`)} />
+                      </div>
+                      <div>
+                        <Label htmlFor={`experience.${index}.start_date`}>Start Date</Label>
+                        <Input {...form.register(`experience.${index}.start_date`)} placeholder="YYYY-MM or YYYY-MM-DD" />
+                      </div>
+                      <div>
+                        <Label htmlFor={`experience.${index}.end_date`}>End Date</Label>
+                        <Input {...form.register(`experience.${index}.end_date`)} placeholder="YYYY-MM or Present" />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor={`experience.${index}.description`}>Description</Label>
+                      <Textarea {...form.register(`experience.${index}.description`)} rows={3} />
+                    </div>
+                  </div>
+                ))}
+                {experienceFields.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No experience added. Click "Add Experience" to add an entry.</p>
+                )}
+              </div>
             </div>
-          ) : <p className="text-muted-foreground">No summary extracted.</p>}
 
-        </ScrollArea>
-      </CardContent>
-      <CardFooter>
-        <Button className="w-full" onClick={onConfirm}>
-          Confirm and Proceed to Editing
-        </Button>
-      </CardFooter>
-    </Card>
+            {/* Education Section */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-semibold">Education</h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendEducation({ institution: '', degree: '', location: '', start_date: '', end_date: '', description: '' })}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add Education
+                </Button>
+              </div>
+              <div className="space-y-4 pl-4 border-l-2 border-primary/50">
+                {educationFields.map((field, index) => (
+                  <div key={field.id} className="p-4 border rounded-md space-y-3">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-medium">Education {index + 1}</h4>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeEducation(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor={`education.${index}.institution`}>Institution *</Label>
+                        <Input {...form.register(`education.${index}.institution`)} />
+                        {form.formState.errors.education?.[index]?.institution && (
+                          <p className="text-sm text-destructive mt-1">{form.formState.errors.education[index]?.institution?.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor={`education.${index}.degree`}>Degree *</Label>
+                        <Input {...form.register(`education.${index}.degree`)} />
+                        {form.formState.errors.education?.[index]?.degree && (
+                          <p className="text-sm text-destructive mt-1">{form.formState.errors.education[index]?.degree?.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor={`education.${index}.location`}>Location</Label>
+                        <Input {...form.register(`education.${index}.location`)} />
+                      </div>
+                      <div>
+                        <Label htmlFor={`education.${index}.start_date`}>Start Date</Label>
+                        <Input {...form.register(`education.${index}.start_date`)} placeholder="YYYY-MM or YYYY-MM-DD" />
+                      </div>
+                      <div>
+                        <Label htmlFor={`education.${index}.end_date`}>End Date</Label>
+                        <Input {...form.register(`education.${index}.end_date`)} placeholder="YYYY-MM or YYYY-MM-DD" />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor={`education.${index}.description`}>Description</Label>
+                      <Textarea {...form.register(`education.${index}.description`)} rows={2} />
+                    </div>
+                  </div>
+                ))}
+                {educationFields.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No education added. Click "Add Education" to add an entry.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Skills Section */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-semibold">Skills</h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendSkill({ name: '', proficiency: 'intermediate', keywords: [] })}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add Skill
+                </Button>
+              </div>
+              <div className="space-y-3 pl-4 border-l-2 border-primary/50">
+                {skillFields.map((field, index) => (
+                  <div key={field.id} className="p-3 border rounded-md flex items-center gap-3">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <Label htmlFor={`skills.${index}.name`}>Skill Name *</Label>
+                        <Input {...form.register(`skills.${index}.name`)} />
+                        {form.formState.errors.skills?.[index]?.name && (
+                          <p className="text-sm text-destructive mt-1">{form.formState.errors.skills[index]?.name?.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor={`skills.${index}.proficiency`}>Proficiency</Label>
+                        <Select
+                          value={form.watch(`skills.${index}.proficiency`)}
+                          onValueChange={(value) => form.setValue(`skills.${index}.proficiency`, value as any)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="beginner">Beginner</SelectItem>
+                            <SelectItem value="intermediate">Intermediate</SelectItem>
+                            <SelectItem value="advanced">Advanced</SelectItem>
+                            <SelectItem value="expert">Expert</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor={`skills.${index}.keywords`}>Keywords (comma-separated)</Label>
+                        <Input
+                          {...form.register(`skills.${index}.keywords`)}
+                          placeholder="e.g., React, TypeScript"
+                          onChange={(e) => {
+                            const keywords = e.target.value.split(',').map(k => k.trim()).filter(k => k);
+                            form.setValue(`skills.${index}.keywords`, keywords);
+                          }}
+                          value={form.watch(`skills.${index}.keywords`)?.join(', ') || ''}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeSkill(index)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+                {skillFields.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No skills added. Click "Add Skill" to add an entry.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Languages Section */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-semibold">Languages</h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendLanguage({ name: '', proficiency: 'conversational' })}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add Language
+                </Button>
+              </div>
+              <div className="space-y-3 pl-4 border-l-2 border-primary/50">
+                {languageFields.map((field, index) => (
+                  <div key={field.id} className="p-3 border rounded-md flex items-center gap-3">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor={`languages.${index}.name`}>Language *</Label>
+                        <Input {...form.register(`languages.${index}.name`)} />
+                        {form.formState.errors.languages?.[index]?.name && (
+                          <p className="text-sm text-destructive mt-1">{form.formState.errors.languages[index]?.name?.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor={`languages.${index}.proficiency`}>Proficiency</Label>
+                        <Select
+                          value={form.watch(`languages.${index}.proficiency`)}
+                          onValueChange={(value) => form.setValue(`languages.${index}.proficiency`, value as any)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="basic">Basic</SelectItem>
+                            <SelectItem value="conversational">Conversational</SelectItem>
+                            <SelectItem value="fluent">Fluent</SelectItem>
+                            <SelectItem value="native">Native</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeLanguage(index)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+                {languageFields.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No languages added. Click "Add Language" to add an entry.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Summary Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-3">Professional Summary</h3>
+              <div className="pl-4 border-l-2 border-primary/50">
+                <Textarea {...form.register('summary')} rows={4} placeholder="Write a brief professional summary..." />
+              </div>
+            </div>
+          </ScrollArea>
+        </CardContent>
+        <CardFooter className="flex gap-3">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving} className="flex-1">
+              Cancel
+            </Button>
+          )}
+          <Button type="submit" disabled={isSaving} className="flex-1">
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Confirm & Save'
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
+    </form>
   );
 }

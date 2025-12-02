@@ -7,7 +7,7 @@
     "dev": "ts-node-dev --respawn --transpile-only server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "lint": "echo 'No linter configured for backend yet'"
+    "lint": "echo \"No backend linter configured yet. Skipping.\" && exit 0"
   },
   "keywords": [],
   "author": "",

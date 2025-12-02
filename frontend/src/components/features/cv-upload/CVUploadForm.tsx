@@ -95,7 +95,7 @@ export function CVUploadForm({ onFileUploadSuccess, onFileUploadError }: CVUploa
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Uploading...
+                Uploading and parsing... (3-5 seconds)
               </>
             ) : (
               'Upload and Parse'

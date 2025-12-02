@@ -64,3 +64,54 @@ export const updateCVSchema = z.object({
 }).partial(); // Make all top-level fields optional for partial updates
 
 export type UpdateCVInput = z.infer<typeof updateCVSchema>;
+
+// Schema matching backend CV parsing output structure
+export const parsedPersonalInfoSchema = z.object({
+  name: z.string().optional(),
+  email: z.string().email('Invalid email address').optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  linkedin: z.string().optional(),
+  portfolio: z.string().optional(),
+});
+
+export const parsedEducationEntrySchema = z.object({
+  institution: z.string().min(1, 'Institution name is required'),
+  degree: z.string().min(1, 'Degree is required'),
+  location: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  description: z.string().optional(),
+});
+
+export const parsedExperienceEntrySchema = z.object({
+  title: z.string().min(1, 'Job title is required'),
+  company: z.string().min(1, 'Company name is required'),
+  location: z.string().optional(),
+  start_date: z.string(),
+  end_date: z.string().optional(),
+  description: z.string().optional(),
+});
+
+export const parsedSkillEntrySchema = z.object({
+  name: z.string().min(1, 'Skill name is required'),
+  proficiency: z.enum(['beginner', 'intermediate', 'advanced', 'expert']).optional(),
+  keywords: z.array(z.string()).optional(),
+});
+
+export const parsedLanguageEntrySchema = z.object({
+  name: z.string().min(1, 'Language name is required'),
+  proficiency: z.enum(['basic', 'conversational', 'fluent', 'native']).optional(),
+});
+
+// Schema for parsed CV data (matching backend parsing output)
+export const cvDataSchema = z.object({
+  personal_info: parsedPersonalInfoSchema.optional(),
+  education: z.array(parsedEducationEntrySchema).optional(),
+  experience: z.array(parsedExperienceEntrySchema).optional(),
+  skills: z.array(parsedSkillEntrySchema).optional(),
+  languages: z.array(parsedLanguageEntrySchema).optional(),
+  summary: z.string().optional(),
+});
+
+export type CvDataInput = z.infer<typeof cvDataSchema>;
