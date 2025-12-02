@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Monorepo for AI CV and Job Application Assistant project.",
-  "scripts": {
+   "scripts": {
     "start": "npm -w src start",
     "dev": "npm -w src dev & npm -w frontend dev",
     "build": "npm -w src build && npm -w frontend build",
