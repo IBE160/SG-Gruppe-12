@@ -95,3 +95,19 @@ export const cvParseResponseSchema = z.object({
 });
 
 export type CVParseResponse = z.infer<typeof cvParseResponseSchema>;
+
+/**
+ * CV Parse Text Input Schema
+ * Story: Phase 2 Task 1 - Raw text CV input
+ * Request body for POST /api/v1/cvs/parse-text endpoint
+ */
+export const parseCVTextSchema = z.object({
+  body: z.object({
+    cvText: z.string()
+      .min(50, 'CV text must be at least 50 characters long.')
+      .max(50000, 'CV text cannot exceed 50,000 characters.'),
+    title: z.string().optional(),
+  }),
+});
+
+export type ParseCVTextInput = z.infer<typeof parseCVTextSchema>['body'];

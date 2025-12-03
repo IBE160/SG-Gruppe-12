@@ -174,6 +174,38 @@ export const cvController = {
     }
   },
 
+  /**
+   * Parse CV from raw text input (no file upload required)
+   * Story: Phase 2 Task 1 - Raw text CV input
+   */
+  async parseTextCV(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.userId;
+      const { cvText, title } = req.body;
+
+      // Parse the CV text using AI
+      const parsedCVData = await parsingService.parseCVFromText(cvText);
+
+      // Create CV record with parsed data
+      const newCV = await cvService.createCV(userId, {
+        title: title || 'Untitled CV (from text)',
+        ...parsedCVData,
+      });
+
+      res.status(201).json({
+        success: true,
+        data: {
+          cvId: newCV.id,
+          parsedData: parsedCVData,
+          uncertainFields: parsedCVData.uncertain_fields || [],
+        },
+        message: 'CV parsed and created successfully from text.'
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user!.userId;

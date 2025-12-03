@@ -3,7 +3,7 @@ import { cvController } from '../controllers/cv.controller';
 import { authenticate } from '../middleware/auth.middleware'; // Assuming this exists
 import { cvUploadMiddleware } from '../middleware/upload.middleware';
 import { validate } from '../middleware/validate.middleware'; // Assuming validate middleware exists
-import { createCVInputSchema as createCVSchema, experienceEntrySchema, educationEntrySchema, skillEntrySchema, languageEntrySchema } from '../validators/cv.validator'; // Import all Zod schemas
+import { createCVInputSchema as createCVSchema, experienceEntrySchema, educationEntrySchema, skillEntrySchema, languageEntrySchema, parseCVTextSchema } from '../validators/cv.validator'; // Import all Zod schemas
 import { z } from 'zod'; // Import z from zod for custom schemas
 
 const router = Router();
@@ -14,6 +14,15 @@ router.post(
   authenticate, // Authenticate user
   cvUploadMiddleware, // Handle file upload with Multer
   cvController.parseAndCreate // Process the uploaded file
+);
+
+// Route for AI-powered CV parsing from raw text input
+// Story: Phase 2 Task 1 - Raw text CV input
+router.post(
+  '/parse-text',
+  authenticate,
+  validate(parseCVTextSchema),
+  cvController.parseTextCV
 );
 
 // Example routes for other CV operations (from architecture docs)

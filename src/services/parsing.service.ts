@@ -13,6 +13,49 @@ const AI_MODEL_NAME = 'gemini-1.5-flash'; // Using a direct Gemini model name
 
 export const parsingService = {
   /**
+   * Parses CV content from raw text using Google Gemini AI.
+   * Story: Phase 2 Task 1 - Raw text CV input
+   * @param cvText The raw CV text content.
+   * @returns A Promise that resolves with the structured CvData.
+   */
+  async parseCVFromText(cvText: string): Promise<CvData> {
+    if (!cvText || cvText.trim().length < 50) {
+      throw new AppError('CV text must be at least 50 characters long.', 400);
+    }
+
+    try {
+      const { object: parsedData } = await generateObject({
+        model: gemini(AI_MODEL_NAME),
+        schema: cvDataSchema,
+        prompt: CVParsingPrompt.v2(cvText, 'text/plain'), // Use text/plain as file type
+        temperature: 0.0, // Zero temperature for fully deterministic extraction
+      });
+
+      // Validate against Zod schema to ensure data integrity
+      const validatedCVData = cvDataSchema.parse(parsedData);
+
+      // Check for uncertain fields and log warning if present
+      if (validatedCVData.uncertain_fields && validatedCVData.uncertain_fields.length > 0) {
+        logger.warn('AI reported uncertainty during CV text parsing - user clarification may be needed', {
+          uncertainFields: validatedCVData.uncertain_fields,
+          totalUncertainFields: validatedCVData.uncertain_fields.length,
+        });
+      }
+
+      return validatedCVData as CvData;
+    } catch (error: any) {
+      logger.error(`Error parsing CV text with AI: ${error.message}`, error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      if (error instanceof z.ZodError) {
+        throw new AppError(`AI parsed data failed schema validation: ${error.issues.map((e: any) => e.message).join(', ')}`, 400);
+      }
+      throw new AppError(`AI parsing failed: ${error.message || 'Unknown error'}`, error.statusCode || 500);
+    }
+  },
+
+  /**
    * Parses CV content from a file stored in Supabase using Google Gemini AI.
    * @param supabaseFilePath The path to the CV file in Supabase Storage.
    * @param fileType The MIME type of the file (e.g., 'application/pdf', 'text/plain').
