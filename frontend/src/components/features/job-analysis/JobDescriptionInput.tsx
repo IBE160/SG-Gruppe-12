@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 // Define the schema directly in the component file to avoid test environment module resolution issues.
 const analyzeJobDescriptionSchema = z.object({
-  jobDescription: z.string().min(10, 'Job description must be at least 10 characters long'),
+  jobDescription: z.string().min(10, 'Job description or URL must be at least 10 characters long'),
 });
 
 interface JobDescriptionInputProps {
@@ -42,12 +42,15 @@ export function JobDescriptionInput({
         <Label htmlFor="jobDescription">Job Description</Label>
         <Textarea
           id="jobDescription"
-          placeholder="Paste the job description here..."
+          placeholder="Paste the job description text or URL here..."
           rows={15}
           {...register("jobDescription")}
           className={cn({ "border-red-500": errors.jobDescription })}
           disabled={isLoading}
         />
+        <p className="text-sm text-gray-500">
+          💡 You can paste either the job description text or a URL to a job posting
+        </p>
         {errors.jobDescription && (
           <p role="alert" className="text-red-500 text-sm mt-1">{errors.jobDescription.message}</p>
         )}

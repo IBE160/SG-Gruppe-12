@@ -14,6 +14,7 @@ import crypto from 'crypto';
 import { MatchScoringService } from './MatchScoringService';
 import { cvRepository } from '../repositories/cv.repository';
 import { CvData, ExperienceEntry } from '../types/cv.types';
+import { jobUrlFetcherService } from './job-url-fetcher.service';
 
 // Define cache TTL (Time To Live) in seconds
 const CACHE_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
@@ -151,7 +152,15 @@ export const jobAnalysisService = {
     return jobPosting;
   },
 
-  async analyzeJobDescription(userId: string, jobDescription: string, cvId: string) {
+  async analyzeJobDescription(userId: string, jobDescriptionOrUrl: string, cvId: string) {
+    // Check if input is a URL and fetch content if needed
+    let jobDescription = jobDescriptionOrUrl;
+    if (jobUrlFetcherService.isUrl(jobDescriptionOrUrl)) {
+      logger.info(`Input detected as URL, fetching content for user ${userId}...`);
+      jobDescription = await jobUrlFetcherService.fetchJobPosting(jobDescriptionOrUrl);
+      logger.info(`Successfully fetched job description from URL (${jobDescription.length} characters)`);
+    }
+
     if (!jobDescription || jobDescription.length < 10) {
       logger.warn(`User ${userId} submitted an invalid job description.`);
       throw new AppError('Invalid job description provided.', 400);
