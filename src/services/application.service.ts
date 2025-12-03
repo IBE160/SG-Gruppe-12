@@ -102,10 +102,18 @@ export const applicationService = {
     const validation = llmSafetyService.validateGeneratedContent(fullText, context.validationContext);
 
     if (!validation.isValid) {
-      logger.warn('AI-generated CV content contains potentially unverified claims', {
+      logger.error('AI-generated CV failed validation - BLOCKING to prevent hallucination', {
         suspiciousContent: validation.suspiciousContent,
         warnings: validation.warnings,
       });
+
+      throw new AppError(
+        'Generated CV content contains unverified information and cannot be used. ' +
+        'The system detected potential additions that were not in your original CV. ' +
+        `Suspicious content: ${validation.suspiciousContent.join(', ')}. ` +
+        'Please review your CV data and try again.',
+        400
+      );
     }
 
     const application = await this.saveOrUpdateApplication(
@@ -148,10 +156,18 @@ export const applicationService = {
     );
 
     if (!validation.isValid) {
-      logger.warn('AI-generated cover letter contains potentially unverified claims', {
+      logger.error('AI-generated cover letter failed validation - BLOCKING to prevent hallucination', {
         suspiciousContent: validation.suspiciousContent,
         warnings: validation.warnings,
       });
+
+      throw new AppError(
+        'Generated cover letter contains unverified information and cannot be used. ' +
+        'The system detected potential additions that were not in your original CV. ' +
+        `Suspicious content: ${validation.suspiciousContent.join(', ')}. ` +
+        'Please review your CV data and try again.',
+        400
+      );
     }
 
     // Check for biased language
@@ -479,6 +495,7 @@ export const applicationService = {
     const { text } = await generateText({
       model: gemini('gemini-1.5-flash'),
       prompt,
+      temperature: 0.0, // Zero temperature for fully deterministic generation (no creativity)
     });
 
     // Sanitize output to remove any leaked system content
@@ -522,6 +539,7 @@ export const applicationService = {
     const { text } = await generateText({
       model: gemini('gemini-1.5-flash'),
       prompt,
+      temperature: 0.0, // Zero temperature for fully deterministic generation (no creativity)
     });
 
     // Sanitize output to remove any leaked system content

@@ -48,6 +48,13 @@ export interface LanguageEntry {
   level?: string; // Use level from conflicting definition
 }
 
+// Type for uncertain field information from AI parsing
+export interface UncertainField {
+  field: string;
+  reason: string;
+  found_text?: string;
+}
+
 // Type for the entire CV data structure expected by the services
 export interface CvData {
   title?: string;
@@ -58,6 +65,7 @@ export interface CvData {
   skills?: SkillEntry[];
   languages?: LanguageEntry[];
   summary?: string;
+  uncertain_fields?: UncertainField[];
 }
 
 // Additional types for CV versioning
@@ -74,4 +82,5 @@ export interface ParsedCvData {
   experience?: ExperienceEntry[];
   skills?: SkillEntry[];
   languages?: LanguageEntry[];
+  uncertain_fields?: UncertainField[];
 }

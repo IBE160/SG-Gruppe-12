@@ -48,7 +48,7 @@ describe('KeywordExtractionService', () => {
       model: expect.any(Function), // gemini('gemini-2.5-flash') returns a function in the mock
       schema: ExtractedJobDataSchema,
       prompt: JobExtractionPrompt.v1(jobDescription),
-      temperature: 0.2,
+      temperature: 0.0,
     });
     expect(require('../../utils/logger.util').logger.info).toHaveBeenCalledWith(
       'Successfully extracted job data using AI.'

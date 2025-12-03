@@ -50,6 +50,11 @@ export const cvDataSchema = z.object({
   skills: z.array(skillEntrySchema).optional(),
   languages: z.array(languageEntrySchema).optional(),
   summary: z.string().optional(),
+  uncertain_fields: z.array(z.object({
+    field: z.string(),
+    reason: z.string(),
+    found_text: z.string().optional(),
+  })).optional().describe('List of fields the AI is uncertain about and needs user clarification'),
 });
 
 // Type for the full CV data

@@ -32,7 +32,7 @@ export const KeywordExtractionService = {
         model: gemini('gemini-2.5-flash'), // Use gemini-2.5-flash as specified in architecture
         schema: ExtractedJobDataSchema, // Use Zod schema for structured output validation
         prompt: prompt,
-        temperature: 0.2, // Low temperature for factual extraction
+        temperature: 0.0, // Zero temperature for fully deterministic extraction (no creativity)
       });
 
       logger.info('Successfully extracted job data using AI.');

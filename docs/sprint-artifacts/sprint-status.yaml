@@ -82,5 +82,5 @@ development_status:
   5-5-rigorous-llm-sandboxing-data-minimization: done
   5-6-minimal-auditable-logging: done
   5-7-ai-fairness-bias-mitigation: done
-  epic-5-retrospective: optional# Sprint Status
+ epic-5-retrospective: optional# Sprint Status
 # This file tracks the progress of epics and stories through the development lifecycle.

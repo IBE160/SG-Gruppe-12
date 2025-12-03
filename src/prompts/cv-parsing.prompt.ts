@@ -110,11 +110,73 @@ export const CVParsingPrompt = {
     5.  **Languages:** Extract a list of languages. For each language, identify its 'name' and optional 'proficiency' (e.g., 'basic', 'conversational', 'fluent', 'native').
     6.  **Summary:** Extract a general summary or professional objective if present.
 
-    **Important Considerations:**
-    -   Be accurate and precise; do not hallucinate information.
-    -   If a field is not found, omit it from the output or set it to null/empty array as per the schema's optionality.
-    -   Focus strictly on the content provided in the CV; ignore formatting/layout details.
-    -   Standardize dates to YYYY-MM-DD. If only year/month is available, use YYYY-MM-01. If only year, use YYYY-01-01. If month and year, use YYYY-MM.
+    **CRITICAL - EXTRACTION RULES (DO NOT DEVIATE):**
+
+    You MUST follow these rules EXACTLY. Failure to comply will result in unusable output:
+
+    1. **ONLY EXTRACT WHAT IS EXPLICITLY WRITTEN** - Extract information that is DIRECTLY STATED in the CV text.
+    2. **NEVER INFER, ASSUME, OR GENERATE** - Do NOT make educated guesses, infer missing information, or add generic content.
+    3. **WHEN UNCERTAIN, OMIT** - If you cannot find explicit information for a field, you MUST:
+       - Omit the field entirely from the JSON output (preferred), OR
+       - Set it to null (for optional string fields), OR
+       - Set it to empty array [] (for array fields)
+    4. **DO NOT STANDARDIZE OR "IMPROVE"** - Extract descriptions verbatim. Do NOT rewrite, summarize, or "professionalize" the text.
+    5. **DO NOT ADD PLACEHOLDERS** - NEVER use generic text like "Not provided", "N/A", "To be determined", or similar.
+    6. **NEVER FABRICATE DATES** - Only extract dates that are explicitly written. If a date is ambiguous or missing, OMIT it.
+
+    **Date Standardization (ONLY when explicit dates exist):**
+    - Full date: YYYY-MM-DD
+    - Month/Year only: YYYY-MM
+    - Year only: YYYY-01
+    - No date visible: OMIT the field entirely
+
+    **Examples of CORRECT Extraction:**
+    ✅ CV says "Software Engineer" → Extract: title: "Software Engineer"
+    ✅ CV says "2020 - Present" → Extract: start_date: "2020-01", end_date: null
+    ✅ CV has no phone number → OMIT phone field entirely OR phone: null
+    ✅ CV says "React, Node.js" → Extract: skills: [{name: "React"}, {name: "Node.js"}]
+    ✅ CV says "Developed REST APIs" → Extract verbatim: "Developed REST APIs"
+    ✅ CV has no education section → Extract: education: []
+
+    **Examples of INCORRECT Extraction (NEVER DO THIS):**
+    ❌ CV says "Developer" → Extract: title: "Software Developer" (added "Software")
+    ❌ CV has no phone → Extract: phone: "Not provided" (placeholder text)
+    ❌ CV says "2020" only → Extract: start_date: "2020-01-01" (fabricated month/day)
+    ❌ CV says "Built features" → Extract: "Developed and implemented features using best practices" (rewrote)
+    ❌ CV has vague skill mention → Extract: "Proficient in Python with 5 years experience" (added details)
+    ❌ CV missing degree → Extract: degree: "Bachelor's Degree" (guessed)
+    ❌ CV says "worked at startup" → Extract: company: "Tech Startup Inc." (made up name)
+
+    **If you are unsure about ANY piece of information:**
+    1. Check if it's EXPLICITLY stated in the CV text
+    2. If not found explicitly → OMIT the field
+    3. NEVER fill in with assumptions, inferences, or generic text
+    4. When in doubt, LEAVE IT OUT
+    5. **ADD TO uncertain_fields array** - If you find text that MIGHT be relevant to a field but you're not confident:
+       - Add an entry to the "uncertain_fields" array
+       - Specify the field name (e.g., "personal_info.phone", "experience[0].company")
+       - Provide the reason for uncertainty (e.g., "Text is ambiguous", "Date format unclear", "Multiple possible values")
+       - Include the found_text that caused uncertainty (optional)
+
+    **Example uncertain_fields entries:**
+    ```json
+    {
+      "uncertain_fields": [
+        {
+          "field": "personal_info.phone",
+          "reason": "Found potential phone number but format is unclear",
+          "found_text": "Contact: 123-456"
+        },
+        {
+          "field": "experience[0].start_date",
+          "reason": "Only year mentioned, no month visible",
+          "found_text": "2020"
+        }
+      ]
+    }
+    ```
+
+    **Focus strictly on the content provided; ignore formatting/layout details.**
 
     **CV Content:**
     \`\`\`

@@ -34,11 +34,19 @@ export const parsingService = {
         model: gemini(AI_MODEL_NAME), // Use gemini instance with model name
         schema: cvDataSchema, // Use Zod schema for structured output validation
         prompt: CVParsingPrompt.v2(fileContent, fileType), // Use the new v2 prompt
-        temperature: 0.2, // Low temperature for factual extraction
+        temperature: 0.0, // Zero temperature for fully deterministic extraction (no creativity)
       });
 
       // Validate against Zod schema to ensure data integrity and correct type mapping
       const validatedCVData = cvDataSchema.parse(parsedData);
+
+      // Check for uncertain fields and log warning if present
+      if (validatedCVData.uncertain_fields && validatedCVData.uncertain_fields.length > 0) {
+        logger.warn('AI reported uncertainty during CV parsing - user clarification may be needed', {
+          uncertainFields: validatedCVData.uncertain_fields,
+          totalUncertainFields: validatedCVData.uncertain_fields.length,
+        });
+      }
 
       return validatedCVData as CvData;
     } catch (error: any) {
