@@ -67,11 +67,11 @@ development_status:
   epic-3-retrospective: done
 
   epic-4: contexted
-  4-1-ai-driven-tailored-cv-generation: backlog
-  4-2-ai-driven-personalized-cover-letter-generation: backlog
-  4-3-user-review-editing-interface-for-ai-generated-content: backlog
-  4-4-save-retrieve-tailored-application-history: backlog
-  4-5-robust-ai-processing-feedback-handling: backlog
+  4-1-ai-driven-tailored-cv-generation: done
+  4-2-ai-driven-personalized-cover-letter-generation: done
+  4-3-user-review-editing-interface-for-ai-generated-content: done
+  4-4-save-retrieve-tailored-application-history: done
+  4-5-robust-ai-processing-feedback-handling: done
   epic-4-retrospective: optional
 
   epic-5: contexted
