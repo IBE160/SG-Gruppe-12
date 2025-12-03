@@ -57,6 +57,29 @@ export const ATSAssessmentSchema = z.object({
 export type ATSAssessmentOutput = z.infer<typeof ATSAssessmentSchema>;
 
 /**
+ * Job Requirement Interpretation Schema
+ * Phase 3 Task 2: Explains what job requirements really mean
+ */
+export const JobRequirementInterpretationSchema = z.object({
+  requirement: z.string(),
+  literalMeaning: z.string(),
+  realMeaning: z.string(),
+  implicitExpectations: z.array(z.string()),
+  redFlags: z.array(z.string()).optional(),
+});
+
+export const JobInterpretationResultSchema = z.object({
+  overallAssessment: z.string(),
+  interpretations: z.array(JobRequirementInterpretationSchema),
+  culturalSignals: z.array(z.string()),
+  compensationInsights: z.array(z.string()),
+  growthPotential: z.string(),
+});
+
+export type JobRequirementInterpretationOutput = z.infer<typeof JobRequirementInterpretationSchema>;
+export type JobInterpretationResultOutput = z.infer<typeof JobInterpretationResultSchema>;
+
+/**
  * Job Analysis Result Schema
  * Complete output from job analysis endpoint
  */
@@ -73,6 +96,7 @@ export const JobAnalysisResultSchema = z.object({
   atsSuggestions: z.array(z.string()),
   atsQualitativeRating: z.enum(['Excellent', 'Good', 'Fair', 'Poor']),
   atsBreakdown: ATSBreakdownSchema.optional(),
+  interpretation: JobInterpretationResultSchema.optional(), // Phase 3 Task 2
 });
 
 export type JobAnalysisResultOutput = z.infer<typeof JobAnalysisResultSchema>;

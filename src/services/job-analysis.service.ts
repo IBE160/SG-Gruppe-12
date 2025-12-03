@@ -15,9 +15,13 @@ import { MatchScoringService } from './MatchScoringService';
 import { cvRepository } from '../repositories/cv.repository';
 import { CvData, ExperienceEntry } from '../types/cv.types';
 import { jobUrlFetcherService } from './job-url-fetcher.service';
+import { jobInterpretationService } from './job-interpretation.service';
 
 // Define cache TTL (Time To Live) in seconds
 const CACHE_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
+
+// Feature flag for job interpretation (can be controlled via env var)
+const ENABLE_JOB_INTERPRETATION = process.env.ENABLE_JOB_INTERPRETATION !== 'false'; // Enabled by default
 
 // Helper function to generate a unique cache key for a job description
 const generateCacheKey = (jobDescription: string): string => {
@@ -212,6 +216,21 @@ export const jobAnalysisService = {
     // Calculate ATS Score
     const atsAssessment = this.calculateATSScore(presentKeywords, missingKeywords, userCV);
 
+    // Phase 3 Task 2: Job requirement interpretation (optional, can be slow)
+    let interpretation;
+    if (ENABLE_JOB_INTERPRETATION) {
+      try {
+        logger.info('Generating job requirement interpretation...');
+        interpretation = await jobInterpretationService.interpretJobRequirements(
+          validatedExtractedData,
+          jobDescription
+        );
+      } catch (error: any) {
+        logger.warn('Failed to generate job interpretation, continuing without it', { error: error.message });
+        // Don't fail the whole analysis if interpretation fails
+      }
+    }
+
     // Placeholder for summaries
     const strengthsSummary = "Your skills in " + presentKeywords.slice(0,2).join(', ') + " are a great match.";
     const weaknessesSummary = "Consider highlighting experience with " + missingKeywords.slice(0,2).join(', ') + ".";
@@ -231,6 +250,7 @@ export const jobAnalysisService = {
       atsSuggestions: atsAssessment.suggestions,
       atsQualitativeRating: atsAssessment.qualitativeRating,
       atsBreakdown: atsAssessment.breakdown,
+      interpretation, // Phase 3 Task 2: Include interpretation if generated
     };
 
     // Story 3.6: Validate output at service boundary before caching/returning

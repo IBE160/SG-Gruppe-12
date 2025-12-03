@@ -1,6 +1,7 @@
 // src/types/job.types.ts
 
 import { ExtractedJobData } from "../services/KeywordExtractionService";
+import { JobInterpretationResult } from "../services/job-interpretation.service";
 
 export interface JobAnalysisResult {
   matchScore: number;
@@ -14,7 +15,8 @@ export interface JobAnalysisResult {
   atsScore: number;
   atsSuggestions: string[];
   atsQualitativeRating: 'Excellent' | 'Good' | 'Fair' | 'Poor';
-  atsBreakdown?: ATSBreakdown; // New field for detailed breakdown
+  atsBreakdown?: ATSBreakdown;
+  interpretation?: JobInterpretationResult; // Phase 3 Task 2: Job requirement interpretation
 }
 
 export interface JobAnalysisInput {
