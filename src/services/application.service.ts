@@ -1,4 +1,5 @@
 // src/services/application.service.ts
+import { generateText } from 'ai';
 import { gemini } from '../config/ai-providers';
 import { applicationRepository } from '../repositories/application.repository';
 import { cvRepository } from '../repositories/cv.repository';
@@ -470,73 +471,83 @@ export const applicationService = {
 
   /**
    * Calls the AI provider to generate tailored CV content.
-   * @deprecated Needs to be updated to use Vercel AI SDK generateText or generateObject
+   * Uses Vercel AI SDK generateText with Gemini model.
    */
   async callAIForTailoredCV(cvData: CvData, jobData: JobData): Promise<TailoredCvResult> {
-    // TODO: Update to use Vercel AI SDK methods
-    throw new AppError('AI generation temporarily disabled - needs SDK update', 501);
-    /* const model = gemini('gemini-1.5-flash');
     const prompt = TailoredCvPrompt.v1(cvData, jobData);
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    let text = response.text();
+    const { text } = await generateText({
+      model: gemini('gemini-1.5-flash'),
+      prompt,
+    });
 
     // Sanitize output to remove any leaked system content
-    text = llmSafetyService.sanitizeOutput(text);
+    const sanitizedText = llmSafetyService.sanitizeOutput(text);
 
     // Parse JSON response
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const jsonMatch = sanitizedText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
+      logger.error('Failed to parse AI response for tailored CV', { text: sanitizedText });
       throw new AppError('Failed to parse AI response', 500);
     }
 
-    const parsed = JSON.parse(jsonMatch[0]) as TailoredCvResult;
+    let parsed: TailoredCvResult;
+    try {
+      parsed = JSON.parse(jsonMatch[0]) as TailoredCvResult;
+    } catch (parseError) {
+      logger.error('JSON parse error for tailored CV', { error: parseError, text: jsonMatch[0] });
+      throw new AppError('Failed to parse AI response JSON', 500);
+    }
 
     // Validate required fields
     if (!parsed.summary || !parsed.experience || !parsed.skills) {
+      logger.error('Invalid AI response structure for tailored CV', { parsed });
       throw new AppError('Invalid AI response structure', 500);
     }
 
     return parsed;
-    */
   },
 
   /**
    * Calls the AI provider to generate cover letter.
-   * @deprecated Needs to be updated to use Vercel AI SDK generateText or generateObject
+   * Uses Vercel AI SDK generateText with Gemini model.
    */
   async callAIForCoverLetter(
     cvData: CvData,
     jobData: JobData,
     options?: CoverLetterOptions
   ): Promise<CoverLetterResult> {
-    // TODO: Update to use Vercel AI SDK methods
-    throw new AppError('AI generation temporarily disabled - needs SDK update', 501);
-    /* const model = gemini('gemini-1.5-flash');
     const prompt = CoverLetterPrompt.v1(cvData, jobData, options || {});
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    let text = response.text();
+    const { text } = await generateText({
+      model: gemini('gemini-1.5-flash'),
+      prompt,
+    });
 
     // Sanitize output to remove any leaked system content
-    text = llmSafetyService.sanitizeOutput(text);
+    const sanitizedText = llmSafetyService.sanitizeOutput(text);
 
     // Parse JSON response
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const jsonMatch = sanitizedText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
+      logger.error('Failed to parse AI response for cover letter', { text: sanitizedText });
       throw new AppError('Failed to parse AI response', 500);
     }
 
-    const parsed = JSON.parse(jsonMatch[0]) as CoverLetterResult;
+    let parsed: CoverLetterResult;
+    try {
+      parsed = JSON.parse(jsonMatch[0]) as CoverLetterResult;
+    } catch (parseError) {
+      logger.error('JSON parse error for cover letter', { error: parseError, text: jsonMatch[0] });
+      throw new AppError('Failed to parse AI response JSON', 500);
+    }
 
     // Validate required fields
     if (!parsed.fullText) {
+      logger.error('Invalid AI response structure for cover letter', { parsed });
       throw new AppError('Invalid AI response structure', 500);
     }
 
     return parsed;
-    */
   },
 };
