@@ -1,21 +1,13 @@
 // src/services/KeywordExtractionService.ts
 import { generateObject } from 'ai'; // Vercel AI SDK's generateObject for structured output
-import { z } from 'zod'; // Zod for schema validation
 import { gemini } from '../config/ai-providers'; // Vercel AI SDK Gemini instance
 import { JobExtractionPrompt } from '../prompts/job-extraction.prompt';
 import { AppError } from '../utils/errors.util';
 import { logger } from '../utils/logger.util';
+import { ExtractedJobDataSchema, type ExtractedJobDataOutput } from '../validators/job.validator';
 
-// Define the expected structure of the AI's JSON output using Zod
-// This schema will be used by generateObject for validation
-export const ExtractedJobDataSchema = z.object({
-  keywords: z.array(z.string()),
-  skills: z.array(z.string()),
-  qualifications: z.array(z.string()),
-  responsibilities: z.array(z.string()),
-});
-
-export type ExtractedJobData = z.infer<typeof ExtractedJobDataSchema>;
+// Re-export type for backwards compatibility
+export type ExtractedJobData = ExtractedJobDataOutput;
 
 export const KeywordExtractionService = {
   /**

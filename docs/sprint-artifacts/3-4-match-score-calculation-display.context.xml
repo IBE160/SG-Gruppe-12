@@ -1,0 +1,165 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>{{epic_id}}</epicId>
+    <storyId>{{story_id}}</storyId>
+    <title>{{story_title}}</title>
+    <status>{{story_status}}</status>
+    <generatedAt>{{date}}</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>{{story_path}}</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>to see a clear match score and a summary of my strengths and weaknesses</iWant>
+    <soThat>I can quickly assess my fit for a job</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Update `JobAnalysisService`**
+- [ ] Subtask 1.1: In `src/services/job-analysis.service.ts`, after calling `compareCvToJob`, call `MatchScoringService.calculateMatchScore` with the `presentKeywords` and `missingKeywords`.
+- [ ] Subtask 1.2: Ensure the returned `matchScore` is included in the `result` object.
+
+**Task 2: Update Data Types**
+- [ ] Subtask 2.1: In `src/types/job.types.ts`, ensure the `JobAnalysisResult` interface includes the `matchScore: number;` field.
+
+**Task 3: Update Tests**
+- [ ] Subtask 3.1: Update the unit tests for `JobAnalysisService` to mock the `calculateMatchScore` call and verify it's included in the result.
+- [ ] Subtask 3.2: Update the integration tests for the `POST /api/job/analyze` endpoint to assert that the `matchScore` field is present and is a number in the response.
+
+### Frontend Development Tasks
+
+**Task 4: Implement `MatchScoreGauge` Component**
+- [ ] Subtask 4.1: Create the `MatchScoreGauge` React component in `frontend/src/components/custom/`.
+- [ ] Subtask 4.2: Implement the visual representation of the score (e.g., a circular progress bar) as per the UX design.
+- [ ] Subtask 4.3: The component should accept a `score` prop and display it correctly.
+
+**Task 5: Integrate Match Score in the UI**
+- [ ] Subtask 5.1: In the relevant frontend page (e.g., the job analysis results page), fetch the job analysis data from the backend.
+- [ ] Subtask 5.2: Pass the `matchScore` from the API response to the `MatchScoreGauge` component.
+- [ ] Subtask 5.3: Display the `strengthsSummary` and `weaknessesSummary` from the API response.
+
+**Task 6: Update Frontend State Management**
+- [ ] Subtask 6.1: Update the `jobAnalysisStore` in Zustand to include the `matchScore`.
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+*   **AC-1 (Backend):** The `JobAnalysisService` *must* call the `MatchScoringService.calculateMatchScore` method after the keyword comparison is complete.
+*   **AC-2 (Backend):** The final JSON response from the `POST /api/job/analyze` endpoint *must* include a `matchScore` field with a numerical value between 0 and 100.
+*   **AC-3 (Frontend):** The frontend *must* display the `matchScore` to the user in a clear, intuitive, and visually appealing way, as specified in the `ux-design-specification-COMPLETE.md`.
+*   **AC-4 (Frontend):** The frontend *must* also display the highlighted strengths and weaknesses (summaries) returned from the backend.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+        <doc>
+            <path>docs/epics.md</path>
+            <title>Epics</title>
+            <section>Story 3.4: Match Score Calculation & Display (MVP)</section>
+            <snippet>As a user, I want a clear match score and highlights of my strengths/weaknesses against a job description, So that I can quickly assess my fit and areas for improvement.</snippet>
+        </doc>
+        <doc>
+            <path>docs/architecture-backend.md</path>
+            <title>Backend Architecture</title>
+            <section>Service Layer (Business Logic)</section>
+            <snippet>The Service Layer contains the core business logic of the application. It orchestrates calls to the data access layer and any external services. For this story, the logic will be in `JobAnalysisService` and `MatchScoringService`.</snippet>
+        </doc>
+        <doc>
+            <path>docs/ux-design-specification-COMPLETE.md</path>
+            <title>UX Design Specification</title>
+            <section>6.6 Custom Component: MatchScoreGauge</section>
+            <snippet>Purpose: Visual representation of job match percentage. Design: Circular or horizontal progress bar. Color-coded by score range.</snippet>
+        </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/services/job-analysis.service.ts</path>
+        <kind>service</kind>
+        <symbol>jobAnalysisService.analyzeJobDescription</symbol>
+        <lines>80-147</lines>
+        <reason>This is the main service to be modified. It orchestrates the CV analysis process, including calling the match score calculation.</reason>
+      </file>
+      <file>
+        <path>src/services/MatchScoringService.ts</path>
+        <kind>service</kind>
+        <symbol>MatchScoringService.calculateMatchScore</symbol>
+        <lines>26-34</lines>
+        <reason>This service contains the core logic for calculating the match score based on present and missing keywords.</reason>
+      </file>
+      <file>
+        <path>frontend/src/components/custom/MatchScoreGauge.tsx</path>
+        <kind>frontend component</kind>
+        <symbol>MatchScoreGauge</symbol>
+        <reason>This is the frontend component responsible for visually displaying the match score.</reason>
+      </file>
+    </code>
+    <dependencies>
+        <npm>
+            <package name="@prisma/client" version="^5.7.1" />
+            <package name="ai" version="^5.0.105" />
+            <package name="@ai-sdk/google" version="^2.0.44" />
+            <package name="jest" version="^29.7.0" />
+            <package name="supertest" version="^6.3.3" />
+            <package name="react" version="^18.3.0" />
+            <package name="next" version="^14.2.0" />
+            <package name="zustand" version="^5.0.8" />
+        </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>The `matchScore` must be a numerical value between 0 and 100.</constraint>
+    <constraint>The `JobAnalysisService` must include `matchScore` in its response.</constraint>
+    <constraint>The frontend display must adhere to the `MatchScoreGauge` specifications in `ux-design-specification-COMPLETE.md`.</constraint>
+  </constraints>
+  <interfaces>
+      <interface>
+          <name>JobAnalysisResult</name>
+          <kind>typescript interface</kind>
+          <signature>
+            export interface JobAnalysisResult {
+              matchScore: number;
+              presentKeywords: string[];
+              missingKeywords: string[];
+              strengthsSummary: string;
+              weaknessesSummary: string;
+              rawKeywords: string[];
+              jobRequirements: ExtractedJobData;
+              submittedAt: string;
+            }
+          </signature>
+          <path>src/types/job.types.ts</path>
+      </interface>
+      <interface>
+          <name>MatchScoreGaugeProps</name>
+          <kind>typescript interface (React props)</kind>
+          <signature>
+            interface MatchScoreGaugeProps {
+              score: number // 0-100
+              size?: 'sm' | 'md' | 'lg'
+              showLabel?: boolean
+              showMessage?: boolean
+              variant?: 'circular' | 'horizontal'
+            }
+          </signature>
+          <path>frontend/src/components/custom/MatchScoreGauge.tsx</path>
+      </interface>
+  </interfaces>
+  <tests>
+    <standards>Unit tests are written with Jest, and integration tests with Supertest. Frontend tests use React Testing Library.</standards>
+    <locations>
+        - src/tests/unit/
+        - src/tests/integration/
+        - frontend/src/tests/
+    </locations>
+    <ideas>
+      <idea for="AC-1">Test `JobAnalysisService` calls `MatchScoringService.calculateMatchScore`.</idea>
+      <idea for="AC-2">Test `POST /api/job/analyze` response contains `matchScore` (0-100).</idea>
+      <idea for="AC-3">Test `MatchScoreGauge` component renders correct score and styling.</idea>
+      <idea for="AC-4">Test frontend displays correct `strengthsSummary` and `weaknessesSummary`.</idea>
+    </ideas>
+  </tests>
+</story-context>

@@ -97,6 +97,15 @@ describe('POST /api/v1/jobs/analyze', () => {
         responsibilities: ['Develop features'],
       },
       submittedAt: new Date().toISOString(),
+      atsScore: 85,
+      atsSuggestions: ["Improve formatting", "Add quantifiable achievements"],
+      atsQualitativeRating: "Good",
+      atsBreakdown: {
+        keywordDensityScore: 70,
+        formattingScore: 90,
+        sectionCompletenessScore: 80,
+        quantifiableAchievementsScore: 75,
+      },
     });
   });
 
@@ -111,6 +120,13 @@ describe('POST /api/v1/jobs/analyze', () => {
     expect(response.body.data).toHaveProperty('matchScore');
     expect(response.body.data).toHaveProperty('presentKeywords');
     expect(response.body.data).toHaveProperty('missingKeywords');
+    expect(response.body.data).toHaveProperty('atsScore');
+    expect(response.body.data).toHaveProperty('atsSuggestions');
+    expect(response.body.data).toHaveProperty('atsQualitativeRating');
+    expect(response.body.data).toHaveProperty('atsBreakdown');
+    expect(response.body.data.atsScore).toBe(85);
+    expect(response.body.data.atsSuggestions).toEqual(["Improve formatting", "Add quantifiable achievements"]);
+    expect(response.body.data.atsQualitativeRating).toBe("Good");
     expect(jobAnalysisService.analyzeJobDescription).toHaveBeenCalledWith(
       userId,
       validJobDescription,
@@ -126,7 +142,7 @@ describe('POST /api/v1/jobs/analyze', () => {
 
     expect(response.statusCode).toEqual(400);
     expect(response.body.success).toBe(false);
-    expect(response.body.message).toContain('Validation failed');
+    expect(response.body.message).toContain('Request validation failed');
     expect(jobAnalysisService.analyzeJobDescription).not.toHaveBeenCalled();
   });
   
@@ -145,6 +161,15 @@ describe('POST /api/v1/jobs/analyze', () => {
         responsibilities: ['Develop features'],
       },
       submittedAt: new Date().toISOString(),
+      atsScore: 85,
+      atsSuggestions: ["Improve formatting", "Add quantifiable achievements"],
+      atsQualitativeRating: "Good",
+      atsBreakdown: {
+        keywordDensityScore: 70,
+        formattingScore: 90,
+        sectionCompletenessScore: 80,
+        quantifiableAchievementsScore: 75,
+      },
     };
   
     (redis.get as jest.Mock).mockResolvedValue(null); // Cache miss

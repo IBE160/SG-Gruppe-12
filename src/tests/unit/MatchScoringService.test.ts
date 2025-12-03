@@ -7,8 +7,8 @@ describe('MatchScoringService', () => {
       const cvData = { skills: ['TypeScript', 'React', 'Node.js'] };
       const extractedJobData = { keywords: ['React', 'Node.js', 'GraphQL'], skills: [], qualifications: [], responsibilities: [] };
       const { presentKeywords, missingKeywords } = MatchScoringService.compareCvToJob(cvData, extractedJobData);
-      expect(presentKeywords).toEqual(['React', 'Node.js']);
-      expect(missingKeywords).toEqual(['GraphQL']);
+      expect(presentKeywords).toEqual(['react', 'node.js']);
+      expect(missingKeywords).toEqual(['graphql']);
     });
 
     it('should handle no matching keywords', () => {
@@ -16,14 +16,14 @@ describe('MatchScoringService', () => {
       const extractedJobData = { keywords: ['GraphQL', 'Apollo'], skills: [], qualifications: [], responsibilities: [] };
       const { presentKeywords, missingKeywords } = MatchScoringService.compareCvToJob(cvData, extractedJobData);
       expect(presentKeywords).toEqual([]);
-      expect(missingKeywords).toEqual(['GraphQL', 'Apollo']);
+      expect(missingKeywords).toEqual(['graphql', 'apollo']);
     });
 
     it('should handle all keywords matching', () => {
       const cvData = { skills: ['TypeScript', 'React', 'Node.js'] };
       const extractedJobData = { keywords: ['React', 'Node.js'], skills: [], qualifications: [], responsibilities: [] };
       const { presentKeywords, missingKeywords } = MatchScoringService.compareCvToJob(cvData, extractedJobData);
-      expect(presentKeywords).toEqual(['React', 'Node.js']);
+      expect(presentKeywords).toEqual(['react', 'node.js']);
       expect(missingKeywords).toEqual([]);
     });
   });

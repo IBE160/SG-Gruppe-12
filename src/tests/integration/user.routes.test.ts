@@ -175,7 +175,7 @@ describe('User Profile API', () => {
 
       expect(response.statusCode).toBe(400);
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('Validation failed');
+      expect(response.body.message).toBe('Request validation failed. Please check your input.');
       expect(response.body.errors).toEqual(
         expect.arrayContaining([
           expect.objectContaining({

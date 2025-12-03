@@ -1,13 +1,10 @@
 // src/services/MatchScoringService.ts
 
+import { ExtractedJobData } from './KeywordExtractionService';
+
 interface CVData {
   skills: string[];
   // Other CV data...
-}
-
-interface ExtractedJobData {
-  keywords: string[];
-  // Other extracted job data...
 }
 
 export class MatchScoringService {
@@ -18,8 +15,18 @@ export class MatchScoringService {
    * @returns An object containing arrays of present and missing keywords.
    */
   public static compareCvToJob(cvData: CVData, extractedJobData: ExtractedJobData): { presentKeywords: string[], missingKeywords: string[] } {
-    const presentKeywords = cvData.skills.filter(skill => extractedJobData.keywords.includes(skill));
-    const missingKeywords = extractedJobData.keywords.filter(keyword => !cvData.skills.includes(keyword));
+    const cvSkillsLower = cvData.skills.map(skill => skill.toLowerCase());
+    const jobKeywordsLower = [
+      ...extractedJobData.keywords,
+      ...extractedJobData.skills,
+      ...extractedJobData.qualifications,
+      ...extractedJobData.responsibilities,
+    ].map(keyword => keyword.toLowerCase());
+
+    const uniqueJobKeywords = [...new Set(jobKeywordsLower)];
+
+    const presentKeywords = cvSkillsLower.filter(skill => uniqueJobKeywords.includes(skill));
+    const missingKeywords = uniqueJobKeywords.filter(keyword => !cvSkillsLower.includes(keyword));
 
     return { presentKeywords, missingKeywords };
   }

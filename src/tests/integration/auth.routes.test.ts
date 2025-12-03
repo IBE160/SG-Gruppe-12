@@ -144,7 +144,7 @@ describe('Auth Routes - /api/v1/auth', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('Validation failed');
+      expect(response.body.message).toContain('Request validation failed');
     });
   });
 

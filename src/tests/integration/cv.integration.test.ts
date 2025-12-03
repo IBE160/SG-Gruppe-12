@@ -125,7 +125,7 @@ describe('CV API - Work Experience Endpoints', () => {
           .expect(400);
 
         expect(response.body.success).toBe(false);
-        expect(response.body.message).toBe('Validation failed');
+        expect(response.body.message).toBe('Request validation failed. Please check your input.');
     });
 
     it('should return 401 if not authenticated', async () => {
@@ -161,7 +161,7 @@ describe('CV API - Work Experience Endpoints', () => {
           .expect(400);
 
         expect(response.body.success).toBe(false);
-        expect(response.body.message).toBe('Validation failed');
+        expect(response.body.message).toBe('Request validation failed. Please check your input.');
     });
   });
 

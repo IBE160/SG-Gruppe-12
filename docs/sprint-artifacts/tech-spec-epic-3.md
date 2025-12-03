@@ -84,7 +84,16 @@ Purpose: Accept a job description and a reference to a CV, return a structured a
   "missingKeywords": ["data analysis", "Agile"],
   "strengthsSummary": "Your background in React and UX aligns well with this position.",
   "weaknessesSummary": "The job expects stronger skills in Agile and data analysis.",
-  "rawKeywords": ["project management", "React", "data analysis", "Agile"]
+  "rawKeywords": ["project management", "React", "data analysis", "Agile"],
+  "atsScore": 85,
+  "atsSuggestions": ["Improve formatting", "Add quantifiable achievements"],
+  "atsQualitativeRating": "Good",
+  "atsBreakdown": {
+    "keywordDensityScore": 70,
+    "formattingScore": 90,
+    "sectionCompletenessScore": 80,
+    "quantifiableAchievementsScore": 75
+  }
 }
 ```
 
@@ -96,6 +105,10 @@ Fields:
 - `strengthsSummary`: short natural-language description of strengths  
 - `weaknessesSummary`: short natural-language description of gaps  
 - `rawKeywords`: all extracted keywords before grouping
+- `atsScore`: integer between 0 and 100, representing ATS compatibility
+- `atsSuggestions`: array of strings, providing improvement suggestions
+- `atsQualitativeRating`: 'Excellent' | 'Good' | 'Fair' | 'Poor', qualitative assessment
+- `atsBreakdown`: object, detailed scoring components for ATS
 
 ### 5.4 Error Responses
 
@@ -133,6 +146,7 @@ To ensure a modular and maintainable architecture, the backend logic for this ep
   - Calls the `KeywordExtractionService` to get keywords.
   - Calls the `MatchScoringService` to get the score and grouped keywords.
   - Calls the `SummaryService` to generate natural-language summaries.
+  - **New**: Calls `ATSScoringService` to calculate ATS score.
 
 - **`KeywordExtractionService`**:
   - Responsible for all communication with the LLM provider (Gemini).
@@ -144,6 +158,9 @@ To ensure a modular and maintainable architecture, the backend logic for this ep
   - Contains the business logic for comparing the extracted keywords against the user's CV data.
   - Groups keywords into `presentKeywords` and `missingKeywords`.
   - Implements the `calculateMatchScore` function.
+
+- **`ATSScoringService`**:
+  - **New**: Dedicated service for calculating the ATS compatibility score, including breakdown, suggestions, and qualitative rating.
 
 - **`SummaryService`**:
   - (Optional, can be part of `JobAnalysisService` for MVP)
@@ -168,8 +185,21 @@ export interface JobAnalysisResult {
   presentKeywords: string[];
   missingKeywords: string[];
   strengthsSummary: string;
-  weaknessesSummary: string;
+  weaknessesSummary: string[];
   rawKeywords: string[];
+  jobRequirements: ExtractedJobData;
+  submittedAt: string;
+  atsScore: number;
+  atsSuggestions: string[];
+  atsQualitativeRating: 'Excellent' | 'Good' | 'Fair' | 'Poor';
+  atsBreakdown?: ATSBreakdown;
+}
+
+export interface ATSBreakdown {
+  keywordDensityScore: number;
+  formattingScore: number;
+  sectionCompletenessScore: number;
+  quantifiableAchievementsScore: number;
 }
 
 // Input to the service layer
@@ -185,6 +215,23 @@ export interface JobAnalysisCacheEntry {
   createdAt: Date;
 }
 ```
+
+## 7.1 ATS Score Calculation & Display
+
+This section details the integration of the Applicant Tracking System (ATS) compatibility score into the job analysis process. The ATS score provides users with an assessment of how well their CV is optimized for automated screening.
+
+### Purpose
+To provide a numeric score (0-100) and qualitative feedback on a CV's ATS compatibility, including improvement suggestions and a detailed breakdown of scoring components.
+
+### Calculation Overview
+The ATS score is calculated based on several weighted factors:
+- **Keyword Presence (40%):** Assesses the density and relevance of job description keywords found in the CV.
+- **Formatting Simplicity (30%):** Evaluates general CV structure, presence of common sections, and readability.
+- **Section Completeness (20%):** Checks for the inclusion of essential CV sections (e.g., personal info, education, experience, skills).
+- **Quantifiable Achievements (10%):** Identifies the presence of measurable results in experience descriptions.
+
+### API Integration
+The ATS score, along with qualitative rating, suggestions, and a detailed breakdown, will be included in the `JobAnalysisResult` returned by the `/api/job/analyze` endpoint.
 
 ---
 

@@ -1,0 +1,329 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>3.6</storyId>
+    <title>Data Schema Contract Enforcement (Job Analysis Inputs/Outputs)</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/3-6-data-schema-contract-enforcement-job-analysis-inputs-outputs.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a developer</asA>
+    <iWant>clear data schema contracts for job analysis inputs and outputs</iWant>
+    <soThat>data consistency is maintained across the pipeline</soThat>
+    <tasks>
+      <task id="1">
+        <description>Audit Existing Schema Definitions</description>
+        <subtasks>
+          <subtask>Review all type definitions in src/types/ (cv.types.ts, job.types.ts, matching.types.ts)</subtask>
+          <subtask>Identify gaps where Zod schemas are missing</subtask>
+          <subtask>Document current validation coverage</subtask>
+          <subtask>Create test matrix of validated vs unvalidated endpoints</subtask>
+        </subtasks>
+      </task>
+      <task id="2">
+        <description>Create Comprehensive Zod Schemas</description>
+        <subtasks>
+          <subtask>Create/update Zod schemas in src/validators/ for all job analysis data flows</subtask>
+          <subtask>Ensure src/validators/cv.validator.ts has complete CvData schema</subtask>
+          <subtask>Ensure src/validators/job.validator.ts has JobAnalysisInput and JobAnalysisResult schemas</subtask>
+          <subtask>Ensure src/validators/matching.validator.ts has MatchingRequest and MatchResult schemas</subtask>
+          <subtask>Add schema for ExtractedJobData (keywords, skills, qualifications, responsibilities)</subtask>
+          <subtask>Unit tests for each schema with valid/invalid data</subtask>
+        </subtasks>
+      </task>
+      <task id="3">
+        <description>Enforce Validation in API Endpoints</description>
+        <subtasks>
+          <subtask>Apply validation middleware to POST /api/v1/cvs/:id/parse (CV data)</subtask>
+          <subtask>Apply validation middleware to POST /api/v1/jobs/analyze (job description input)</subtask>
+          <subtask>Apply validation middleware to POST /api/v1/jobs/:jobId/match (matching request)</subtask>
+          <subtask>Ensure all endpoints return validated responses</subtask>
+          <subtask>Integration tests verifying validation enforcement</subtask>
+        </subtasks>
+      </task>
+      <task id="4">
+        <description>Add Error Logging for Validation Failures</description>
+        <subtasks>
+          <subtask>Update validation middleware to log schema validation failures</subtask>
+          <subtask>Include request context (endpoint, user_id) in logs</subtask>
+          <subtask>Ensure PII is redacted from validation error logs</subtask>
+          <subtask>Return user-friendly error messages (not raw Zod errors)</subtask>
+          <subtask>Verify logs generated for validation failures</subtask>
+        </subtasks>
+      </task>
+      <task id="5">
+        <description>Update Service Layer to Enforce Schemas</description>
+        <subtasks>
+          <subtask>In src/services/job-analysis.service.ts, validate AI extraction output against ExtractedJobDataSchema</subtask>
+          <subtask>In src/services/matching.service.ts, validate match result output against MatchResultSchema</subtask>
+          <subtask>Add runtime assertions using schema.parse() at service boundaries</subtask>
+          <subtask>Unit tests for service-level validation</subtask>
+        </subtasks>
+      </task>
+      <task id="6">
+        <description>Mirror Backend Schemas in Frontend</description>
+        <subtasks>
+          <subtask>Ensure frontend/src/types/ mirrors backend type definitions</subtask>
+          <subtask>Create Zod schemas in frontend/src/lib/schemas/ for form validation</subtask>
+          <subtask>Align JobAnalysisResult, MatchResult, CvData types between frontend/backend</subtask>
+          <subtask>TypeScript compilation tests</subtask>
+        </subtasks>
+      </task>
+      <task id="7">
+        <description>Document Schema Contracts</description>
+        <subtasks>
+          <subtask>Create docs/schema-contracts.md documenting all data schemas</subtask>
+          <subtask>Include request/response examples for each endpoint</subtask>
+          <subtask>Document validation rules and error codes</subtask>
+          <subtask>Manual review of documentation completeness</subtask>
+        </subtasks>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1">
+      <description>Given data is passed between the CV data, job description input, AI extraction, and matching components</description>
+    </criterion>
+    <criterion id="AC2">
+      <description>When data is processed</description>
+    </criterion>
+    <criterion id="AC3">
+      <description>Then all inputs conform to predefined schemas</description>
+    </criterion>
+    <criterion id="AC4">
+      <description>And all outputs conform to predefined schemas</description>
+    </criterion>
+    <criterion id="AC5">
+      <description>And validation failures are logged and handled gracefully</description>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic 3: Job Ad Analysis & Match Scoring</title>
+        <section>Story 3.6</section>
+        <snippet>As a developer, I want clear data schema contracts for job analysis inputs and outputs, so that data consistency is maintained across the pipeline. Prerequisites: Story 2.1 (CV data model), Story 3.2 (AI extraction).</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture Specification</title>
+        <section>Validation & Schema</section>
+        <snippet>Zod 3.22+ for runtime schema validation (aligns with frontend). Validation middleware applies Zod schemas to requests. All API endpoints use type-safe validation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR-3.2, FR-3.3</section>
+        <snippet>Job-CV comparison must use validated data schemas. All AI processing inputs/outputs must conform to documented contracts.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <artifact>
+        <path>src/validators/cv.validator.ts</path>
+        <kind>validator</kind>
+        <symbol>cvDataSchema</symbol>
+        <lines>1-77</lines>
+        <reason>Existing CV validation schema - already implements personal_info, education, experience, skills, languages validation. Use as reference pattern.</reason>
+      </artifact>
+      <artifact>
+        <path>src/validators/job.validator.ts</path>
+        <kind>validator</kind>
+        <symbol>analyzeJobDescriptionSchema</symbol>
+        <lines>1-12</lines>
+        <reason>Existing job analysis input validation - validates jobDescription and cvId. MISSING: JobAnalysisResult output schema, ExtractedJobData schema.</reason>
+      </artifact>
+      <artifact>
+        <path>src/validators/matching.validator.ts</path>
+        <kind>validator</kind>
+        <symbol>MatchingRequestSchema, MatchResultSchema</symbol>
+        <lines>1-81</lines>
+        <reason>Comprehensive matching schemas already implemented in Story 3.3. Includes MatchedKeywordSchema, MatchedSkillSchema, GapAnalysisSchema, MatchMetadataSchema, MatchResultSchema.</reason>
+      </artifact>
+      <artifact>
+        <path>src/middleware/validate.middleware.ts</path>
+        <kind>middleware</kind>
+        <symbol>validate</symbol>
+        <lines>15-36</lines>
+        <reason>Generic validation middleware - accepts Zod schema, validates req.body/query/params, returns ValidationError on failure. Use this pattern for all endpoint validation.</reason>
+      </artifact>
+      <artifact>
+        <path>src/types/cv.types.ts</path>
+        <kind>types</kind>
+        <symbol>CvData, PersonalInfo, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry</symbol>
+        <lines>1-50</lines>
+        <reason>TypeScript interfaces for CV data. Zod schemas in cv.validator.ts should mirror these exactly.</reason>
+      </artifact>
+      <artifact>
+        <path>src/types/job.types.ts</path>
+        <kind>types</kind>
+        <symbol>JobAnalysisResult, ExtractedJobData, ATSAssessment</symbol>
+        <lines>1-100</lines>
+        <reason>TypeScript interfaces for job analysis. MISSING Zod schemas for JobAnalysisResult and ExtractedJobData in job.validator.ts.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/job-analysis.service.ts</path>
+        <kind>service</kind>
+        <symbol>analyzeJobDescription</symbol>
+        <lines>1-200</lines>
+        <reason>Main job analysis service - orchestrates AI extraction, keyword matching, score calculation. Should validate inputs/outputs using Zod schemas at service boundaries.</reason>
+      </artifact>
+      <artifact>
+        <path>src/services/matching.service.ts</path>
+        <kind>service</kind>
+        <symbol>matchCVToJob</symbol>
+        <lines>1-150</lines>
+        <reason>Matching service from Story 3.3 - already uses MatchResultSchema for output validation. Reference implementation for service-level validation.</reason>
+      </artifact>
+      <artifact>
+        <path>src/routes/job.routes.ts</path>
+        <kind>routes</kind>
+        <symbol>POST /api/v1/jobs/analyze</symbol>
+        <lines>20-35</lines>
+        <reason>Job analysis endpoint - currently uses analyzeJobDescriptionSchema. Verify all job-related endpoints have validation middleware applied.</reason>
+      </artifact>
+      <artifact>
+        <path>src/routes/cv.routes.ts</path>
+        <kind>routes</kind>
+        <symbol>POST /api/v1/cvs/:id/parse</symbol>
+        <lines>15-30</lines>
+        <reason>CV parsing endpoint - verify cvDataSchema validation is applied to parsing output.</reason>
+      </artifact>
+      <artifact>
+        <path>src/tests/unit/job.validator.test.ts</path>
+        <kind>test</kind>
+        <symbol>analyzeJobDescriptionSchema tests</symbol>
+        <lines>1-50</lines>
+        <reason>Existing validator unit tests - follow this pattern for new schemas (valid/invalid cases, edge cases, error messages).</reason>
+      </artifact>
+    </code>
+
+    <dependencies>
+      <node>
+        <package name="zod" version="^4.1.13">Runtime schema validation and TypeScript type inference</package>
+        <package name="express" version="5.1.0">Web framework with middleware support</package>
+        <package name="typescript" version="^5.9.3">Type safety and compilation</package>
+      </node>
+      <node-dev>
+        <package name="jest" version="^29.7.0">Testing framework for unit and integration tests</package>
+        <package name="ts-jest" version="^29.4.5">TypeScript support for Jest</package>
+        <package name="@types/express" version="^4.17.21">TypeScript types for Express</package>
+      </node-dev>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Use Zod 4.x for all schema validation - it's the project standard and provides runtime type safety</constraint>
+    <constraint>Follow the existing validate middleware pattern (src/middleware/validate.middleware.ts) - accepts Zod schema, validates req.body/query/params, throws ValidationError</constraint>
+    <constraint>Maintain strict TypeScript mode - all schemas must align exactly with TypeScript interfaces in src/types/</constraint>
+    <constraint>Validators export Zod schemas, not types - types are inferred using z.infer&lt;typeof schema&gt;</constraint>
+    <constraint>Schema files in src/validators/ should export const schemas, not default exports</constraint>
+    <constraint>All API endpoints must use validate() middleware - apply before controller methods</constraint>
+    <constraint>Service layer should use schema.parse() for runtime validation at boundaries (inputs from external sources, outputs to API)</constraint>
+    <constraint>Validation errors must be user-friendly - transform Zod errors using ValidationError class pattern</constraint>
+    <constraint>PII (personally identifiable information) must be redacted from validation error logs - use existing redaction utilities</constraint>
+    <constraint>Schema contracts must be versioned - consider adding version field to major schemas</constraint>
+    <constraint>Frontend schemas in frontend/src/lib/schemas/ must mirror backend validators exactly - use the same validation rules</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>validate middleware</name>
+      <kind>middleware function</kind>
+      <signature>validate(schema: z.ZodObject&lt;any, any&gt;) => (req: Request, res: Response, next: NextFunction) => Promise&lt;void&gt;</signature>
+      <path>src/middleware/validate.middleware.ts:15-36</path>
+      <usage>Apply to routes: router.post('/analyze', validate(analyzeJobDescriptionSchema), jobController.analyzeJobDescription)</usage>
+    </interface>
+    <interface>
+      <name>Zod schema.parse()</name>
+      <kind>function method</kind>
+      <signature>schema.parse(data: unknown) => T | throws ZodError</signature>
+      <path>N/A (Zod library method)</path>
+      <usage>Use in services for runtime validation: const validatedData = cvDataSchema.parse(rawData)</usage>
+    </interface>
+    <interface>
+      <name>Zod schema.safeParse()</name>
+      <kind>function method</kind>
+      <signature>schema.safeParse(data: unknown) => { success: boolean; data?: T; error?: ZodError }</signature>
+      <path>N/A (Zod library method)</path>
+      <usage>Use when validation errors should not throw: const result = schema.safeParse(data); if (!result.success) { handle errors }</usage>
+    </interface>
+    <interface>
+      <name>POST /api/v1/jobs/analyze</name>
+      <kind>REST endpoint</kind>
+      <signature>Request: { jobDescription: string, cvId: string | number } => Response: JobAnalysisResult</signature>
+      <path>src/routes/job.routes.ts:20-35</path>
+      <usage>Ensure both request (analyzeJobDescriptionSchema) and response (JobAnalysisResultSchema) are validated</usage>
+    </interface>
+    <interface>
+      <name>POST /api/v1/jobs/:jobId/match</name>
+      <kind>REST endpoint</kind>
+      <signature>Request: { cvId: string } => Response: MatchResult</signature>
+      <path>src/routes/job.routes.ts:40-55</path>
+      <usage>Already uses MatchingRequestSchema for input, MatchResultSchema for output - reference implementation</usage>
+    </interface>
+    <interface>
+      <name>POST /api/v1/cvs/:id/parse</name>
+      <kind>REST endpoint</kind>
+      <signature>Request: multipart/form-data with CV file => Response: CvData</signature>
+      <path>src/routes/cv.routes.ts:15-30</path>
+      <usage>Ensure cvDataSchema validates the parsing output before returning to client</usage>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing follows Jest framework with ts-jest for TypeScript support. Unit tests go in src/tests/unit/, integration tests in src/tests/integration/.
+      Validator tests should cover: (1) valid input passes, (2) invalid input fails with expected error, (3) edge cases (empty, null, undefined), (4) error message clarity.
+      Integration tests should verify: (1) endpoint returns 400 for validation failures, (2) error response includes field-level errors, (3) valid requests proceed normally.
+      Service-level validation tests should verify: (1) schema.parse() throws for invalid data, (2) valid data passes through, (3) partial validation works where applicable.
+      All tests must use isolated test data - no reliance on production database state.
+    </standards>
+
+    <locations>
+      <location>src/tests/unit/</location>
+      <location>src/tests/integration/</location>
+      <location>frontend/src/**/*.test.ts</location>
+      <location>frontend/src/**/*.test.tsx</location>
+    </locations>
+
+    <ideas>
+      <idea ac="AC3">
+        Unit test: cvDataSchema validates complete CV data object with all sections
+        Unit test: cvDataSchema rejects CV data with invalid email format
+        Unit test: cvDataSchema allows optional fields to be undefined
+      </idea>
+      <idea ac="AC3">
+        Unit test: Create JobAnalysisResultSchema and test it validates atsScore, matchScore, keywords, suggestions
+        Unit test: JobAnalysisResultSchema rejects result with matchScore > 100
+      </idea>
+      <idea ac="AC3">
+        Unit test: Create ExtractedJobDataSchema and test it validates keywords, skills, qualifications, responsibilities arrays
+        Unit test: ExtractedJobDataSchema allows empty arrays for optional fields
+      </idea>
+      <idea ac="AC4">
+        Integration test: POST /api/v1/jobs/analyze returns 400 when jobDescription is too short (&lt;10 chars)
+        Integration test: POST /api/v1/jobs/analyze returns validated JobAnalysisResult matching schema
+      </idea>
+      <idea ac="AC4">
+        Integration test: POST /api/v1/jobs/:jobId/match returns 400 when cvId is missing
+        Integration test: POST /api/v1/jobs/:jobId/match returns validated MatchResult matching schema
+      </idea>
+      <idea ac="AC5">
+        Integration test: Validation failure logs error with request context (endpoint, method)
+        Integration test: Validation error response is user-friendly (not raw Zod error dump)
+        Integration test: PII is redacted from validation error logs
+      </idea>
+      <idea ac="AC5">
+        Unit test: ValidationError class formats Zod errors into field-level error array
+        Unit test: validate middleware catches ZodError and transforms to ValidationError
+      </idea>
+    </ideas>
+  </tests>
+</story-context>

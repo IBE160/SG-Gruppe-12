@@ -1,20 +1,24 @@
 // frontend/src/lib/api/job-analysis.ts
 import axios from 'axios';
+import { JobAnalysisResult } from '../../../src/types/job.types'; // Corrected path to backend types
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
 
 interface AnalyzeJobResponse {
   success: boolean;
   message: string;
-  data: any; // Define a more specific type later
+  data: JobAnalysisResult; // Now correctly typed
 }
 
-export const analyzeJobDescriptionApi = async (jobDescription: string): Promise<AnalyzeJobResponse> => {
+export const analyzeJobDescriptionApi = async (
+  jobDescription: string,
+  cvId: string // New parameter
+): Promise<AnalyzeJobResponse> => {
   try {
     const response = await axios.post<AnalyzeJobResponse>(
       `${API_BASE_URL}/jobs/analyze`,
-      { jobDescription },
-      { withCredentials: true } // Important for sending HTTP-only cookies
+      { jobDescription, cvId }, // Pass cvId in the request body
+      { withCredentials: true }
     );
     return response.data;
   } catch (error: any) {

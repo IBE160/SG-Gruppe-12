@@ -147,3 +147,10 @@ export const restoreCvVersion = async (cvId: string, versionNumber: number): Pro
   });
   return response.data;
 };
+
+// --- CV Listing ---
+export const listCVs = async (): Promise<CvData[]> => {
+  const response = await apiClient<ApiResponse<CvData[]>>(`/cvs`);
+  return response.data;
+};
+

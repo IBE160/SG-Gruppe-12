@@ -3,6 +3,7 @@
  * Implements CV-Job Description Keyword Matching Algorithm
  *
  * Story: 3-3 CV-Job Description Keyword Matching Algorithm
+ * Story: 3.6 Data Schema Contract Enforcement
  */
 
 import { redis } from '../config/redis';
@@ -19,6 +20,7 @@ import {
   SkillMatch,
   MatchingConfig,
 } from '../types/matching.types';
+import { MatchResultSchema } from '../validators/matching.validator';
 import { NotFoundError } from '../utils/errors.util';
 import { logger } from '../utils/logger.util';
 
@@ -425,12 +427,15 @@ export const matchingService = {
         },
       };
 
+      // Story 3.6: Validate output at service boundary before caching/returning
+      const validatedResult = MatchResultSchema.parse(result);
+
       // Cache result for 7 days
-      await redis.setex(cacheKey, 60 * 60 * 24 * 7, JSON.stringify(result));
+      await redis.setex(cacheKey, 60 * 60 * 24 * 7, JSON.stringify(validatedResult));
 
       logger.info(`Match completed for CV ${cvId} and Job ${jobId}. Score: ${matchScore}%`);
 
-      return result;
+      return validatedResult;
     } catch (error: any) {
       logger.error(`Error matching CV ${cvId} to Job ${jobId}: ${error.message}`, error);
       throw error;

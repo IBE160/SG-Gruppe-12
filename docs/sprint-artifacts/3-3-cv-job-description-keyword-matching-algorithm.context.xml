@@ -1,0 +1,144 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>{{epic_id}}</epicId>
+    <storyId>{{story_id}}</storyId>
+    <title>{{story_title}}</title>
+    <status>{{story_status}}</status>
+    <generatedAt>{{date}}</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>{{story_path}}</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>the system to compare my CV against an analyzed job description</iWant>
+    <soThat>I can see which keywords I have and which I'm missing</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Implement Keyword Matching Logic in `JobAnalysisService`**
+- [ ] Subtask 1.1: In `src/services/job-analysis.service.ts`, create a new private method, `_compareKeywords(cvSkills: string[], jobKeywords: string[]): { matched: string[], missing: string[] }`.
+- [ ] Subtask 1.2: Implement the logic within `_compareKeywords` to perform a case-insensitive comparison between the two arrays of strings.
+- [ ] Subtask 1.3: Ensure the method correctly populates and returns the `matched` and `missing` arrays.
+
+**Task 2: Integrate Matching Logic into the Analysis Flow**
+- [ ] Subtask 2.1: In `jobAnalysisService.analyzeJobDescription`, after retrieving the user's CV data and the extracted job keywords, call the `_compareKeywords` method.
+- [ ] Subtask 2.2: Augment the `analysisResult` object to include the `matchedKeywords` and `missingKeywords` returned from the matching logic.
+- [ ] Subtask 2.3: Update the caching mechanism to store and retrieve the entire `analysisResult` object, including the new match data.
+
+**Task 3: Refactor and Update Data Types**
+- [ ] Subtask 3.1: Update the `JobAnalysisResult` type/interface in `src/types/job.types.ts` to include `matchedKeywords: string[]` and `missingKeywords: string[]`.
+
+### Testing Tasks
+
+**Task 4: Unit Tests (`Jest`)**
+- [ ] Subtask 4.1: Write unit tests for the `_compareKeywords` method in `JobAnalysisService`.
+- [ ] Subtask 4.2: Test with various scenarios: complete match, partial match, no match, empty arrays, and case differences.
+
+**Task 5: Integration Tests (`Supertest`)**
+- [ ] Subtask 5.1: Update the integration tests for the `POST /api/job/analyze` endpoint in `src/tests/integration/job.routes.test.ts`.
+- [ ] Subtask 5.2: Modify the existing successful request test (`TC-01`) to assert that the response body now contains the `matchedKeywords` and `missingKeywords` arrays.
+- [ ] Subtask 5.3: Verify the content of the `matchedKeywords` and `missingKeywords` arrays is correct based on the mocked input data.
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+*   **AC-1:** The matching algorithm *must* correctly identify and return a list of keywords that are present in both the user's CV data and the extracted job description keywords.
+*   **AC-2:** The matching algorithm *must* correctly identify and return a list of keywords that are present in the job description but are missing from the user's CV data.
+*   **AC-3:** The comparison *must* be case-insensitive.
+*   **AC-4:** The implementation *must* respect the existing data schema contracts for CV data and the output from the `KeywordExtractionService`.
+*   **AC-5:** The final analysis result returned by the `JobAnalysisService` *must* include the `matchedKeywords` and `missingKeywords` arrays.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+        <doc>
+            <path>docs/epics.md</path>
+            <title>Epics</title>
+            <section>Story 3.3: CV-Job Description Keyword Matching Algorithm (MVP)</section>
+            <snippet>As a user, I want the system to compare my CV data against the extracted job requirements, so that I can see how well I align with the role.</snippet>
+        </doc>
+        <doc>
+            <path>docs/architecture-backend.md</path>
+            <title>Backend Architecture</title>
+            <section>Service Layer (Business Logic)</section>
+            <snippet>The Service Layer contains the core business logic of the application. It orchestrates calls to the data access layer and any external services. For this story, the logic will be in `JobAnalysisService`.</snippet>
+        </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/services/job-analysis.service.ts</path>
+        <kind>service</kind>
+        <symbol>jobAnalysisService.analyzeJobDescription</symbol>
+        <lines>80-147</lines>
+        <reason>This is the main service to be modified. It orchestrates the CV analysis process, including the keyword matching.</reason>
+      </file>
+      <file>
+        <path>src/services/KeywordExtractionService.ts</path>
+        <kind>service</kind>
+        <symbol>KeywordExtractionService.extractKeywords</symbol>
+        <lines>20-53</lines>
+        <reason>This service provides the `ExtractedJobData` which is a primary input for the matching algorithm.</reason>
+      </file>
+      <file>
+        <path>src/services/MatchScoringService.ts</path>
+        <kind>service</kind>
+        <symbol>MatchScoringService.compareCvToJob</symbol>
+        <lines>15-22</lines>
+        <reason>This service contains the existing, basic matching logic that needs to be improved to be case-insensitive and more comprehensive.</reason>
+      </file>
+      <file>
+        <path>src/controllers/job.controller.ts</path>
+        <kind>controller</kind>
+        <symbol>jobController.analyzeJob</symbol>
+        <lines>15-32</lines>
+        <reason>This is the entry point for the API request that triggers the analysis.</reason>
+      </file>
+    </code>
+    <dependencies>
+        <npm>
+            <package name="@prisma/client" version="^5.7.1" />
+            <package name="ai" version="^5.0.105" />
+            <package name="@ai-sdk/google" version="^2.0.44" />
+            <package name="jest" version="^29.7.0" />
+            <package name="supertest" version="^6.3.3" />
+        </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>The comparison must be case-insensitive.</constraint>
+    <constraint>The implementation must respect the existing data schema contracts.</constraint>
+    <constraint>The logic should be implemented within `JobAnalysisService`, potentially with helpers in `MatchScoringService`.</constraint>
+    <constraint>Consider caching the results of the matching algorithm to improve performance.</constraint>
+  </constraints>
+  <interfaces>
+      <interface>
+          <name>ExtractedJobData</name>
+          <kind>typescript interface</kind>
+          <signature>
+            export const ExtractedJobDataSchema = z.object({
+              keywords: z.array(z.string()),
+              skills: z.array(z.string()),
+              qualifications: z.array(z.string()),
+              responsibilities: z.array(z.string()),
+            });
+          </signature>
+          <path>src/services/KeywordExtractionService.ts</path>
+      </interface>
+  </interfaces>
+  <tests>
+    <standards>Unit tests are written with Jest, and integration tests with Supertest. Mocks are used for external services like the LLM API.</standards>
+    <locations>
+        - src/tests/unit/
+        - src/tests/integration/
+    </locations>
+    <ideas>
+      <idea for="AC-1">Test with a CV that has all the keywords from a job description.</idea>
+      <idea for="AC-2">Test with a CV that has none of the keywords from a job description.</idea>
+      <idea for="AC-3">Test with keywords that have different casing in the CV and job description.</idea>
+    </ideas>
+  </tests>
+</story-context>

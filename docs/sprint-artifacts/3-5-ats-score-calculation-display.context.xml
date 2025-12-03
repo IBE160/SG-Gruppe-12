@@ -1,0 +1,189 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>5</storyId>
+    <title>ATS Score Calculation &amp; Display</title>
+    <status>drafted</status>
+    <generatedAt>tirsdag 2. desember 2025</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>C:\Users\kayle\Desktop\SG-Gruppe-12\docs\sprint-artifacts\3-5-ats-score-calculation-display.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to see an ATS (Applicant Tracking System) compatibility score for my CV</iWant>
+    <soThat>I can ensure my application will pass automated screening</soThat>
+    <tasks>
+      <task id="Task 1" title="Implement ATS Scoring Algorithm">
+        <subtask id="Subtask 1.1">In `src/services/job-analysis.service.ts`, implement a new method `calculateATSScore` that takes `presentKeywords`, `missingKeywords`, and CV data as input.</subtask>
+        <subtask id="Subtask 1.2">The algorithm should calculate ATS score based on: keyword presence (40%), formatting simplicity (30%), section completeness (20%), quantifiable achievements (10%).</subtask>
+        <subtask id="Subtask 1.3">Ensure `calculateATSScore` returns a numerical value between 0 and 100.</subtask>
+        <subtask id="Subtask 1.4">Update `JobAnalysisService.analyzeJobDescription` to call `calculateATSScore` after `calculateMatchScore` and include the result in `JobAnalysisResult`.</subtask>
+      </task>
+      <task id="Task 2" title="Update Data Types">
+        <subtask id="Subtask 2.1">In `src/types/job.types.ts`, ensure the `JobAnalysisResult` interface includes the `atsScore: number;` field and `atsSuggestions: string[];` and `atsQualitativeRating: 'Excellent' | 'Good' | 'Fair' | 'Poor';`.</subtask>
+      </task>
+      <task id="Task 3" title="Update Backend Tests">
+        <subtask id="Subtask 3.1">Add unit tests for `calculateATSScore` in `src/services/__tests__/job-analysis.service.test.ts` to verify score calculation logic, edge cases (0, 100), and suggestions generation.</subtask>
+        <subtask id="Subtask 3.2">Update integration tests for `POST /api/job/analyze` endpoint to assert that `atsScore`, `atsSuggestions`, and `atsQualitativeRating` fields are present and correctly typed in the response.</subtask>
+      </task>
+      <task id="Task 4" title="Implement ATSScoreCard Component">
+        <subtask id="Subtask 4.1">Create the `ATSScoreCard` React component in `frontend/src/components/features/job-analysis/`.</subtask>
+        <subtask id="Subtask 4.2">Implement the visual representation of the score, qualitative rating, and improvement suggestions as per the UX design (UX Design Specification, Section 6.7).</subtask>
+        <subtask id="Subtask 4.3">The component should accept `score`, `suggestions`, `showDetails` props and display them correctly.</subtask>
+      </task>
+      <task id="Task 5" title="Integrate ATS Score in the UI">
+        <subtask id="Subtask 5.1">In the relevant frontend job analysis results page (e.g., `frontend/src/app/(dashboard)/create-application/page.tsx`), fetch the job analysis data from the backend.</subtask>
+        <subtask id="Subtask 5.2">Pass the `atsScore`, `atsSuggestions` from the API response to the `ATSScoreCard` component.</subtask>
+        <subtask id="Subtask 5.3">Ensure the `ATSScoreCard` is displayed prominently alongside the `MatchScoreGauge`.</subtask>
+      </task>
+      <task id="Task 6" title="Update Frontend State Management">
+        <subtask id="Subtask 6.1">Update the `jobAnalysisStore` in Zustand to include `atsScore`, `atsSuggestions`, and `atsQualitativeRating`.</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Given I have a populated CV and an analyzed job description</criterion>
+    <criterion id="2">When the system calculates the ATS score</criterion>
+    <criterion id="3">Then An ATS compatibility score (0-100) is displayed. (FR-3.3, FR-5.2)</criterion>
+    <criterion id="4">And The score is accompanied by a qualitative rating (Excellent, Good, Fair, Poor). (FR-3.3, FR-5.2)</criterion>
+    <criterion id="5">And Specific improvement suggestions are provided (e.g., "Use more industry-standard job titles," "Add keywords from job description"). (FR-3.3)</criterion>
+    <criterion id="6">And Users can view detailed scoring breakdown (keyword density, formatting compatibility, section completeness). (FR-3.3)</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/PRD.md" title="AI CV and Application - Product Requirements Document" section="3. Job Analysis &amp; Matching" snippet="The platform must compare the extracted job keywords to the user’s CV. The platform must calculate a match score. The platform must show which keywords are present in the CV from the job description. The platform must show which keywords are missing from the CV but present in the job description."/>
+      <doc path="docs/UX-PRD-EPIC-ALIGNMENT-RESOLUTION.md" title="UX-PRD-Epic Alignment Resolution Summary" section="2. CRITICAL GAP: ATS Score Calculation Missing (RESOLVED ✅)" snippet="Added Story 3.5: ATS Score Calculation &amp; Display to Epic 3 in docs/epics.md, detailing acceptance criteria and technical approach for ATS score calculation and display."/>
+      <doc path="docs/architecture-backend.md" title="Backend Architecture Specification" section="Key Architectural Decisions" snippet="Backend uses Node.js v20.x, Express.js, TypeScript, Prisma, Zod for validation, Vercel AI SDK for AI integration, and PostgreSQL via Supabase. Includes ATS scoring in job-analysis.service.ts."/>
+      <doc path="docs/architecture-backend.md" title="Backend Architecture Specification" section="API Layer Architecture" snippet="Backend API includes a /jobs endpoint with GET /:id/ats-score to get the ATS compatibility score."/>
+      <doc path="docs/architecture-frontend.md" title="Frontend Architecture Specification" section="Key Architectural Decisions" snippet="Frontend uses Next.js 14, React Hook Form + Zod for forms, and Vercel AI SDK for AI integration. Includes ATSScoreCard.tsx in job-analysis features."/>
+      <doc path="docs/architecture-frontend.md" title="Frontend Architecture Specification" section="Epic Story Mapping" snippet="Epic 3 (Job Ad Analysis &amp; Match Scoring) maps Story 3.5 to the ATSScoreCard.tsx frontend component."/>
+      <doc path="docs/ARCHITECTURE-REVIEW.md" title="Architecture Review &amp; Risk Analysis" section="Performance Bottlenecks" snippet="Discusses 'No Caching for AI Responses' which is relevant for optimizing AI calls that might be part of ATS scoring."/>
+      <doc path="docs/architecture-src.md" title="Architecture Documentation - Backend (src)" section="3. Architecture Pattern" snippet="Backend follows a Layered Architecture (Routing, Controller, Service, Data Access, Utility Layers), which supports the structured implementation of ATS scoring."/>
+      <doc path="docs/ux-design-specification-COMPLETE.md" title="Complete UX Design Specification" section="4.4 Tailored CV Output (Side-by-Side)" snippet="ASCII wireframe explicitly shows '✅ ATS SCORE: 92/100 - EXCELLENT' as part of the tailored application review."/>
+      <doc path="docs/ux-design-specification-COMPLETE.md" title="Complete UX Design Specification" section="6.7 Custom Component: ATSScoreCard" snippet="Dedicated section detailing the ATSScoreCard component's purpose, design, features, and React Props for displaying ATS compatibility score with feedback."/>
+      <doc path="docs/ux-mobile-and-error-states.md" title="Mobile Wireframes &amp; Error State Designs" section="1.4 Mobile Job Analysis Results (375px width)" snippet="Wireframe shows 'ATS 92' prominently displayed on mobile job analysis results. Error states for file size and free tier limit also relevant for overall user flow."/>
+      <doc path="docs/epics.md" title="ibe160 - Epic Breakdown" section="Epic 3: Job Ad Analysis &amp; Match Scoring" snippet="Value Statement: Empower users by clearly interpreting job descriptions, identifying key requirements, and providing actionable insights into their alignment with a role, thus reducing guesswork and guiding their application strategy. This helps users quickly identify best-fit opportunities."/>
+      <doc path="docs/epics.md" title="ibe160 - Epic Breakdown" section="Story 3.5: ATS Score Calculation &amp; Display (MVP)" snippet="Full story description, including its acceptance criteria and technical notes for implementing ATS score calculation and display."/>
+      <doc path="docs/index.md" title="Project Documentation Index" section="2. Part-Based Navigation" snippet="Provides links to core architecture and component inventory documents for both Frontend and Backend, essential for implementing Story 3.5."/>
+      <doc path="docs/index.md" title="Project Documentation Index" section="3. Cross-Cutting Documentation" snippet="Includes general project documentation like Source Tree Analysis, Integration Architecture, Development Guide, and Deployment Guide, relevant for any story implementation."/>
+    </docs>
+    <code>
+      <artifact path="src/services/job-analysis.service.ts" kind="service" symbol="jobAnalysisService" lines="L3-L170" reason="Contains core job analysis logic and will house the new calculateATSScore method."/>
+      <artifact path="src/types/job.types.ts" kind="type-definition" symbol="JobAnalysisResult" reason="Will be updated to include atsScore, atsSuggestions, and atsQualitativeRating."/>
+      <artifact path="src/controllers/job.controller.ts" kind="controller" symbol="jobController" lines="L1-L68" reason="Handles job-related API requests and will expose the ATS score."/>
+      <artifact path="frontend/src/components/custom/ATSScoreCard.tsx" kind="component" symbol="ATSScoreCard" lines="L1-L100" reason="Existing component to be updated to display ATS score and suggestions."/>
+      <artifact path="frontend/src/app/(dashboard)/create-application/page.tsx" kind="page" reason="Frontend job analysis results page where ATSScoreCard will be integrated."/>
+      <artifact path="frontend/src/store/jobAnalysisStore.ts" kind="state-store" symbol="jobAnalysisStore" reason="Zustand store to be updated for ATS score and related data."/>
+      <artifact path="src/services/KeywordExtractionService.ts" kind="service" symbol="ExtractedJobData" reason="Imported by job.types.ts, related to job data extraction."/>
+      <artifact path="src/validators/job.validator.ts" kind="validator" reason="Will be updated if ATS-specific input/output validation is required."/>
+      <artifact path="frontend/src/lib/api/job-analysis.ts" kind="api-client" reason="Frontend API client to fetch ATS data from backend."/>
+    </code>
+    <dependencies>
+      <dependency ecosystem="Node/npm" name="@ai-sdk/anthropic" version="^2.0.52"/>
+      <dependency ecosystem="Node/npm" name="@ai-sdk/google" version="^2.0.44"/>
+      <dependency ecosystem="Node/npm" name="@ai-sdk/openai" version="^2.0.75"/>
+      <dependency ecosystem="Node/npm" name="@google/generative-ai" version="^0.24.1"/>
+      <dependency ecosystem="Node/npm" name="@hookform/resolvers" version="^5.2.2"/>
+      <dependency ecosystem="Node/npm" name="@prisma/client" version="^5.7.1"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-accordion" version="^1.1.2"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-alert-dialog" version="^1.0.5"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-avatar" version="^1.0.4"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-checkbox" version="^1.0.4"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-dialog" version="^1.0.5"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-dropdown-menu" version="^2.0.6"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-label" version="^2.0.2"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-popover" version="^1.0.7"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-progress" version="^1.0.3"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-radio-group" version="^1.1.3"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-select" version="^2.0.0"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-separator" version="^1.0.3"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-slider" version="^1.1.2"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-slot" version="^1.0.2"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-switch" version="^1.0.3"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-tabs" version="^1.0.4"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-toast" version="^1.1.5"/>
+      <dependency ecosystem="Node/npm" name="@radix-ui/react-tooltip" version="^1.0.7"/>
+      <dependency ecosystem="Node/npm" name="@sentry/integrations" version="^7.114.0"/>
+      <dependency ecosystem="Node/npm" name="@sentry/node" version="^10.27.0"/>
+      <dependency ecosystem="Node/npm" name="@supabase/supabase-js" version="^2.39.0"/>
+      <dependency ecosystem="Node/npm" name="ai" version="^5.0.105"/>
+      <dependency ecosystem="Node/npm" name="axios" version="^1.13.2"/>
+      <dependency ecosystem="Node/npm" name="bcrypt" version="^5.1.1"/>
+      <dependency ecosystem="Node/npm" name="bull" version="^4.16.5"/>
+      <dependency ecosystem="Node/npm" name="camelcase-css" version="^2.0.1"/>
+      <dependency ecosystem="Node/npm" name="class-variance-authority" version="^0.7.0"/>
+      <dependency ecosystem="Node/npm" name="clsx" version="^2.1.0"/>
+      <dependency ecosystem="Node/npm" name="cookie-parser" version="^1.4.6"/>
+      <dependency ecosystem="Node/npm" name="cors" version="^2.8.5"/>
+      <dependency ecosystem="Node/npm" name="docx" version="^8.2.3"/>
+      <dependency ecosystem="Node/npm" name="dotenv" version="^17.2.3"/>
+      <dependency ecosystem="Node/npm" name="express" version="5.1.0"/>
+      <dependency ecosystem="Node/npm" name="express-rate-limit" version="^7.1.5"/>
+      <dependency ecosystem="Node/npm" name="fast-json-patch" version="^3.1.1"/>
+      <dependency ecosystem="Node/npm" name="file-type" version="^21.1.1"/>
+      <dependency ecosystem="Node/npm" name="helmet" version="^7.1.0"/>
+      <dependency ecosystem="Node/npm" name="html-pdf-node" version="^1.0.7"/>
+      <dependency ecosystem="Node/npm" name="jsonwebtoken" version="^9.0.2"/>
+      <dependency ecosystem="Node/npm" name="lucide-react" version="^0.365.0"/>
+      <dependency ecosystem="Node/npm" name="multer" version="^2.0.2"/>
+      <dependency ecosystem="Node/npm" name="next" version="^14.2.0"/>
+      <dependency ecosystem="Node/npm" name="pg" version="^8.16.3"/>
+      <dependency ecosystem="Node/npm" name="prisma" version="^5.7.1"/>
+      <dependency ecosystem="Node/npm" name="rate-limit-redis" version="^4.3.0"/>
+      <dependency ecosystem="Node/npm" name="react" version="^18.3.0"/>
+      <dependency ecosystem="Node/npm" name="react-dom" version="^18.3.0"/>
+      <dependency ecosystem="Node/npm" name="react-hook-form" version="^7.66.1"/>
+      <dependency ecosystem="Node/npm" name="swr" version="^2.3.6"/>
+      <dependency ecosystem="Node/npm" name="tailwind-merge" version="^2.2.2"/>
+      <dependency ecosystem="Node/npm" name="tailwindcss-animate" version="^1.0.7"/>
+      <dependency ecosystem="Node/npm" name="uuid" version="^9.0.1"/>
+      <dependency ecosystem="Node/npm" name="zod" version="^4.1.13"/>
+      <dependency ecosystem="Node/npm" name="zustand" version="^5.0.8"/>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architectural-pattern">Backend will follow a Layered Architecture (Controllers, Services, Repositories).</constraint>
+    <constraint type="coding-standard">Use TypeScript with strict mode for type safety in backend services and types.</constraint>
+    <constraint type="validation">Backend API requests and data will be validated using Zod.</constraint>
+    <constraint type="ai-integration">Use Google Gemini 2.5 Flash as primary LLM via Vercel AI SDK. Prompt templates will be versioned.</constraint>
+    <constraint type="performance">Consider caching for AI responses to optimize cost and performance (as noted in ARCHITECTURE-REVIEW.md). Implement connection pooling for Prisma.</constraint>
+    <constraint type="security">Adhere to general security best practices outlined in architecture documentation (e.g., input sanitization, secure cookie handling for JWT, strong password policy). Adhere to GDPR principles for data handling.</constraint>
+    <constraint type="testing">Follow existing patterns for component creation and testing in frontend using @testing-library/react and Jest. Backend unit and integration tests are required.</constraint>
+    <constraint type="state-management-frontend">Frontend state management for job analysis data will use Zustand.</constraint>
+    <constraint type="file-upload">Be aware of file upload memory usage, consider streaming to Supabase Storage if large CVs are directly parsed.</constraint>
+  </constraints>
+  <interfaces>
+    <interface name="JobAnalysisResult" kind="TypeScript Interface" path="src/types/job.types.ts" signature="interface JobAnalysisResult { matchScore: number; presentKeywords: string[]; missingKeywords: string[]; strengthsSummary: string; weaknessesSummary: string; rawKeywords: string[]; jobRequirements: ExtractedJobData; submittedAt: string; }">
+      <note>To be extended with atsScore: number, atsSuggestions: string[], atsQualitativeRating: 'Excellent' | 'Good' | 'Fair' | 'Poor';</note>
+    </interface>
+    <interface name="ATSScoreCardProps" kind="React Props Interface" path="frontend/src/components/custom/ATSScoreCard.tsx" signature="interface ATSScoreCardProps { score: number; suggestions: string[]; showDetails?: boolean; onViewDetails?: () => void; className?: string; }">
+      <note>Existing interface. `score` will be ATS score. `suggestions` will be ATS improvement suggestions.</note>
+    </interface>
+    <interface name="calculateATSScore" kind="Backend Service Method" path="src/services/job-analysis.service.ts" signature="async calculateATSScore(presentKeywords: string[], missingKeywords: string[], cvData: CVData): Promise<{ score: number; suggestions: string[]; qualitativeRating: 'Excellent' | 'Good' | 'Fair' | 'Poor'; }>"/>
+    <interface name="GET /api/v1/jobs/:id/ats-score" kind="REST API Endpoint" path="src/controllers/job.controller.ts" signature="GET /api/v1/jobs/:id/ats-score">
+      <note>Potential new endpoint or extension of existing /jobs/analyze response.</note>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>The project adheres to a comprehensive testing strategy utilizing Jest for both backend unit/integration tests and frontend component tests. Backend API integration testing is performed with Supertest. Frontend component tests leverage React Testing Library, ensuring components are tested from a user's perspective. Furthermore, End-to-End (E2E) testing will be implemented using Playwright. Accessibility testing is a key consideration, incorporating automated tools like Lighthouse and axe DevTools, alongside manual keyboard and screen reader testing, in line with WCAG 2.1 AA compliance.</standards>
+    <locations>
+      <location>src/services/__tests__/</location>
+      <location>src/tests/integration/</location>
+      <location>frontend/src/components/features/job-analysis/__tests__/</location>
+      <location>frontend/tests/e2e/</location>
+    </locations>
+    <ideas>
+      <idea id="AC3" description="Verify ATS compatibility score calculation for various CVs and job descriptions, covering edge cases (0, 100) and mid-range scores. Ensure the score is within the 0-100 range." type="unit-backend"/>
+      <idea id="AC4" description="Verify the qualitative rating (Excellent, Good, Fair, Poor) is correctly assigned based on the ATS score thresholds." type="unit-backend"/>
+      <idea id="AC5" description="Validate that improvement suggestions are generated and relevant based on CV gaps and job requirements." type="unit-backend"/>
+      <idea id="AC6" description="Verify that the ATSScoreCard component correctly displays the ATS score, qualitative rating, and improvement suggestions. Test different score ranges and suggestion counts." type="component-frontend"/>
+      <idea id="AC3, AC4, AC5" description="Integrate ATS score calculation into the existing job analysis flow and verify that the /api/v1/jobs/analyze endpoint returns the ATS score, qualitative rating, and suggestions in the response." type="integration-backend"/>
+      <idea id="AC3, AC4, AC5, AC6" description="Verify end-to-end flow: user pastes job description, system calculates and displays ATS score with suggestions in the UI." type="e2e-frontend"/>
+      <idea id="AC6" description="Verify accessibility of the ATSScoreCard component, including keyboard navigation, focus states, and screen reader announcements for the score and suggestions." type="accessibility-frontend"/>
+    </ideas>
+  </tests>
+</story-context>

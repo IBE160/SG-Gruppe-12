@@ -61,10 +61,10 @@ development_status:
   3-1-job-description-input-interface: done
   3-2-ai-powered-job-description-text-extraction: done
   3-3-cv-job-description-keyword-matching-algorithm: done
-  3-4-match-score-calculation-display: backlog
-  3-5-ats-score-calculation-display: backlog
-  3-6-data-schema-contract-enforcement-job-analysis-inputs-outputs: backlog
-  epic-3-retrospective: optional
+  3-4-match-score-calculation-display: done
+  3-5-ats-score-calculation-display: done
+  3-6-data-schema-contract-enforcement-job-analysis-inputs-outputs: done
+  epic-3-retrospective: done
 
   epic-4: contexted
   4-1-ai-driven-tailored-cv-generation: backlog

@@ -1,5 +1,6 @@
 // src/tests/unit/KeywordExtractionService.test.ts
-import { KeywordExtractionService, ExtractedJobDataSchema } from '../../services/KeywordExtractionService';
+import { KeywordExtractionService } from '../../services/KeywordExtractionService';
+import { ExtractedJobDataSchema } from '../../validators/job.validator';
 import { AppError } from '../../utils/errors.util';
 import { JobExtractionPrompt } from '../../prompts/job-extraction.prompt';
 import { generateObject } from 'ai';

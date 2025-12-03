@@ -74,3 +74,19 @@ export type CreateCVInput = z.infer<typeof createCVInputSchema>;
 export const updateCVSchema = cvDataSchema.partial(); // Update uses partial of the full CV data
 
 export type UpdateCVInput = z.infer<typeof updateCVSchema>;
+
+/**
+ * CV Parse Response Schema
+ * Story 3.6: Data Schema Contract Enforcement
+ * Response from POST /api/v1/cvs/parse endpoint
+ */
+export const cvParseResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.object({
+    cvId: z.number().int().positive(),
+    supabaseFilePath: z.string(),
+  }),
+  message: z.string(),
+});
+
+export type CVParseResponse = z.infer<typeof cvParseResponseSchema>;
