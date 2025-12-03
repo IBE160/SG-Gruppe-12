@@ -48,9 +48,8 @@ Before deploying, ensure you have:
 4. Replace `[YOUR-PASSWORD]` with your database password
 5. Save this connection string - you'll need it for Render
 
-**Example:**
 ```
-postgresql://postgres.abcdefghijklmnop:[YOUR-PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres
+postgresql://postgres:Flesland2026@db.qtxqksjvrmqiuocxdqbn.supabase.co:5432/postgres
 ```
 
 ### 1.3 Run Database Migrations
@@ -64,6 +63,9 @@ You'll run migrations after deploying the backend. For now, just ensure you have
 3. Go to **API Settings**
 4. Note your `anon` and `service_role` keys (you may need these later)
 
+---
+anon :eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0eHFrc2p2cm1xaXVvY3hkcWJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3Njc4MDQsImV4cCI6MjA4MDM0MzgwNH0._kJEacyaAxknUUswu08cqnV-3HG4ik2pCmPqb0L5kso
+service role: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0eHFrc2p2cm1xaXVvY3hkcWJuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NDc2NzgwNCwiZXhwIjoyMDgwMzQzODA0fQ.NyOFxknqP0lv42zlbFyJgnqWKTyjgH5XW_w1nkB5aDI
 ---
 
 ## 2. Backend Deployment (Render)
