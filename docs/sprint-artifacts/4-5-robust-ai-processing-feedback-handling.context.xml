@@ -1,0 +1,174 @@
+<story-context id="epic4/story-4-5" v="1.0">
+  <metadata>
+    <epicId>epic-4</epicId>
+    <storyId>4-5</storyId>
+    <title>Robust AI Processing Feedback and Handling</title>
+    <status>done</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-5-robust-ai-processing-feedback-handling.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>clear feedback during long AI processing times and options to retry</iWant>
+    <soThat>I understand the system's status and can recover from issues</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Implement Retry Logic**
+- [x] Subtask 1.1: Create `callAIWithRetry()` wrapper method
+- [x] Subtask 1.2: Implement exponential backoff (1s, 2s, 4s delays)
+- [x] Subtask 1.3: Configure maximum retry attempts (MAX_RETRIES = 2)
+
+**Task 2: Implement Timeout Handling**
+- [x] Subtask 2.1: Create `withTimeout()` wrapper method
+- [x] Subtask 2.2: Set AI_TIMEOUT_MS = 30000 (30 seconds)
+- [x] Subtask 2.3: Return appropriate error on timeout
+
+**Task 3: Error Handling and Logging**
+- [x] Subtask 3.1: Log retry attempts with warning level
+- [x] Subtask 3.2: Log final failure with error level
+- [x] Subtask 3.3: Return user-friendly error messages via AppError
+
+### Frontend Development Tasks
+
+**Task 4: Implement Loading States**
+- [x] Subtask 4.1: Add loading spinner/skeleton during AI processing
+- [x] Subtask 4.2: Show progress indication (e.g., "Generating tailored CV...")
+- [x] Subtask 4.3: Disable form inputs during processing
+
+**Task 5: Implement Error Handling UI**
+- [x] Subtask 5.1: Display user-friendly error messages
+- [x] Subtask 5.2: Add "Retry" button for failed generations
+- [x] Subtask 5.3: Show error state with clear call-to-action
+
+### Testing Tasks
+
+**Task 6: Unit Tests**
+- [x] Subtask 6.1: Test retry logic with mocked failures
+- [x] Subtask 6.2: Test timeout handling
+- [x] Subtask 6.3: Test exponential backoff timing
+
+**Task 7: Integration Tests**
+- [x] Subtask 7.1: Test API error responses
+- [x] Subtask 7.2: Test retry behavior end-to-end
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+* **AC-1:** Given I trigger an AI-driven generation process, when the process is ongoing, then I see clear loading indicators (e.g., progress bar, skeleton states).
+* **AC-2:** If the AI process fails, I *must* be given options to retry.
+* **AC-3:** If the AI process takes too long (timeout), I *must* receive feedback and retry options.
+* **AC-4:** Error messages *must* be user-friendly and actionable.
+* **AC-5:** The system *must* implement automatic retry logic before showing errors to users.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics</title>
+        <section>Story 4.5: Robust AI Processing Feedback and Handling (MVP)</section>
+        <snippet>As a user, I want clear feedback during long AI processing times and options to retry, so that I understand the system's status and can recover from issues.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>9. Non-Functional Requirements</section>
+        <snippet>Target generation time: under 6-8 seconds per document under normal load. If the LLM call fails, return clear error message.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/services/application.service.ts</path>
+        <kind>service</kind>
+        <symbol>applicationService.callAIWithRetry</symbol>
+        <lines>417-444</lines>
+        <reason>Wrapper method implementing retry logic with exponential backoff</reason>
+      </file>
+      <file>
+        <path>src/services/application.service.ts</path>
+        <kind>service</kind>
+        <symbol>applicationService.withTimeout</symbol>
+        <lines>449-463</lines>
+        <reason>Wrapper method for timeout handling</reason>
+      </file>
+      <file>
+        <path>src/services/application.service.ts</path>
+        <kind>service</kind>
+        <symbol>applicationService.sleep</symbol>
+        <lines>468-470</lines>
+        <reason>Utility for retry delays</reason>
+      </file>
+      <file>
+        <path>src/utils/errors.util.ts</path>
+        <kind>utility</kind>
+        <symbol>AppError</symbol>
+        <lines>1-30</lines>
+        <reason>Custom error class for user-friendly messages</reason>
+      </file>
+      <file>
+        <path>frontend/app/applications/new/page.tsx</path>
+        <kind>page</kind>
+        <symbol>NewApplicationPage</symbol>
+        <lines>50-100</lines>
+        <reason>Frontend loading states and error handling UI</reason>
+      </file>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="ai" version="^5.0.106" />
+        <package name="@ai-sdk/google" version="^2.0.44" />
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>AI_TIMEOUT_MS = 30000 (30 seconds)</constraint>
+    <constraint>MAX_RETRIES = 2 (total 3 attempts)</constraint>
+    <constraint>RETRY_DELAY_MS = 1000 (exponential: 1s, 2s, 4s)</constraint>
+    <constraint>Error messages must not expose technical details to users</constraint>
+    <constraint>All retry attempts must be logged</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>Constants</name>
+      <kind>typescript constants</kind>
+      <signature>
+const AI_TIMEOUT_MS = 30000; // 30 seconds
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 1000;
+      </signature>
+      <path>src/services/application.service.ts</path>
+    </interface>
+    <interface>
+      <name>AppError</name>
+      <kind>typescript class</kind>
+      <signature>
+class AppError extends Error {
+  constructor(message: string, statusCode: number);
+  statusCode: number;
+  isOperational: boolean;
+}
+      </signature>
+      <path>src/utils/errors.util.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Unit tests with Jest, mock timers for timeout testing</standards>
+    <locations>
+      - src/tests/unit/application.service.test.ts
+      - src/tests/integration/application.routes.test.ts
+    </locations>
+    <ideas>
+      <idea for="AC-3">Test that timeout triggers after 30 seconds</idea>
+      <idea for="AC-5">Test that retries happen with correct delays</idea>
+      <idea for="AC-4">Test that error messages are user-friendly</idea>
+    </ideas>
+  </tests>
+</story-context>

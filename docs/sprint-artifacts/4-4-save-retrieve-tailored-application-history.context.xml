@@ -1,0 +1,167 @@
+<story-context id="epic4/story-4-4" v="1.0">
+  <metadata>
+    <epicId>epic-4</epicId>
+    <storyId>4-4</storyId>
+    <title>Save and Retrieve Tailored Application History</title>
+    <status>done</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-4-save-retrieve-tailored-application-history.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>to save a history of my tailored applications</iWant>
+    <soThat>I can revisit them or make minor adjustments for similar roles</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Implement Application Repository**
+- [x] Subtask 1.1: Create `application.repository.ts` with CRUD methods
+- [x] Subtask 1.2: Implement `findById()` method
+- [x] Subtask 1.3: Implement `findByUserId()` method
+- [x] Subtask 1.4: Implement `findByUserAndJob()` method
+- [x] Subtask 1.5: Implement `create()` and `update()` methods
+
+**Task 2: Implement Application Service Methods**
+- [x] Subtask 2.1: Implement `getApplication()` method with ownership check
+- [x] Subtask 2.2: Implement `getUserApplications()` method
+- [x] Subtask 2.3: Implement `saveOrUpdateApplication()` method
+
+**Task 3: Implement API Endpoints**
+- [x] Subtask 3.1: Create `GET /api/applications` endpoint for list
+- [x] Subtask 3.2: Create `GET /api/applications/:id` endpoint for detail
+- [x] Subtask 3.3: Ensure proper authentication on all endpoints
+
+### Frontend Development Tasks
+
+**Task 4: Implement Application List Page**
+- [x] Subtask 4.1: Create `/applications/page.tsx` with list view
+- [x] Subtask 4.2: Display application cards with key information
+- [x] Subtask 4.3: Add navigation to detail pages
+
+**Task 5: Implement Application Detail Page**
+- [x] Subtask 5.1: Create `/applications/[id]/page.tsx` with detail view
+- [x] Subtask 5.2: Display tailored CV content
+- [x] Subtask 5.3: Display cover letter content
+- [x] Subtask 5.4: Display job posting information
+
+### Testing Tasks
+
+**Task 6: Unit Tests**
+- [x] Subtask 6.1: Test repository methods
+- [x] Subtask 6.2: Test service methods with ownership validation
+
+**Task 7: Integration Tests**
+- [x] Subtask 7.1: Test list endpoint
+- [x] Subtask 7.2: Test detail endpoint
+- [x] Subtask 7.3: Test authorization (user can only see own applications)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+* **AC-1:** Given I have generated and finalized a tailored CV and cover letter for a job, when I confirm saving the application, then the tailored CV, cover letter, and the associated job description are saved as a historical application.
+* **AC-2:** I *must* be able to access a list of my past applications.
+* **AC-3:** I *must* be able to view the details of any saved historical application.
+* **AC-4:** The application history *must* include the job posting information.
+* **AC-5:** Applications *must* be associated with my user account and not accessible by others.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics</title>
+        <section>Story 4.4: Save and Retrieve Tailored Application History (Growth)</section>
+        <snippet>As a user, I want to save a history of my tailored applications, so that I can revisit them or make minor adjustments for similar roles.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/repositories/application.repository.ts</path>
+        <kind>repository</kind>
+        <symbol>applicationRepository</symbol>
+        <lines>1-80</lines>
+        <reason>Data access layer for application records</reason>
+      </file>
+      <file>
+        <path>src/services/application.service.ts</path>
+        <kind>service</kind>
+        <symbol>applicationService.getApplication</symbol>
+        <lines>183-200</lines>
+        <reason>Retrieves single application with ownership check</reason>
+      </file>
+      <file>
+        <path>src/services/application.service.ts</path>
+        <kind>service</kind>
+        <symbol>applicationService.getUserApplications</symbol>
+        <lines>205-216</lines>
+        <reason>Retrieves all applications for a user</reason>
+      </file>
+      <file>
+        <path>frontend/app/applications/page.tsx</path>
+        <kind>page</kind>
+        <symbol>ApplicationsListPage</symbol>
+        <lines>1-100</lines>
+        <reason>Frontend page showing application history list</reason>
+      </file>
+      <file>
+        <path>prisma/schema.prisma</path>
+        <kind>schema</kind>
+        <symbol>ApplicationAnalysis</symbol>
+        <lines>100-120</lines>
+        <reason>Database model for storing applications</reason>
+      </file>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="@prisma/client" version="^5.7.1" />
+        <package name="react" version="^18.2.0" />
+        <package name="next" version="^14.0.0" />
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must validate user ownership before returning application data</constraint>
+    <constraint>Must store relationship to CV, job posting, and user</constraint>
+    <constraint>List endpoint must be paginated for large histories</constraint>
+    <constraint>Must include timestamps for sorting</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>ApplicationAnalysis</name>
+      <kind>prisma model</kind>
+      <signature>
+model ApplicationAnalysis {
+  id                          Int       @id @default(autoincrement())
+  user_id                     String
+  cv_id                       Int
+  job_posting_id              Int
+  generated_cv_content        String?
+  generated_application_content String?
+  ats_feedback                String?
+  quality_feedback            String?
+  created_at                  DateTime  @default(now())
+  updated_at                  DateTime  @updatedAt
+}
+      </signature>
+      <path>prisma/schema.prisma</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Unit tests with Jest, integration tests with Supertest</standards>
+    <locations>
+      - src/tests/unit/application.repository.test.ts
+      - src/tests/integration/application.routes.test.ts
+    </locations>
+    <ideas>
+      <idea for="AC-2">Test that list endpoint returns user's applications</idea>
+      <idea for="AC-5">Test that user cannot access another user's applications</idea>
+    </ideas>
+  </tests>
+</story-context>
