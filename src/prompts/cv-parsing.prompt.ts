@@ -159,7 +159,7 @@ export const CVParsingPrompt = {
        - Include the found_text that caused uncertainty (optional)
 
     **Example uncertain_fields entries:**
-    ```json
+
     {
       "uncertain_fields": [
         {
@@ -174,7 +174,6 @@ export const CVParsingPrompt = {
         }
       ]
     }
-    ```
 
     **Focus strictly on the content provided; ignore formatting/layout details.**
 

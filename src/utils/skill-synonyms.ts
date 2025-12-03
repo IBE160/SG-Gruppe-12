@@ -40,8 +40,8 @@ export const SKILL_SYNONYMS: Record<string, string[]> = {
   'php': ['php7', 'php8', 'php 7', 'php 8'],
   'go': ['golang', 'google go'],
   'rust': ['rs', 'rust programming'],
-  'swift': ['swift programming'],
-  'kotlin': ['kt', 'kotlin programming'],
+  'swift': ['swift programming', 'ios development'],
+  'kotlin': ['kt', 'kotlin programming', 'android development'],
   'scala': ['scala programming'],
   'r': ['r programming', 'r language'],
   'perl': ['perl programming'],
@@ -224,9 +224,6 @@ export const SKILL_SYNONYMS: Record<string, string[]> = {
   'flutter': ['flutter framework', 'dart flutter'],
   'ionic': ['ionic framework'],
   'xamarin': ['xamarin framework'],
-  'swift': ['ios development', 'swift programming'],
-  'kotlin': ['android development', 'kotlin programming'],
-  'react-native': ['react native', 'reactnative', 'rn'],
 
   // ========== Data Science & ML ==========
   'tensorflow': ['tensor flow', 'tf'],
