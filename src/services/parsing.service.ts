@@ -8,6 +8,7 @@ import { cvDataSchema } from '../validators/cv.validator'; // Import the new cvD
 import { CvData } from '../types/cv.types'; // Import CvData type
 import { storageService } from './storage.service'; // Import storageService
 import { generateObject } from 'ai'; // Import generateObject from ai
+import { parsingValidationService } from './parsing-validation.service'; // Import validation service
 
 const AI_MODEL_NAME = 'gemini-1.5-flash'; // Using a direct Gemini model name
 
@@ -40,6 +41,17 @@ export const parsingService = {
           uncertainFields: validatedCVData.uncertain_fields,
           totalUncertainFields: validatedCVData.uncertain_fields.length,
         });
+      }
+
+      // Validate extraction against original text to detect hallucinations
+      const validation = parsingValidationService.validateExtraction(validatedCVData, cvText);
+      if (!validation.isValid) {
+        logger.warn('CV text parsing validation warnings detected', {
+          totalWarnings: validation.warnings.length,
+          warnings: validation.warnings,
+        });
+        // Optionally: attach warnings to the CV data for user review
+        // For now, we just log them - in production, you might want to return them
       }
 
       return validatedCVData as CvData;
@@ -88,6 +100,15 @@ export const parsingService = {
         logger.warn('AI reported uncertainty during CV parsing - user clarification may be needed', {
           uncertainFields: validatedCVData.uncertain_fields,
           totalUncertainFields: validatedCVData.uncertain_fields.length,
+        });
+      }
+
+      // Validate extraction against original file content to detect hallucinations
+      const validation = parsingValidationService.validateExtraction(validatedCVData, fileContent);
+      if (!validation.isValid) {
+        logger.warn('CV file parsing validation warnings detected', {
+          totalWarnings: validation.warnings.length,
+          warnings: validation.warnings,
         });
       }
 
