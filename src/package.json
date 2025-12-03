@@ -5,11 +5,12 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only server.ts",
-    "build": "tsc",
+    "build": "tsc && npx prisma generate",
     "test": "jest",
     "test:watch": "jest --watchAll",
     "lint": "eslint .",
-    "start": "node server.js"
+    "start": "node dist/server.js",
+    "postinstall": "npx prisma generate"
   },
   "keywords": [],
   "author": "",

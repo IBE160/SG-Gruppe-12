@@ -1,0 +1,82 @@
+# Render Blueprint for AI CV Assistant Backend
+# This file defines the infrastructure for deploying the backend API to Render
+
+services:
+  # Backend API Service
+  - type: web
+    name: aicv-backend-api
+    env: node
+    region: oregon  # Change to preferred region (oregon, frankfurt, singapore, etc.)
+    plan: starter   # Options: starter (free), standard, pro
+    buildCommand: cd src && npm install && npm run build
+    startCommand: cd src && npm start
+    envVars:
+      # Database
+      - key: DATABASE_URL
+        sync: false  # Set manually in Render dashboard (from Supabase)
+
+      # Server Configuration
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+
+      # CORS
+      - key: FRONTEND_URL
+        sync: false  # Set to your Vercel frontend URL
+
+      # JWT Secrets (CRITICAL - generate strong values!)
+      - key: ACCESS_TOKEN_SECRET
+        generateValue: true  # Auto-generate on first deploy
+      - key: REFRESH_TOKEN_SECRET
+        generateValue: true  # Auto-generate on first deploy
+
+      # Redis (Use Render Redis add-on or external service)
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: aicv-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: aicv-redis
+          property: port
+      - key: REDIS_PASSWORD
+        fromService:
+          type: redis
+          name: aicv-redis
+          property: password
+
+      # Encryption
+      - key: ENCRYPTION_KEY
+        generateValue: true  # Auto-generate 32-byte hex key
+
+      # AI Providers
+      - key: GOOGLE_AI_API_KEY
+        sync: false  # Set manually in Render dashboard
+
+      # Monitoring
+      - key: SENTRY_DSN
+        sync: false  # Optional - set if using Sentry
+
+    healthCheckPath: /
+    autoDeploy: true
+
+  # Redis Cache Service
+  - type: redis
+    name: aicv-redis
+    plan: starter  # Options: starter (free 25MB), standard, pro
+    maxmemoryPolicy: allkeys-lru  # Eviction policy when memory is full
+    ipAllowList: []  # Empty = allow all (restrict in production if needed)
+
+# Database: Use Supabase PostgreSQL (external)
+# Configure DATABASE_URL in Render dashboard with Supabase connection string
+
+# Post-Deployment Steps:
+# 1. Copy Supabase DATABASE_URL to Render environment variables
+# 2. Set FRONTEND_URL to your Vercel deployment URL
+# 3. Add GOOGLE_AI_API_KEY from Google AI Studio
+# 4. Run database migrations: `npx prisma migrate deploy`
+# 5. Verify health check is passing
+# 6. Test API endpoints from Vercel frontend
