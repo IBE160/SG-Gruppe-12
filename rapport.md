@@ -1134,3 +1134,72 @@ The AI CV and Application platform is now feature-complete with:
 - Job description analysis with keyword matching
 - AI-generated tailored CVs and cover letters
 - GDPR compliance, encryption, RBAC, and audit logging
+
+---
+
+## December 3, 2025 – Story Documentation & Context Files *(Vera Kironaki, with Claude Code)*
+
+### Goal
+
+Create comprehensive story documentation files (.md) and context files (.context.xml) for Epic 4 and Epic 5 to align with the BMad Method documentation standards used in earlier epics.
+
+### What We Did
+
+We worked with Claude Code to generate complete story documentation following the project's established patterns:
+
+#### Epic 4 Story Documentation (5 stories)
+
+Created `.md` files with full story details:
+- `4-1-ai-driven-tailored-cv-generation.md`
+- `4-2-ai-driven-personalized-cover-letter-generation.md`
+- `4-3-user-review-editing-interface-for-ai-generated-content.md`
+- `4-4-save-retrieve-tailored-application-history.md`
+- `4-5-robust-ai-processing-feedback-handling.md`
+
+Created `.context.xml` files with technical context:
+- Metadata (epic ID, story ID, status, generation date)
+- User story format (As a..., I want..., So that...)
+- Tasks with subtasks (all marked as completed)
+- Acceptance criteria
+- Code artifacts with file paths and line numbers
+- Dependencies and constraints
+- Interface definitions
+- Test standards and ideas
+
+#### Epic 5 Story Documentation (7 stories)
+
+Created `.md` files with full story details:
+- `5-1-gdpr-consent-management.md`
+- `5-2-data-export-deletion-right-to-be-forgotten.md`
+- `5-3-data-encryption-in-transit-at-rest.md`
+- `5-4-role-based-authentication-authorization.md`
+- `5-5-rigorous-llm-sandboxing-data-minimization.md`
+- `5-6-minimal-auditable-logging.md`
+- `5-7-ai-fairness-bias-mitigation.md`
+
+Created matching `.context.xml` files with the same comprehensive structure.
+
+### Files Created
+
+| Epic | Story .md Files | Context .xml Files | Total |
+|------|-----------------|-------------------|-------|
+| Epic 4 | 5 | 5 | 10 |
+| Epic 5 | 7 | 7 | 14 |
+| **Total** | **12** | **12** | **24** |
+
+### Commits Pushed
+
+- `2f2993f` - docs(epic4): add story documentation files for Epic 4
+- `d64cf46` - docs(epic5): add story documentation files for Epic 5
+- `c53cd9c` - docs(epic4): add story context.xml files for Epic 4
+- `67183cf` - docs(epic5): add story context.xml files for Epic 5
+
+### Result
+
+**Test Status:** 517 tests passing (421 backend + 96 frontend)
+
+All story documentation is now complete and follows the BMad Method standards:
+- Each story has acceptance criteria, tasks, and senior developer review
+- Context files provide technical references for future development
+- Documentation aligns with `docs/sprint-artifacts/` naming conventions
+- Full traceability from epics to stories to implementation files
