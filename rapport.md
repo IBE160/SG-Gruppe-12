@@ -964,131 +964,96 @@ The project now has a robust, fully functional CI pipeline that validates code q
 
 ---
 
-## December 3, 2025 - Epic 3 Completion & Story 3.6 Implementation
+## December 1, 2025 – Epic 5 Completion & Test Infrastructure Improvements *(Vera Kironaki, with Claude Code)*
 
-### Session Overview
+### Goal
 
-**Epic 3: Job Ad Analysis & Match Scoring - COMPLETED** ✅
+Complete Epic 5 (Trust & Data Governance) implementation and improve test coverage/reliability.
 
-Today marked the completion of Epic 3 with the implementation and approval of Story 3.6 (Data Schema Contract Enforcement). This epic delivers comprehensive job analysis capabilities including AI-powered extraction, keyword matching, scoring algorithms, and data validation.
+### What We Did
 
-### Story 3.6: Data Schema Contract Enforcement
+We worked with Claude Code to finalize Epic 5 security features and fix test infrastructure:
 
-**Status:** ✅ DONE (drafted → ready-for-dev → review → done)
+#### Epic 5 Implementation (Trust & Data Governance)
 
-**Implementation Details:**
+1. **AES-256 Encryption at Rest (`src/utils/encryption.util.ts`):**
+   - Implemented `EncryptionService` with AES-256-GCM encryption
+   - Added IV generation and authentication tag handling
+   - Key derivation from environment variable
 
-**Backend Deliverables:**
-- Created comprehensive Zod schemas for entire job analysis pipeline
-  - `JobAnalysisResultSchema` - Complete job analysis output validation
-  - `ExtractedJobDataSchema` - AI extraction output validation
-  - `ATSBreakdownSchema` - ATS score breakdown validation
-  - `ATSAssessmentSchema` - ATS assessment validation
-- Enhanced validation middleware (`validate.middleware.ts`) with:
-  - PII redaction for emails, phone numbers, names, long text
-  - Request context logging (endpoint, userId, method, path)
-  - User-friendly error messages
-  - Field-level error formatting
-- Service-level validation at boundaries:
-  - `job-analysis.service.ts` validates AI extraction and analysis outputs
-  - `matching.service.ts` validates match result outputs
-  - Runtime assertions using `schema.parse()`
+2. **Role-Based Access Control (`src/middleware/rbac.middleware.ts`):**
+   - Created `requireRole()` middleware for route protection
+   - Implemented `hasPermission()` helper for granular checks
+   - Defined role hierarchy: USER, ADMIN, SUPER_ADMIN
 
-**Frontend Deliverables:**
-- Created frontend schema files mirroring backend:
-  - `frontend/src/lib/schemas/job.ts` - Complete job analysis schemas
-  - `frontend/src/lib/schemas/matching.ts` - Matching schemas (new file)
-- Type-safe validation ready for form integration
+3. **LLM Sandboxing (`src/services/llm-sandbox.service.ts`):**
+   - Built `LLMSandboxService` with prompt safety validation
+   - Input sanitization to prevent prompt injection
+   - Output filtering to remove sensitive data patterns
 
-**Documentation:**
-- Created comprehensive `docs/schema-contracts.md` with:
-  - All schema definitions and validation rules
-  - Request/response examples for each endpoint
-  - Error codes and PII handling guidelines
-  - Implementation notes
+4. **Audit Logging (`src/services/audit.service.ts`):**
+   - Comprehensive audit logging for security events
+   - GDPR-compliant data access tracking
+   - Integration with database for persistent logs
 
-**Testing:**
-- Unit tests: 100% coverage for all new validators
-- Integration tests: Complete endpoint validation verification
-- PII redaction: Verified in middleware tests
-- Final test results: 421/422 tests passing (99.8%)
+5. **Enhanced Rate Limiting (`src/middleware/rate-limit.middleware.ts`):**
+   - Added audit logging integration
+   - JSON error responses for API consistency
+   - Configurable limits per endpoint type
 
-**Files Modified/Created:**
-- Backend (6 files): validators, middleware, services
-- Frontend (2 files): schema definitions
-- Documentation (1 file): schema-contracts.md
-- Tests (6 files): comprehensive unit and integration tests
+#### Test Infrastructure Improvements
 
-**Review & Fixes:**
-- Initial review found 2 test failures and 1 TypeScript error
-- All issues resolved in <5 minutes:
-  - Updated test expectations for new validation error message
-  - Fixed TypeScript type assertion in integration test
-- Final verification: All tests passing
+1. **Fixed Mock Ordering Issues:**
+   - Moved all `jest.mock()` calls before import statements
+   - Critical for modules with side effects (JWT, Redis)
 
-### Epic 3 Summary
+2. **Added JWT Environment Variables:**
+   - Set `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET` before imports
+   - Prevents jwt.util.ts initialization errors
 
-**All 6 Stories Completed:**
-1. ✅ Story 3.1 - Job Description Input Interface
-2. ✅ Story 3.2 - AI-Powered Job Description Text Extraction
-3. ✅ Story 3.3 - CV-Job Description Keyword Matching Algorithm
-4. ✅ Story 3.4 - Match Score Calculation & Display
-5. ✅ Story 3.5 - ATS Score Calculation & Display
-6. ✅ Story 3.6 - Data Schema Contract Enforcement
+3. **Fixed Redis Mock for Bull Queues:**
+   - Added `options: { host, port, password }` to Redis mock
+   - Required for Bull queue initialization
 
-**Epic Achievements:**
-- Complete job analysis pipeline with AI-powered extraction
-- Keyword matching with semantic analysis and synonym recognition
-- Match score calculation (0-100) with detailed breakdown
-- ATS compatibility scoring with improvement suggestions
-- Comprehensive data validation with PII protection
-- Full test coverage and production-ready implementation
+4. **Fixed SafeUser Expectations:**
+   - Updated test assertions to match actual service behavior
+   - Services return SafeUser (without passwordHash, emailVerificationToken)
 
-**Technical Highlights:**
-- Zod schema validation across entire pipeline
-- Service-level validation at all boundaries
-- PII redaction in validation error logs
-- Frontend/backend type alignment
-- 421/422 tests passing (99.8% success rate)
+5. **New Test Files Created:**
+   - `src/tests/auth.middleware.test.ts` (13 tests)
+   - `src/tests/error.middleware.test.ts` (37 tests)
 
-### Epic 3 Retrospective
+### Files Changed
 
-**Retrospective Status:** ✅ DONE
+**Epic 5 (Security):**
+- src/utils/encryption.util.ts (new)
+- src/middleware/rbac.middleware.ts (new)
+- src/services/llm-sandbox.service.ts (new)
+- src/services/audit.service.ts (new)
+- src/middleware/rate-limit.middleware.ts (updated)
 
-Completed brief retrospective for Epic 3, confirming:
-- 100% story completion (6/6 stories)
-- High-quality deliverables with excellent test coverage
-- Solid foundation for Epic 4 (Tailored Application Generation)
-- All dependencies ready for next epic
+**Test Infrastructure (14 files):**
+- src/tests/auth.service.test.ts
+- src/tests/cv.service.test.ts
+- src/tests/user.repository.test.ts
+- src/tests/integration/auth.routes.test.ts
+- src/tests/integration/user.routes.test.ts
+- src/tests/integration/cv.integration.test.ts
+- src/tests/integration/cv.versions.test.ts
+- src/tests/integration/database.test.ts
+- src/tests/jwt.util.test.ts
+- src/tests/unit/auth.service.test.ts
+- src/tests/unit/user.service.test.ts
+- src/tests/user.service.test.ts
+- src/tests/auth.middleware.test.ts (new)
+- src/tests/error.middleware.test.ts (new)
 
-### Next Steps
+### Result
 
-**Epic 4: Tailored Application Generation** (5 stories in backlog)
-- Depends on Epic 2 (CV data) and Epic 3 (job analysis) - both complete
-- Ready to begin when user initiates
-
-**Project Status:**
-- Epic 1: ✅ Done (4/4 stories)
-- Epic 2: ✅ Done (8/8 stories)
-- Epic 3: ✅ Done (6/6 stories) - **COMPLETED TODAY**
-- Epic 4: Contexted, ready for development
-- Epic 5: Contexted, ready for development
-
-### Development Statistics
-
-**Test Coverage:**
-- Total: 421/422 passing (99.8%)
-- Backend: 389/390 passing
-- Frontend: 74/74 passing (100%)
-
-**Code Quality:**
-- Lint: 0 errors, 57 warnings
-- TypeScript: Clean compilation
-- Build: Both backend and frontend build successfully
-
-**Velocity:**
-- Story 3.6: Drafted, contexted, implemented, and approved in single session
-- Complete epic (6 stories) delivered with high quality
-- Strong momentum for Epic 4
-
-The project continues to progress rapidly with AI-assisted development, maintaining high code quality and comprehensive test coverage throughout.
+- **Epic 5:** Complete with all security features implemented
+- **Test Pass Rate:** Improved from 93% to 95% (307/324 passing)
+- **New Tests Added:** 50 tests (auth middleware + error middleware)
+- **Commits:**
+  - Epic 5 commits (encryption, RBAC, LLM sandbox, audit, rate limiting)
+  - `875a1d4` - test: fix test infrastructure and add middleware tests
+>>>>>>> ff034012df89819cd9ee949f5e39aafd90b9f958
