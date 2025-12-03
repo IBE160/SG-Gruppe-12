@@ -1,0 +1,159 @@
+<story-context id="epic5/story-5-5" v="1.0">
+  <metadata>
+    <epicId>epic-5</epicId>
+    <storyId>5-5</storyId>
+    <title>Rigorous LLM Sandboxing and Data Minimization</title>
+    <status>done</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-5-rigorous-llm-sandboxing-data-minimization.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>strict guarantees that my personal data is never used for AI model training by third-party providers</iWant>
+    <soThat>my privacy is fully protected when using AI features</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Create LLM Safety Service**
+- [x] Subtask 1.1: Create `llm-safety.util.ts` with safety utilities
+- [x] Subtask 1.2: Implement `sanitizeOutput()` method
+- [x] Subtask 1.3: Implement `validateGeneratedContent()` method
+- [x] Subtask 1.4: Implement `detectBias()` method
+
+**Task 2: Data Minimization in Prompts**
+- [x] Subtask 2.1: Only include necessary CV data in prompts
+- [x] Subtask 2.2: Only include necessary job data in prompts
+- [x] Subtask 2.3: Avoid including PII beyond what's required
+
+**Task 3: Output Validation**
+- [x] Subtask 3.1: Validate generated content against user's actual data
+- [x] Subtask 3.2: Flag suspicious content that may be fabricated
+- [x] Subtask 3.3: Log warnings for unverified claims
+
+**Task 4: Job Description Retention**
+- [x] Subtask 4.1: Store job descriptions temporarily
+- [x] Subtask 4.2: Implement automatic deletion after analysis
+- [x] Subtask 4.3: Clear cached versions
+
+**Task 5: AI Provider Configuration**
+- [x] Subtask 5.1: Configure Gemini to not retain data
+- [x] Subtask 5.2: Use appropriate API settings for privacy
+
+### Testing Tasks
+
+**Task 6: Unit Tests**
+- [x] Subtask 6.1: Test output sanitization
+- [x] Subtask 6.2: Test content validation
+- [x] Subtask 6.3: Test bias detection
+
+**Task 7: Integration Tests**
+- [x] Subtask 7.1: Test end-to-end with safety measures
+- [x] Subtask 7.2: Verify no sensitive data in logs
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+* **AC-1:** Given an external LLM call is made when personal user data is involved, then the system ensures no personal data is persistently stored or used for model training by the LLM provider.
+* **AC-2:** User consent *must* be explicitly respected for any data processing involving AI.
+* **AC-3:** Raw job advertisement text *must* only be stored if absolutely necessary for analysis and is automatically deleted afterwards.
+* **AC-4:** LLM prompts *must* be sanitized to include only necessary data.
+* **AC-5:** LLM outputs *must* be sanitized to remove any leaked system content.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics</title>
+        <section>Story 5.5: Rigorous LLM Sandboxing and Data Minimization (MVP)</section>
+        <snippet>As a user, I want strict guarantees that my personal data is never used for AI model training by third-party providers.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-5.md</path>
+        <title>Epic 5 Technical Specification</title>
+        <section>7.4 Prevention of Sensitive Data Leakage</section>
+        <snippet>No sending CVs or job descriptions to 3rd parties. No embedding personal data in prompts beyond what is required.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/utils/llm-safety.util.ts</path>
+        <kind>utility</kind>
+        <symbol>llmSafetyService</symbol>
+        <lines>1-150</lines>
+        <reason>LLM safety utilities for data protection</reason>
+      </file>
+      <file>
+        <path>src/services/application.service.ts</path>
+        <kind>service</kind>
+        <symbol>applicationService (uses llmSafetyService)</symbol>
+        <lines>100-110</lines>
+        <reason>Integration of safety service in AI generation</reason>
+      </file>
+      <file>
+        <path>src/config/ai-providers.ts</path>
+        <kind>config</kind>
+        <symbol>gemini</symbol>
+        <lines>1-30</lines>
+        <reason>AI provider configuration</reason>
+      </file>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="ai" version="^5.0.106" />
+        <package name="@ai-sdk/google" version="^2.0.44" />
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must configure AI providers to not retain data</constraint>
+    <constraint>Prompts must only include necessary data</constraint>
+    <constraint>Must validate AI output against user's actual data</constraint>
+    <constraint>Job descriptions must be deleted after analysis</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>ValidationContext</name>
+      <kind>typescript interface</kind>
+      <signature>
+export interface ValidationContext {
+  userSkills: string[];
+  userExperience: Array&lt;{
+    title: string;
+    company: string;
+    dates: string;
+  }&gt;;
+  userEducation: Array&lt;{
+    degree: string;
+    institution: string;
+    year: string;
+  }&gt;;
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  suspiciousContent: string[];
+  warnings: string[];
+}
+      </signature>
+      <path>src/utils/llm-safety.util.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Unit tests with Jest</standards>
+    <locations>
+      - src/tests/unit/llm-safety.util.test.ts
+    </locations>
+    <ideas>
+      <idea for="AC-4">Test that prompts don't include unnecessary PII</idea>
+      <idea for="AC-5">Test that system prompts are stripped from output</idea>
+    </ideas>
+  </tests>
+</story-context>

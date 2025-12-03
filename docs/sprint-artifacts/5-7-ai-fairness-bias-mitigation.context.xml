@@ -1,0 +1,152 @@
+<story-context id="epic5/story-5-7" v="1.0">
+  <metadata>
+    <epicId>epic-5</epicId>
+    <storyId>5-7</storyId>
+    <title>AI Fairness and Bias Mitigation</title>
+    <status>done</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-7-ai-fairness-bias-mitigation.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>the AI outputs to be fair and unbiased, without amplifying biases related to protected characteristics</iWant>
+    <soThat>my job applications are evaluated purely on merit</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Implement Bias Detection**
+- [x] Subtask 1.1: Create `detectBias()` method in LLM safety service
+- [x] Subtask 1.2: Define bias patterns to detect (gender, age, ethnicity)
+- [x] Subtask 1.3: Return detection results with specific patterns found
+
+**Task 2: Bias-Aware Prompts**
+- [x] Subtask 2.1: Update tailored CV prompt with bias avoidance instructions
+- [x] Subtask 2.2: Update cover letter prompt with bias avoidance instructions
+- [x] Subtask 2.3: Include explicit instructions to avoid assumptions
+
+**Task 3: Integrate Bias Detection**
+- [x] Subtask 3.1: Call bias detection after generating cover letters
+- [x] Subtask 3.2: Log detected bias patterns
+- [x] Subtask 3.3: Warn in logs when bias is detected
+
+**Task 4: Prompt Guidelines**
+- [x] Subtask 4.1: Document bias avoidance guidelines
+- [x] Subtask 4.2: Include "avoid biased language" in all AI prompts
+- [x] Subtask 4.3: Instruct AI to keep writing professional and factual
+
+### Testing Tasks
+
+**Task 5: Unit Tests**
+- [x] Subtask 5.1: Test bias detection patterns
+- [x] Subtask 5.2: Test detection of gendered language
+- [x] Subtask 5.3: Test detection of age-related assumptions
+
+**Task 6: Evaluation Tests**
+- [x] Subtask 6.1: Review sample AI outputs for bias
+- [x] Subtask 6.2: Document findings and improvements
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+* **AC-1:** Given AI generates content (e.g., tailored CVs, cover letters, match scores), when the outputs are reviewed, then the system actively avoids biased phrasing or assumptions related to gender, ethnicity, disability, or age.
+* **AC-2:** Mechanisms for regular evaluation of LLM outputs for bias *must* be in place.
+* **AC-3:** AI prompts *must* explicitly instruct the model to avoid biased language.
+* **AC-4:** Detected bias *must* be logged for review and improvement.
+* **AC-5:** The system *must* not make assumptions about protected characteristics.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics</title>
+        <section>Story 5.7: AI Fairness and Bias Mitigation (MVP)</section>
+        <snippet>As a user, I want the AI outputs to be fair and unbiased, without amplifying biases related to protected characteristics.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-5.md</path>
+        <title>Epic 5 Technical Specification</title>
+        <section>8. AI Safety and Bias Mitigation</section>
+        <snippet>Avoid gendered language, age assumptions, ethnic assumptions. LLM prompts must forbid fabrication and request structured output.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/utils/llm-safety.util.ts</path>
+        <kind>utility</kind>
+        <symbol>llmSafetyService.detectBias</symbol>
+        <lines>80-120</lines>
+        <reason>Bias detection in generated content</reason>
+      </file>
+      <file>
+        <path>src/prompts/tailored-cv.prompt.ts</path>
+        <kind>prompt</kind>
+        <symbol>TailoredCvPrompt.v1</symbol>
+        <lines>1-50</lines>
+        <reason>Bias-aware prompt for CV generation</reason>
+      </file>
+      <file>
+        <path>src/prompts/cover-letter.prompt.ts</path>
+        <kind>prompt</kind>
+        <symbol>CoverLetterPrompt.v1</symbol>
+        <lines>1-60</lines>
+        <reason>Bias-aware prompt for cover letter generation</reason>
+      </file>
+      <file>
+        <path>src/services/application.service.ts</path>
+        <kind>service</kind>
+        <symbol>applicationService.generateCoverLetter (bias check)</symbol>
+        <lines>158-163</lines>
+        <reason>Integration of bias detection in generation flow</reason>
+      </file>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="ai" version="^5.0.106" />
+        <package name="@ai-sdk/google" version="^2.0.44" />
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must detect gendered language patterns</constraint>
+    <constraint>Must detect age-related assumptions</constraint>
+    <constraint>Must detect ethnic/racial assumptions</constraint>
+    <constraint>All prompts must include bias avoidance instructions</constraint>
+    <constraint>Detected bias must be logged</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>BiasDetectionResult</name>
+      <kind>typescript interface</kind>
+      <signature>
+export interface BiasDetectionResult {
+  hasBias: boolean;
+  detectedPatterns: Array&lt;{
+    type: 'gender' | 'age' | 'ethnicity' | 'other';
+    pattern: string;
+    context: string;
+  }&gt;;
+}
+      </signature>
+      <path>src/utils/llm-safety.util.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Unit tests with Jest</standards>
+    <locations>
+      - src/tests/unit/llm-safety.util.test.ts
+    </locations>
+    <ideas>
+      <idea for="AC-1">Test detection of "he/she" gendered language</idea>
+      <idea for="AC-1">Test detection of age-related phrases like "young professional"</idea>
+      <idea for="AC-3">Test that prompts include bias avoidance instructions</idea>
+    </ideas>
+  </tests>
+</story-context>

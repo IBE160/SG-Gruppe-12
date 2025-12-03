@@ -1,0 +1,148 @@
+<story-context id="epic5/story-5-3" v="1.0">
+  <metadata>
+    <epicId>epic-5</epicId>
+    <storyId>5-3</storyId>
+    <title>Data Encryption (In Transit and At Rest)</title>
+    <status>done</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-3-data-encryption-in-transit-at-rest.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>assurance that all my sensitive personal data is encrypted both when being transferred and when stored</iWant>
+    <soThat>my data is protected from unauthorized access</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Configure HTTPS/TLS**
+- [x] Subtask 1.1: Enable HTTPS for production environment
+- [x] Subtask 1.2: Configure TLS certificates
+- [x] Subtask 1.3: Redirect HTTP to HTTPS
+
+**Task 2: Database Encryption**
+- [x] Subtask 2.1: Enable SSL connection to PostgreSQL
+- [x] Subtask 2.2: Configure database encryption at rest (Supabase)
+- [x] Subtask 2.3: Verify encryption is active
+
+**Task 3: Password Security**
+- [x] Subtask 3.1: Implement bcrypt hashing in `password.util.ts`
+- [x] Subtask 3.2: Use appropriate salt rounds (12+)
+- [x] Subtask 3.3: Never store plain-text passwords
+
+**Task 4: Security Headers**
+- [x] Subtask 4.1: Add Helmet middleware for security headers
+- [x] Subtask 4.2: Configure CORS properly
+- [x] Subtask 4.3: Set secure cookie options
+
+**Task 5: Secret Management**
+- [x] Subtask 5.1: Store secrets in environment variables
+- [x] Subtask 5.2: Add `.env` to `.gitignore`
+- [x] Subtask 5.3: Document required environment variables
+
+### Testing Tasks
+
+**Task 6: Security Tests**
+- [x] Subtask 6.1: Verify HTTPS is enforced
+- [x] Subtask 6.2: Verify password hashing works correctly
+- [x] Subtask 6.3: Verify security headers are present
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+* **AC-1:** Given any data transfer between client and server, when data is in transit, then it is encrypted using HTTPS/TLS.
+* **AC-2:** When personal data is stored in the database, then it *must* be encrypted at rest.
+* **AC-3:** Passwords *must* be hashed using bcrypt with appropriate salt rounds.
+* **AC-4:** Data minimization principles *must* be applied, ensuring only necessary personal data is collected and processed.
+* **AC-5:** API keys and secrets *must* be stored securely and never committed to version control.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics</title>
+        <section>Story 5.3: Data Encryption (In Transit and At Rest) (MVP)</section>
+        <snippet>As a user, I want assurance that all my sensitive personal data is encrypted, so that my data is protected from unauthorized access.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-5.md</path>
+        <title>Epic 5 Technical Specification</title>
+        <section>7.1 Encryption</section>
+        <snippet>TLS for all network traffic. AES-256 for database encryption.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/utils/password.util.ts</path>
+        <kind>utility</kind>
+        <symbol>hashPassword, comparePassword</symbol>
+        <lines>1-30</lines>
+        <reason>Bcrypt password hashing</reason>
+      </file>
+      <file>
+        <path>src/config/database.ts</path>
+        <kind>config</kind>
+        <symbol>prisma</symbol>
+        <lines>1-20</lines>
+        <reason>Database connection with SSL</reason>
+      </file>
+      <file>
+        <path>src/app.ts</path>
+        <kind>app</kind>
+        <symbol>Express app setup</symbol>
+        <lines>20-50</lines>
+        <reason>Helmet and security middleware</reason>
+      </file>
+      <file>
+        <path>src/middleware/security.middleware.ts</path>
+        <kind>middleware</kind>
+        <symbol>securityMiddleware</symbol>
+        <lines>1-40</lines>
+        <reason>Security headers and CORS</reason>
+      </file>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="bcrypt" version="^5.1.1" />
+        <package name="helmet" version="^7.1.0" />
+        <package name="cors" version="^2.8.5" />
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must use TLS 1.2+ for all connections</constraint>
+    <constraint>Bcrypt salt rounds must be 12 or higher</constraint>
+    <constraint>No secrets in version control</constraint>
+    <constraint>Database connection must use SSL</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>Password utilities</name>
+      <kind>typescript functions</kind>
+      <signature>
+async function hashPassword(password: string): Promise&lt;string&gt;;
+async function comparePassword(password: string, hash: string): Promise&lt;boolean&gt;;
+      </signature>
+      <path>src/utils/password.util.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Security tests with Jest</standards>
+    <locations>
+      - src/tests/unit/password.util.test.ts
+      - src/tests/integration/security.test.ts
+    </locations>
+    <ideas>
+      <idea for="AC-3">Test password hashing produces different hashes</idea>
+      <idea for="AC-3">Test password comparison works correctly</idea>
+      <idea for="AC-5">Test that .env files are gitignored</idea>
+    </ideas>
+  </tests>
+</story-context>
