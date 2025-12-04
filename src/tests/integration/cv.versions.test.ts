@@ -129,7 +129,7 @@ describe('CV Versioning API Endpoints', () => {
 
     describe('GET /api/v1/cvs/:cvId/versions/:versionNumber', () => {
         it('should call getVersionDetails service and return 200 with CV data', async () => {
-            const mockCvData = { personal_info: { firstName: 'John' } };
+            const mockCvData = { personalInfo: { firstName: 'John' } };
             (cvService.getVersionDetails as jest.Mock).mockResolvedValue(mockCvData);
 
             const response = await request(app)
@@ -144,7 +144,7 @@ describe('CV Versioning API Endpoints', () => {
 
     describe('POST /api/v1/cvs/:cvId/restore-version/:versionNumber', () => {
         it('should call restoreVersion service and return 200 with restored CV data', async () => {
-            const mockCvData = { personal_info: { firstName: 'Jane' } };
+            const mockCvData = { personalInfo: { firstName: 'Jane' } };
             (cvService.restoreVersion as jest.Mock).mockResolvedValue(mockCvData);
 
             const response = await request(app)

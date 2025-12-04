@@ -22,7 +22,7 @@ describe('parsingValidationService', () => {
       it('should pass when name is found in original text', () => {
         const originalText = 'John Doe\nEmail: john@example.com\nPhone: 123-456-7890';
         const parsedData: CvData = {
-          personal_info: {
+          personalInfo: {
             name: 'John Doe',
           },
         };
@@ -36,7 +36,7 @@ describe('parsingValidationService', () => {
       it('should warn when name is not found in original text', () => {
         const originalText = 'Software Engineer with experience in web development';
         const parsedData: CvData = {
-          personal_info: {
+          personalInfo: {
             name: 'Jane Smith',
           },
         };
@@ -55,7 +55,7 @@ describe('parsingValidationService', () => {
       it('should skip very short name components (initials)', () => {
         const originalText = 'John A. Doe\nEmail: john@example.com';
         const parsedData: CvData = {
-          personal_info: {
+          personalInfo: {
             name: 'John A. Doe',
           },
         };
@@ -262,7 +262,7 @@ describe('parsingValidationService', () => {
       it('should pass when email is found in original text', () => {
         const originalText = 'Contact: john.doe@example.com';
         const parsedData: CvData = {
-          personal_info: {
+          personalInfo: {
             email: 'john.doe@example.com',
           },
         };
@@ -275,7 +275,7 @@ describe('parsingValidationService', () => {
       it('should warn when email is not found in original text', () => {
         const originalText = 'Software Engineer at Tech Company';
         const parsedData: CvData = {
-          personal_info: {
+          personalInfo: {
             email: 'fake@example.com',
           },
         };
@@ -291,7 +291,7 @@ describe('parsingValidationService', () => {
       it('should handle case-insensitive email matching', () => {
         const originalText = 'Email: JOHN.DOE@EXAMPLE.COM';
         const parsedData: CvData = {
-          personal_info: {
+          personalInfo: {
             email: 'john.doe@example.com',
           },
         };
@@ -306,7 +306,7 @@ describe('parsingValidationService', () => {
       it('should pass when phone number digits are found in original text', () => {
         const originalText = 'Phone: +1 (123) 456-7890';
         const parsedData: CvData = {
-          personal_info: {
+          personalInfo: {
             phone: '+1-123-456-7890',
           },
         };
@@ -319,7 +319,7 @@ describe('parsingValidationService', () => {
       it('should warn when phone number is not found in original text', () => {
         const originalText = 'Software Engineer based in New York';
         const parsedData: CvData = {
-          personal_info: {
+          personalInfo: {
             phone: '123-456-7890',
           },
         };
@@ -356,7 +356,7 @@ describe('parsingValidationService', () => {
         `;
 
         const parsedData: CvData = {
-          personal_info: {
+          personalInfo: {
             name: 'Jane Smith',
             email: 'jane.smith@email.com',
             phone: '555-123-4567',
@@ -411,7 +411,7 @@ describe('parsingValidationService', () => {
         const originalText = 'John Doe, software developer with some programming experience.';
 
         const parsedData: CvData = {
-          personal_info: {
+          personalInfo: {
             name: 'John Doe',
             email: 'fake@example.com', // Not in original
             phone: '999-888-7777', // Not in original

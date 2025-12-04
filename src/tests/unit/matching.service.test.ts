@@ -37,7 +37,7 @@ describe('Matching Service', () => {
 
   const mockCvData: CvData & { id: number } = {
     id: 1,
-    personal_info: {
+    personalInfo: {
       name: 'John Doe',
       email: 'john@example.com',
     },
