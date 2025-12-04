@@ -1,0 +1,204 @@
+<story-context id="epic4/story-4-1" v="1.0">
+  <metadata>
+    <epicId>epic-4</epicId>
+    <storyId>4-1</storyId>
+    <title>AI-Driven Tailored CV Generation</title>
+    <status>done</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-1-ai-driven-tailored-cv-generation.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>an AI-driven tailored CV that rephrases and emphasizes my relevant experience based on a specific job ad</iWant>
+    <soThat>my application is highly targeted</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Implement Tailored CV Generation Endpoint**
+- [x] Subtask 1.1: Create `POST /api/application/generate-cv` endpoint in application routes
+- [x] Subtask 1.2: Implement controller to handle request validation and response formatting
+- [x] Subtask 1.3: Create prompt template in `src/prompts/tailored-cv.prompt.ts`
+
+**Task 2: Implement AI Generation Logic in ApplicationService**
+- [x] Subtask 2.1: Implement `generateTailoredCV()` method in `application.service.ts`
+- [x] Subtask 2.2: Integrate Vercel AI SDK with Gemini model
+- [x] Subtask 2.3: Implement `callAIForTailoredCV()` with proper prompt construction
+- [x] Subtask 2.4: Add JSON response parsing and validation
+- [x] Subtask 2.5: Integrate LLM safety service for output sanitization
+
+**Task 3: Data Integration**
+- [x] Subtask 3.1: Fetch structured CV data from Epic 2 data model
+- [x] Subtask 3.2: Fetch job analysis data from Epic 3
+- [x] Subtask 3.3: Build validation context for LLM output verification
+
+### Testing Tasks
+
+**Task 4: Unit Tests**
+- [x] Subtask 4.1: Write unit tests for `generateTailoredCV()` method
+- [x] Subtask 4.2: Test prompt template generation
+- [x] Subtask 4.3: Test JSON parsing and validation
+
+**Task 5: Integration Tests**
+- [x] Subtask 5.1: Write integration tests for the API endpoint
+- [x] Subtask 5.2: Test error handling for invalid CV or job posting IDs
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+* **AC-1:** Given a populated CV and an analyzed job description, when I request to generate a tailored CV, then the system uses AI to adapt my CV content to align with the job ad's keywords and requirements.
+* **AC-2:** The generated CV *must* adhere to the defined data schema contracts for content (summary, experience[], skills[]).
+* **AC-3:** The AI prompt templates used *must* be versioned and consistently applied.
+* **AC-4:** The generated CV's narrative *must* be designed to be consistent with the tone and focus expected for an accompanying cover letter.
+* **AC-5:** The system *must* not fabricate experience or false claims - only rephrasing existing user data.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics</title>
+        <section>Story 4.1: AI-Driven Tailored CV Generation (MVP)</section>
+        <snippet>As a user, I want an AI-driven tailored CV that rephrases and emphasizes my relevant experience based on a specific job ad, so that my application is highly targeted.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>5.1 Tailored CV Generation</section>
+        <snippet>POST /api/application/generate-cv - Generates tailored CV content based on cvId and jobAnalysisId</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture-backend.md</path>
+        <title>Backend Architecture</title>
+        <section>Service Layer</section>
+        <snippet>ApplicationService handles AI-powered generation of tailored CVs and cover letters.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/services/application.service.ts</path>
+        <kind>service</kind>
+        <symbol>applicationService.generateTailoredCV</symbol>
+        <lines>86-124</lines>
+        <reason>Main method for generating tailored CVs using AI</reason>
+      </file>
+      <file>
+        <path>src/services/application.service.ts</path>
+        <kind>service</kind>
+        <symbol>applicationService.callAIForTailoredCV</symbol>
+        <lines>476-509</lines>
+        <reason>Calls the AI provider (Gemini) to generate tailored CV content</reason>
+      </file>
+      <file>
+        <path>src/prompts/tailored-cv.prompt.ts</path>
+        <kind>prompt</kind>
+        <symbol>TailoredCvPrompt.v1</symbol>
+        <lines>1-50</lines>
+        <reason>Versioned prompt template for tailored CV generation</reason>
+      </file>
+      <file>
+        <path>src/routes/application.routes.ts</path>
+        <kind>routes</kind>
+        <symbol>POST /generate-cv</symbol>
+        <lines>20-30</lines>
+        <reason>API endpoint for triggering CV generation</reason>
+      </file>
+      <file>
+        <path>src/controllers/application.controller.ts</path>
+        <kind>controller</kind>
+        <symbol>applicationController.generateTailoredCV</symbol>
+        <lines>15-40</lines>
+        <reason>Controller handling request/response for CV generation</reason>
+      </file>
+      <file>
+        <path>src/utils/llm-safety.util.ts</path>
+        <kind>utility</kind>
+        <symbol>llmSafetyService.validateGeneratedContent</symbol>
+        <lines>1-100</lines>
+        <reason>Validates AI output to prevent fabrication</reason>
+      </file>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="ai" version="^5.0.106" />
+        <package name="@ai-sdk/google" version="^2.0.44" />
+        <package name="@prisma/client" version="^5.7.1" />
+        <package name="jest" version="^29.7.0" />
+        <package name="supertest" version="^6.3.3" />
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must use Vercel AI SDK with Gemini 1.5 Flash model</constraint>
+    <constraint>Generated content must only use information from user's actual CV data</constraint>
+    <constraint>Must not fabricate experience, degrees, or certifications</constraint>
+    <constraint>Response must be valid JSON matching TailoredCvResult interface</constraint>
+    <constraint>Must include retry logic with exponential backoff</constraint>
+    <constraint>Must sanitize AI output before returning to client</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>TailoredCvResult</name>
+      <kind>typescript interface</kind>
+      <signature>
+export interface TailoredCvResult {
+  summary: string;
+  experience: Array&lt;{
+    title: string;
+    company: string;
+    period: string;
+    bullets: string[];
+  }&gt;;
+  skills: string[];
+  highlights: string[];
+}
+      </signature>
+      <path>src/services/application.service.ts</path>
+    </interface>
+    <interface>
+      <name>CvData</name>
+      <kind>typescript interface</kind>
+      <signature>
+export interface CvData {
+  summary?: string;
+  experience: Array&lt;{
+    title: string;
+    company: string;
+    period: string;
+    description?: string;
+    bullets?: string[];
+  }&gt;;
+  education: Array&lt;{
+    degree: string;
+    institution: string;
+    year: string;
+  }&gt;;
+  skills: string[];
+  languages?: Array&lt;{
+    language: string;
+    level: string;
+  }&gt;;
+}
+      </signature>
+      <path>src/prompts/tailored-cv.prompt.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Unit tests are written with Jest, integration tests with Supertest. AI responses are mocked in tests.</standards>
+    <locations>
+      - src/tests/unit/application.service.test.ts
+      - src/tests/integration/application.routes.test.ts
+    </locations>
+    <ideas>
+      <idea for="AC-1">Test that generated CV emphasizes skills matching job requirements</idea>
+      <idea for="AC-2">Test that response matches TailoredCvResult schema</idea>
+      <idea for="AC-5">Test that fabricated content is flagged by validation</idea>
+    </ideas>
+  </tests>
+</story-context>

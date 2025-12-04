@@ -1,0 +1,162 @@
+<story-context id="epic5/story-5-4" v="1.0">
+  <metadata>
+    <epicId>epic-5</epicId>
+    <storyId>5-4</storyId>
+    <title>Role-Based Authentication and Authorization</title>
+    <status>done</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-4-role-based-authentication-authorization.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a developer</asA>
+    <iWant>strong, role-based authentication and authorization mechanisms</iWant>
+    <soThat>only authorized users can access sensitive data and functionality</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Implement JWT with Roles**
+- [x] Subtask 1.1: Define UserRole enum (USER, ADMIN)
+- [x] Subtask 1.2: Include role in JWT payload
+- [x] Subtask 1.3: Verify role on token validation
+
+**Task 2: Authentication Middleware**
+- [x] Subtask 2.1: Create `auth.middleware.ts`
+- [x] Subtask 2.2: Verify JWT on protected routes
+- [x] Subtask 2.3: Extract user info and attach to request
+
+**Task 3: Authorization Middleware**
+- [x] Subtask 3.1: Create `rbac.middleware.ts`
+- [x] Subtask 3.2: Implement role checking logic
+- [x] Subtask 3.3: Return 403 Forbidden for unauthorized access
+
+**Task 4: Rate Limiting**
+- [x] Subtask 4.1: Create `rate-limiting.middleware.ts`
+- [x] Subtask 4.2: Configure rate limits per endpoint
+- [x] Subtask 4.3: Use Redis for distributed rate limiting
+- [x] Subtask 4.4: Log rate limit violations
+
+**Task 5: Audit Logging**
+- [x] Subtask 5.1: Log unauthorized access attempts
+- [x] Subtask 5.2: Log authentication failures
+- [x] Subtask 5.3: Log role-based access denials
+
+### Testing Tasks
+
+**Task 6: Unit Tests**
+- [x] Subtask 6.1: Test JWT generation with roles
+- [x] Subtask 6.2: Test authentication middleware
+- [x] Subtask 6.3: Test authorization middleware
+
+**Task 7: Integration Tests**
+- [x] Subtask 7.1: Test protected endpoints reject unauthenticated requests
+- [x] Subtask 7.2: Test role-based access control
+- [x] Subtask 7.3: Test rate limiting behavior
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+* **AC-1:** Given various API endpoints and sensitive data access points, when a request is made, then the system verifies user authentication status.
+* **AC-2:** The system *must* verify user authorization based on their role for the requested action/resource.
+* **AC-3:** Unauthorized access attempts *must* be rejected and logged.
+* **AC-4:** User roles *must* be included in JWT tokens.
+* **AC-5:** Rate limiting *must* be applied to prevent abuse.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics</title>
+        <section>Story 5.4: Role-Based Authentication and Authorization (MVP)</section>
+        <snippet>As a developer, I want strong, role-based authentication and authorization mechanisms, so that only authorized users can access sensitive data and functionality.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-5.md</path>
+        <title>Epic 5 Technical Specification</title>
+        <section>7.2 Authentication and Authorization</section>
+        <snippet>Role-based access for admin vs user. No elevated privileges without justification.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/utils/jwt.util.ts</path>
+        <kind>utility</kind>
+        <symbol>jwtService, UserRole</symbol>
+        <lines>1-80</lines>
+        <reason>JWT utilities with role support</reason>
+      </file>
+      <file>
+        <path>src/middleware/auth.middleware.ts</path>
+        <kind>middleware</kind>
+        <symbol>authMiddleware</symbol>
+        <lines>1-50</lines>
+        <reason>Authentication middleware</reason>
+      </file>
+      <file>
+        <path>src/middleware/rbac.middleware.ts</path>
+        <kind>middleware</kind>
+        <symbol>rbacMiddleware</symbol>
+        <lines>1-40</lines>
+        <reason>Role-based access control middleware</reason>
+      </file>
+      <file>
+        <path>src/middleware/rate-limiting.middleware.ts</path>
+        <kind>middleware</kind>
+        <symbol>rateLimitingMiddleware</symbol>
+        <lines>1-100</lines>
+        <reason>Rate limiting with Redis</reason>
+      </file>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="jsonwebtoken" version="^9.0.2" />
+        <package name="express-rate-limit" version="^7.1.5" />
+        <package name="rate-limit-redis" version="^4.2.0" />
+        <package name="ioredis" version="^5.3.2" />
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>JWT must include user role in payload</constraint>
+    <constraint>All protected routes must use auth middleware</constraint>
+    <constraint>Rate limits must be configurable per endpoint</constraint>
+    <constraint>Failed auth attempts must be logged</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>UserRole</name>
+      <kind>typescript type</kind>
+      <signature>
+export type UserRole = 'USER' | 'ADMIN';
+
+export interface JwtPayload {
+  userId: string;
+  role: UserRole;
+  iat: number;
+  exp: number;
+}
+      </signature>
+      <path>src/utils/jwt.util.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Unit tests with Jest, integration tests with Supertest</standards>
+    <locations>
+      - src/tests/unit/jwt.util.test.ts
+      - src/tests/unit/auth.middleware.test.ts
+      - src/tests/integration/rate-limiting.test.ts
+    </locations>
+    <ideas>
+      <idea for="AC-1">Test that protected routes reject requests without JWT</idea>
+      <idea for="AC-2">Test that admin-only routes reject regular users</idea>
+      <idea for="AC-5">Test that rate limiting triggers after threshold</idea>
+    </ideas>
+  </tests>
+</story-context>

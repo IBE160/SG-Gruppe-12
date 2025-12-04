@@ -1,0 +1,164 @@
+<story-context id="epic5/story-5-2" v="1.0">
+  <metadata>
+    <epicId>epic-5</epicId>
+    <storyId>5-2</storyId>
+    <title>Data Export and Deletion (Right to be Forgotten)</title>
+    <status>done</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-2-data-export-deletion-right-to-be-forgotten.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>to easily export my personal data and permanently delete my account and all associated data</iWant>
+    <soThat>I can exercise my right to data portability and deletion under GDPR</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Implement Data Export**
+- [x] Subtask 1.1: Create `GET /api/user/export` endpoint
+- [x] Subtask 1.2: Implement GDPR service `exportUserData()` method
+- [x] Subtask 1.3: Collect all user data (CVs, applications, profile)
+- [x] Subtask 1.4: Generate JSON export file
+- [x] Subtask 1.5: Return ZIP file with all data
+
+**Task 2: Implement Account Deletion**
+- [x] Subtask 2.1: Create `DELETE /api/user/delete-account` endpoint
+- [x] Subtask 2.2: Implement GDPR service `deleteUserAccount()` method
+- [x] Subtask 2.3: Delete CVs and CV versions
+- [x] Subtask 2.4: Delete applications and generated content
+- [x] Subtask 2.5: Delete job postings
+- [x] Subtask 2.6: Delete user profile
+- [x] Subtask 2.7: Invalidate all sessions and tokens
+
+**Task 3: Confirmation and Logging**
+- [x] Subtask 3.1: Add confirmation response for export
+- [x] Subtask 3.2: Add confirmation response for deletion
+- [x] Subtask 3.3: Log export/deletion actions (without PII)
+
+### Frontend Development Tasks
+
+**Task 4: Export UI**
+- [x] Subtask 4.1: Add "Export My Data" button in settings
+- [x] Subtask 4.2: Show download progress/confirmation
+
+**Task 5: Deletion UI**
+- [x] Subtask 5.1: Add "Delete Account" section in settings
+- [x] Subtask 5.2: Implement confirmation dialog
+- [x] Subtask 5.3: Require password confirmation for deletion
+
+### Testing Tasks
+
+**Task 6: Unit Tests**
+- [x] Subtask 6.1: Test data export completeness
+- [x] Subtask 6.2: Test deletion cascades correctly
+
+**Task 7: Integration Tests**
+- [x] Subtask 7.1: Test export endpoint returns all user data
+- [x] Subtask 7.2: Test deletion removes all records
+- [x] Subtask 7.3: Test user cannot login after deletion
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+* **AC-1:** Given I am a logged-in user, when I request a data export, then all my personal data (CVs, applications, profile info) is provided in a portable format (e.g., JSON, CSV).
+* **AC-2:** When I request account deletion, then my account and all associated personal data are permanently removed from the system.
+* **AC-3:** Confirmation *must* be provided for both export and deletion requests.
+* **AC-4:** Data export *must* complete within 3-8 seconds.
+* **AC-5:** Deletion *must* remove data from all linked systems (CVs, applications, job postings, etc.).
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics</title>
+        <section>Story 5.2: Data Export and Deletion (Right to be Forgotten) (MVP)</section>
+        <snippet>As a user, I want to easily export my personal data and permanently delete my account, so that I can exercise my right to data portability and deletion under GDPR.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-5.md</path>
+        <title>Epic 5 Technical Specification</title>
+        <section>5.1 Data Export, 5.2 Data Deletion</section>
+        <snippet>GET /api/user/export returns ZIP file. DELETE /api/user/delete-account removes all user data.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/services/gdpr.service.ts</path>
+        <kind>service</kind>
+        <symbol>gdprService.exportUserData</symbol>
+        <lines>10-60</lines>
+        <reason>Exports all user data to JSON/ZIP format</reason>
+      </file>
+      <file>
+        <path>src/services/gdpr.service.ts</path>
+        <kind>service</kind>
+        <symbol>gdprService.deleteUserAccount</symbol>
+        <lines>65-120</lines>
+        <reason>Permanently deletes all user data</reason>
+      </file>
+      <file>
+        <path>src/routes/gdpr.routes.ts</path>
+        <kind>routes</kind>
+        <symbol>GET /export, DELETE /delete-account</symbol>
+        <lines>1-40</lines>
+        <reason>GDPR API endpoints</reason>
+      </file>
+      <file>
+        <path>src/controllers/gdpr.controller.ts</path>
+        <kind>controller</kind>
+        <symbol>gdprController</symbol>
+        <lines>1-60</lines>
+        <reason>Handles GDPR requests</reason>
+      </file>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="@prisma/client" version="^5.7.1" />
+        <package name="archiver" version="^6.0.0" />
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Export must include ALL user data</constraint>
+    <constraint>Deletion must cascade to all related tables</constraint>
+    <constraint>Must invalidate sessions/tokens on deletion</constraint>
+    <constraint>Export should complete in 3-8 seconds</constraint>
+    <constraint>Deletion should complete in under 2 seconds</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>ExportData</name>
+      <kind>typescript interface</kind>
+      <signature>
+interface ExportData {
+  user: UserProfile;
+  cvs: CvData[];
+  applications: ApplicationData[];
+  jobPostings: JobPostingData[];
+  exportedAt: string;
+}
+      </signature>
+      <path>src/services/gdpr.service.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Unit tests with Jest, integration tests with Supertest</standards>
+    <locations>
+      - src/tests/unit/gdpr.service.test.ts
+      - src/tests/integration/gdpr.routes.test.ts
+    </locations>
+    <ideas>
+      <idea for="AC-1">Test that export contains all user data types</idea>
+      <idea for="AC-2">Test that all tables are cleared after deletion</idea>
+      <idea for="AC-5">Test cascading deletion across relationships</idea>
+    </ideas>
+  </tests>
+</story-context>

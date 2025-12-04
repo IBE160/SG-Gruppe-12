@@ -1,0 +1,150 @@
+<story-context id="epic4/story-4-3" v="1.0">
+  <metadata>
+    <epicId>epic-4</epicId>
+    <storyId>4-3</storyId>
+    <title>User Review and Editing Interface for AI-Generated Content</title>
+    <status>done</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-3-user-review-editing-interface-for-ai-generated-content.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a user</asA>
+    <iWant>to review and edit AI-generated CV and cover letter content</iWant>
+    <soThat>I have full control and can ensure accuracy and personal voice</soThat>
+    <tasks>
+### Frontend Development Tasks
+
+**Task 1: Implement Application Edit Page**
+- [x] Subtask 1.1: Create `/applications/[id]/page.tsx` with editable content areas
+- [x] Subtask 1.2: Implement side-by-side view of original and AI-generated content
+- [x] Subtask 1.3: Add toggle functionality between original and AI versions
+
+**Task 2: Implement Rich Text Editing**
+- [x] Subtask 2.1: Add textarea/rich text components for CV sections
+- [x] Subtask 2.2: Add textarea/rich text components for cover letter
+- [x] Subtask 2.3: Implement real-time preview updates
+
+**Task 3: Save and Update Functionality**
+- [x] Subtask 3.1: Implement save button with API integration
+- [x] Subtask 3.2: Add autosave functionality (optional)
+- [x] Subtask 3.3: Show save confirmation/status
+
+### Backend Development Tasks
+
+**Task 4: Implement Update Endpoint**
+- [x] Subtask 4.1: Create `PATCH /api/applications/:id` endpoint
+- [x] Subtask 4.2: Implement `updateApplication()` in application service
+- [x] Subtask 4.3: Validate ownership before allowing updates
+
+### Testing Tasks
+
+**Task 5: Frontend Tests**
+- [x] Subtask 5.1: Write component tests for edit functionality
+- [x] Subtask 5.2: Test toggle between original/AI content
+
+**Task 6: Integration Tests**
+- [x] Subtask 6.1: Test save/update API endpoint
+- [x] Subtask 6.2: Test authorization for updates
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+* **AC-1:** Given an AI-generated tailored CV or cover letter is presented, when I view the generated content, then I can accept, reject, or edit individual sections or the entire document.
+* **AC-2:** Changes I make *must* be immediately reflected in the document preview.
+* **AC-3:** I *must* be able to toggle between original and AI-suggested text.
+* **AC-4:** The editing interface *must* be intuitive and user-friendly.
+* **AC-5:** Edited content *must* be saveable and retrievable.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics</title>
+        <section>Story 4.3: User Review and Editing Interface for AI-Generated Content (MVP)</section>
+        <snippet>As a user, I want to review and edit AI-generated CV and cover letter content, so that I have full control and can ensure accuracy and personal voice.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification-COMPLETE.md</path>
+        <title>UX Design Specification</title>
+        <section>Application Review Interface</section>
+        <snippet>Users can edit AI-generated content with real-time preview</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>frontend/app/applications/[id]/page.tsx</path>
+        <kind>page</kind>
+        <symbol>ApplicationDetailPage</symbol>
+        <lines>1-200</lines>
+        <reason>Main page for viewing and editing applications</reason>
+      </file>
+      <file>
+        <path>frontend/app/applications/new/page.tsx</path>
+        <kind>page</kind>
+        <symbol>NewApplicationPage</symbol>
+        <lines>1-150</lines>
+        <reason>Wizard for creating new applications</reason>
+      </file>
+      <file>
+        <path>src/services/application.service.ts</path>
+        <kind>service</kind>
+        <symbol>applicationService.updateApplication</symbol>
+        <lines>221-233</lines>
+        <reason>Backend method for saving user edits</reason>
+      </file>
+      <file>
+        <path>src/routes/application.routes.ts</path>
+        <kind>routes</kind>
+        <symbol>PATCH /applications/:id</symbol>
+        <lines>40-50</lines>
+        <reason>API endpoint for updating application content</reason>
+      </file>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="react" version="^18.2.0" />
+        <package name="next" version="^14.0.0" />
+        <package name="tailwindcss" version="^3.3.0" />
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must validate user ownership before allowing edits</constraint>
+    <constraint>Changes must be reflected in real-time</constraint>
+    <constraint>Must support both CV and cover letter editing</constraint>
+    <constraint>UI must be responsive and accessible</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>ApplicationUpdateDto</name>
+      <kind>typescript interface</kind>
+      <signature>
+interface ApplicationUpdateDto {
+  generatedCvContent?: string;
+  generatedApplicationContent?: string;
+}
+      </signature>
+      <path>src/services/application.service.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Frontend tests with React Testing Library, backend tests with Jest/Supertest</standards>
+    <locations>
+      - frontend/src/components/
+      - src/tests/integration/application.routes.test.ts
+    </locations>
+    <ideas>
+      <idea for="AC-1">Test that edit controls are present for each section</idea>
+      <idea for="AC-2">Test that preview updates when content changes</idea>
+      <idea for="AC-5">Test that saved content persists after refresh</idea>
+    </ideas>
+  </tests>
+</story-context>

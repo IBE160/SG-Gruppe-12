@@ -1,0 +1,144 @@
+<story-context id="epic5/story-5-6" v="1.0">
+  <metadata>
+    <epicId>epic-5</epicId>
+    <storyId>5-6</storyId>
+    <title>Minimal and Auditable Logging</title>
+    <status>done</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-6-minimal-auditable-logging.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a developer</asA>
+    <iWant>a logging system that records necessary events for auditing and debugging but minimizes the collection of personal data</iWant>
+    <soThat>compliance requirements are met without compromising privacy</soThat>
+    <tasks>
+### Backend Development Tasks
+
+**Task 1: Implement Winston Logger with PII Redaction**
+- [x] Subtask 1.1: Create `logger.util.ts` with Winston configuration
+- [x] Subtask 1.2: Implement PII redaction filter
+- [x] Subtask 1.3: Configure log levels (info, warn, error)
+- [x] Subtask 1.4: Configure log output format
+
+**Task 2: Implement Audit Logger**
+- [x] Subtask 2.1: Create `audit-logger.util.ts`
+- [x] Subtask 2.2: Log data export events
+- [x] Subtask 2.3: Log data deletion events
+- [x] Subtask 2.4: Log AI content generation events
+- [x] Subtask 2.5: Log account setting changes
+
+**Task 3: Request Logging Middleware**
+- [x] Subtask 3.1: Create request logging middleware
+- [x] Subtask 3.2: Log request method, path, status code
+- [x] Subtask 3.3: Exclude sensitive request bodies
+
+**Task 4: Log Retention and Security**
+- [x] Subtask 4.1: Configure log rotation
+- [x] Subtask 4.2: Set log retention period
+- [x] Subtask 4.3: Secure log file permissions
+
+### Testing Tasks
+
+**Task 5: Unit Tests**
+- [x] Subtask 5.1: Test PII redaction works correctly
+- [x] Subtask 5.2: Test audit events are logged properly
+
+**Task 6: Integration Tests**
+- [x] Subtask 6.1: Verify logs don't contain PII
+- [x] Subtask 6.2: Verify audit trail is complete
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### Functional Acceptance Criteria
+
+* **AC-1:** Given system events are logged, when personal identifiable information (PII) could be logged, then PII is automatically redacted or excluded from logs.
+* **AC-2:** Logs *must* be auditable and retained according to policy.
+* **AC-3:** Logs *must* be stored securely.
+* **AC-4:** Audit logs *must* record: data export, data deletion, content generation, account changes.
+* **AC-5:** Log entries *must* include only: User ID (hashed), timestamp, action category - no raw text from user inputs.
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics</title>
+        <section>Story 5.6: Minimal and Auditable Logging (MVP)</section>
+        <snippet>As a developer, I want a logging system that records necessary events for auditing and debugging but minimizes the collection of personal data.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-5.md</path>
+        <title>Epic 5 Technical Specification</title>
+        <section>9. Audit and Logging Rules</section>
+        <snippet>Logs must NOT contain names, addresses, CV text, job description text. Only store request type, timestamps, error categories.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/utils/logger.util.ts</path>
+        <kind>utility</kind>
+        <symbol>logger</symbol>
+        <lines>1-80</lines>
+        <reason>Winston logger with PII redaction</reason>
+      </file>
+      <file>
+        <path>src/utils/audit-logger.util.ts</path>
+        <kind>utility</kind>
+        <symbol>auditLogger</symbol>
+        <lines>1-60</lines>
+        <reason>Audit logging for compliance events</reason>
+      </file>
+      <file>
+        <path>src/middleware/request-logger.middleware.ts</path>
+        <kind>middleware</kind>
+        <symbol>requestLoggerMiddleware</symbol>
+        <lines>1-40</lines>
+        <reason>Request logging middleware</reason>
+      </file>
+    </code>
+    <dependencies>
+      <npm>
+        <package name="winston" version="^3.11.0" />
+        <package name="winston-daily-rotate-file" version="^4.7.1" />
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must never log PII (names, emails, addresses, CV text)</constraint>
+    <constraint>Must log: request type, timestamp, error category only</constraint>
+    <constraint>Audit logs must record GDPR-relevant events</constraint>
+    <constraint>Logs must be rotated and retained according to policy</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>AuditLogEntry</name>
+      <kind>typescript interface</kind>
+      <signature>
+interface AuditLogEntry {
+  userId: string; // hashed
+  timestamp: Date;
+  action: 'DATA_EXPORT' | 'DATA_DELETION' | 'CONTENT_GENERATION' | 'ACCOUNT_CHANGE';
+  details?: Record&lt;string, unknown&gt;; // no PII
+}
+      </signature>
+      <path>src/utils/audit-logger.util.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Unit tests with Jest</standards>
+    <locations>
+      - src/tests/unit/logger.util.test.ts
+      - src/tests/unit/audit-logger.util.test.ts
+    </locations>
+    <ideas>
+      <idea for="AC-1">Test that email addresses are redacted from logs</idea>
+      <idea for="AC-4">Test that audit events are recorded for each action type</idea>
+    </ideas>
+  </tests>
+</story-context>
