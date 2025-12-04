@@ -30,7 +30,7 @@ describe('CVUploadForm Component', () => {
       />
     );
 
-    expect(screen.getByText('Upload Your CV')).toBeInTheDocument();
+    expect(screen.getByText('Add Your CV')).toBeInTheDocument();
     expect(screen.getByLabelText('CV File')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Upload and Parse/i })).toBeInTheDocument();
   });
@@ -184,7 +184,7 @@ describe('CVUploadForm Component', () => {
 
     // Check for loading state
     await waitFor(() => {
-      expect(screen.getByText(/Uploading and parsing... \(3-5 seconds\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/Uploading and parsing\.\.\./i)).toBeInTheDocument();
     });
 
     // Wait for completion

@@ -65,7 +65,7 @@ describe('JobDescriptionInput', () => {
 
     await waitFor(() => {
       // Adjusted to check for a generic message if the exact wording is controlled by the resolver which is mocked
-      expect(screen.getByText(/Job description must be at least 10 characters long/i)).toBeInTheDocument();
+      expect(screen.getByText(/Job description or URL must be at least 10 characters long/i)).toBeInTheDocument();
     });
     expect(mockOnSubmit).not.toHaveBeenCalled();
   });
