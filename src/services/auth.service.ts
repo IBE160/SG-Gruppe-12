@@ -41,24 +41,29 @@ export const authService = {
       throw new ConflictError('Email already registered');
     }
 
-    const hashedPassword = await hashPassword(userData.password);
-    const emailVerificationToken = uuidv4();
+    try {
+      const hashedPassword = await hashPassword(userData.password);
+      const emailVerificationToken = uuidv4();
 
-    const user = await userRepository.create({
-      name: userData.name,
-      firstName: userData.firstName, // Assuming these fields are passed
-      lastName: userData.lastName,   // Assuming these fields are passed
-      email: userData.email,
-      passwordHash: hashedPassword,
-      emailVerificationToken: emailVerificationToken,
-      emailVerified: false,
-      consentEssential: true, // Always true for basic platform use
-      consentAiTraining: userData.consentAiTraining ?? false,
-      consentMarketing: userData.consentMarketing ?? false,
-    });
+      const user = await userRepository.create({
+        name: userData.name,
+        firstName: userData.firstName, // Assuming these fields are passed
+        lastName: userData.lastName,   // Assuming these fields are passed
+        email: userData.email,
+        passwordHash: hashedPassword,
+        emailVerificationToken: emailVerificationToken,
+        emailVerified: false,
+        consentEssential: true, // Always true for basic platform use
+        consentAiTraining: userData.consentAiTraining ?? false,
+        consentMarketing: userData.consentMarketing ?? false,
+      });
 
-    await emailService.sendVerificationEmail(user, emailVerificationToken);
-    return toSafeUser(user);
+      await emailService.sendVerificationEmail(user, emailVerificationToken);
+      return toSafeUser(user);
+    } catch (error) {
+      console.error('Error during registration:', error);
+      throw error;
+    }
   },
 
   async login(loginData: LoginUserDto): Promise<{ user: SafeUser; accessToken: string; refreshToken: string }> {
@@ -70,10 +75,15 @@ export const authService = {
       throw new UnauthorizedError('Invalid credentials');
     }
 
-    const isPasswordValid = await comparePassword(password, user.passwordHash);
+    try {
+      const isPasswordValid = await comparePassword(password, user.passwordHash);
 
-    if (!isPasswordValid) {
-      throw new UnauthorizedError('Invalid credentials');
+      if (!isPasswordValid) {
+        throw new UnauthorizedError('Invalid credentials');
+      }
+    } catch (error) {
+      console.error('Error during password comparison:', error);
+      throw error;
     }
 
     await userRepository.updateLastLogin(user.id);
