@@ -43,6 +43,16 @@ Located in `frontend/src/components/ui/`, these are generic, reusable components
 - **File:** `progress.tsx`
 - **Description:** A simple progress bar to indicate the completion of a task.
 
+### `Tabs`
+- **File:** `tabs.tsx`
+- **Description:** A set of tab components (`Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`) for creating tabbed interfaces. Built on Radix UI primitives.
+- **Components:**
+    - `Tabs`: Root container component
+    - `TabsList`: Container for tab triggers
+    - `TabsTrigger`: Individual tab button/trigger
+    - `TabsContent`: Content area for each tab
+- **Usage:** Used in CVUploadForm to switch between file upload and text paste modes.
+
 ---
 
 ## Custom Application Components
