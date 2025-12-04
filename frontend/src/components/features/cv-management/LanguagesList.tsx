@@ -24,7 +24,7 @@ const LanguagesList: React.FC<LanguagesListProps> = ({ languages, onEdit, onDele
           <CardContent className="flex items-center justify-between p-4">
             <div>
               <span className="font-medium">{lang.name}</span>
-              {lang.level && <span className="text-sm text-gray-500 ml-2">- {lang.level}</span>}
+              {lang.proficiency && <span className="text-sm text-gray-500 ml-2">- {lang.proficiency}</span>}
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="icon" onClick={() => onEdit(index)} disabled={isLoading}>

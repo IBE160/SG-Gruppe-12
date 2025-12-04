@@ -14,14 +14,14 @@ import { MatchScoreGauge } from "@/components/features/job-analysis/MatchScoreGa
 import { Button } from "@/components/ui/button"; // Import Button component
 import { Badge } from "@/components/ui/badge"; // Import Badge component
 import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton for loading states
-import { JobAnalysisResult } from "../../../../src/types/job.types"; // Assuming types are shared from backend
-import { ATSScoreCard } from "@/components/features/job-analysis/ATSScoreCard"; // Import ATSScoreCard
+import { JobAnalysisResult } from "@/types/job.types";
+import ATSScoreCard from "@/components/features/job-analysis/ATSScoreCard"; // Import ATSScoreCard as default export
 
 
 export default function CreateApplicationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
-  const [userCvId, setUserCvId] = useState<string | null>(null);
+  const [userCvId, setUserCvId] = useState<number | null>(null);
   const [showResults, setShowResults] = useState(false); // New state to control view
   const router = useRouter();
   const { toast } = useToast();
@@ -33,7 +33,7 @@ export default function CreateApplicationPage() {
       setIsLoading(true);
       try {
         const cvs = await listCVs();
-        if (cvs && cvs.length > 0) {
+        if (cvs && cvs.length > 0 && cvs[0].id) {
           setUserCvId(cvs[0].id); // Use the first CV as default
         } else {
           setError("No CVs found. Please upload a CV first.");
@@ -78,7 +78,7 @@ export default function CreateApplicationPage() {
     setError(undefined);
 
     try {
-      const response = await analyzeJobDescriptionApi(data.jobDescription, userCvId); // Pass cvId
+      const response = await analyzeJobDescriptionApi(data.jobDescription, String(userCvId)); // Pass cvId as string
 
       if (response.success && response.data) {
         setJobAnalysisResult(response.data); // Store the result
@@ -180,8 +180,8 @@ export default function CreateApplicationPage() {
             <CardDescription>{jobAnalysisResult.strengthsSummary}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
-            {jobAnalysisResult.presentKeywords.map((keyword, index) => (
-              <Badge key={index} variant="secondary" className="bg-green-100 text-green-800">
+            {jobAnalysisResult.presentKeywords.map((keyword) => (
+              <Badge key={keyword} variant="secondary" className="bg-green-100 text-green-800">
                 {keyword}
               </Badge>
             ))}
@@ -194,8 +194,8 @@ export default function CreateApplicationPage() {
             <CardDescription>{jobAnalysisResult.weaknessesSummary}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
-            {jobAnalysisResult.missingKeywords.map((keyword, index) => (
-              <Badge key={index} variant="secondary" className="bg-amber-100 text-amber-800">
+            {jobAnalysisResult.missingKeywords.map((keyword) => (
+              <Badge key={keyword} variant="secondary" className="bg-amber-100 text-amber-800">
                 {keyword}
               </Badge>
             ))}

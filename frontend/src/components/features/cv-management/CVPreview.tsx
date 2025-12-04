@@ -26,14 +26,16 @@ const CVPreview: React.FC<CVPreviewProps> = ({ cvData, template }) => {
     <Card className="w-full">
       <CardHeader className={isModern ? 'bg-primary text-white' : 'bg-gray-100'}>
         <CardTitle className="text-2xl">
-          {cvData.personal_info.firstName} {cvData.personal_info.lastName}
+          {cvData.personal_info?.firstName || cvData.personal_info?.lastName
+            ? `${cvData.personal_info.firstName || ''} ${cvData.personal_info.lastName || ''}`.trim()
+            : 'Name not provided'}
         </CardTitle>
-        {cvData.personal_info.email && (
+        {cvData.personal_info?.email && (
           <p className={isModern ? 'text-gray-100' : 'text-gray-600'}>
             {cvData.personal_info.email}
           </p>
         )}
-        {cvData.personal_info.phone && (
+        {cvData.personal_info?.phone && (
           <p className={isModern ? 'text-gray-100' : 'text-gray-600'}>
             {cvData.personal_info.phone}
           </p>
@@ -41,7 +43,7 @@ const CVPreview: React.FC<CVPreviewProps> = ({ cvData, template }) => {
       </CardHeader>
 
       <CardContent className="space-y-6 mt-6">
-        {cvData.experience.length > 0 && (
+        {cvData.experience && cvData.experience.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-3">Work Experience</h3>
             <Separator className="mb-3" />
@@ -54,7 +56,7 @@ const CVPreview: React.FC<CVPreviewProps> = ({ cvData, template }) => {
                       <p className="text-sm text-gray-600">{exp.company}</p>
                     </div>
                     <p className="text-sm text-gray-500">
-                      {exp.startDate} - {exp.endDate || 'Present'}
+                      {exp.start_date} - {exp.end_date || 'Present'}
                     </p>
                   </div>
                   {exp.description && <p className="text-sm mt-2">{exp.description}</p>}
@@ -64,7 +66,7 @@ const CVPreview: React.FC<CVPreviewProps> = ({ cvData, template }) => {
           </div>
         )}
 
-        {cvData.education.length > 0 && (
+        {cvData.education && cvData.education.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-3">Education</h3>
             <Separator className="mb-3" />
@@ -75,13 +77,10 @@ const CVPreview: React.FC<CVPreviewProps> = ({ cvData, template }) => {
                     <div>
                       <p className="font-semibold">{edu.degree}</p>
                       <p className="text-sm text-gray-600">{edu.institution}</p>
-                      {edu.fieldOfStudy && (
-                        <p className="text-sm text-gray-500">{edu.fieldOfStudy}</p>
-                      )}
                     </div>
-                    {edu.startDate && (
+                    {edu.start_date && (
                       <p className="text-sm text-gray-500">
-                        {edu.startDate} - {edu.endDate || 'Present'}
+                        {edu.start_date} - {edu.end_date || 'Present'}
                       </p>
                     )}
                   </div>
@@ -92,7 +91,7 @@ const CVPreview: React.FC<CVPreviewProps> = ({ cvData, template }) => {
           </div>
         )}
 
-        {cvData.skills.length > 0 && (
+        {cvData.skills && cvData.skills.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-3">Skills</h3>
             <Separator className="mb-3" />
@@ -102,14 +101,14 @@ const CVPreview: React.FC<CVPreviewProps> = ({ cvData, template }) => {
                   key={index}
                   className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm"
                 >
-                  {skill}
+                  {skill.name}
                 </span>
               ))}
             </div>
           </div>
         )}
 
-        {cvData.languages.length > 0 && (
+        {cvData.languages && cvData.languages.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-3">Languages</h3>
             <Separator className="mb-3" />
@@ -117,7 +116,7 @@ const CVPreview: React.FC<CVPreviewProps> = ({ cvData, template }) => {
               {cvData.languages.map((lang, index) => (
                 <div key={index} className="flex justify-between">
                   <span>{lang.name}</span>
-                  {lang.level && <span className="text-gray-600">{lang.level}</span>}
+                  {lang.proficiency && <span className="text-gray-600">{lang.proficiency}</span>}
                 </div>
               ))}
             </div>

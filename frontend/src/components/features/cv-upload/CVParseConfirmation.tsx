@@ -170,10 +170,17 @@ export function CVParseConfirmation({ cvId, onConfirm, onCancel }: CVParseConfir
               <h3 className="text-lg font-semibold mb-3">Personal Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4 border-l-2 border-primary/50">
                 <div>
-                  <Label htmlFor="personal_info.name">Name</Label>
-                  <Input id="personal_info.name" {...form.register('personal_info.name')} />
-                  {form.formState.errors.personal_info?.name && (
-                    <p className="text-sm text-destructive mt-1">{form.formState.errors.personal_info.name.message}</p>
+                  <Label htmlFor="personal_info.firstName">First Name</Label>
+                  <Input id="personal_info.firstName" {...form.register('personal_info.firstName')} />
+                  {form.formState.errors.personal_info?.firstName && (
+                    <p className="text-sm text-destructive mt-1">{form.formState.errors.personal_info.firstName.message}</p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="personal_info.lastName">Last Name</Label>
+                  <Input id="personal_info.lastName" {...form.register('personal_info.lastName')} />
+                  {form.formState.errors.personal_info?.lastName && (
+                    <p className="text-sm text-destructive mt-1">{form.formState.errors.personal_info.lastName.message}</p>
                   )}
                 </div>
                 <div>

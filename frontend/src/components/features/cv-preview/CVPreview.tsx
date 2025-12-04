@@ -2,7 +2,8 @@
 "use client";
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2 } from 'lucide-react';
 import { CvData, PersonalInfo, ExperienceEntry, EducationEntry, SkillEntry, LanguageEntry } from '@/types/cv'; // Assuming CvData is defined
 
 interface CVPreviewProps {
@@ -23,7 +24,11 @@ export function CVPreview({ cvData, isLoading }: CVPreviewProps) {
   return (
     <Card className="w-full max-w-4xl mx-auto my-8 p-6">
       <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold mb-2">{cvData.personal_info?.name || 'Unnamed CV'}</CardTitle>
+        <CardTitle className="text-3xl font-bold mb-2">
+          {cvData.personal_info?.firstName || cvData.personal_info?.lastName
+            ? `${cvData.personal_info.firstName || ''} ${cvData.personal_info.lastName || ''}`.trim()
+            : 'Unnamed CV'}
+        </CardTitle>
         <CardDescription className="text-muted-foreground">
           {cvData.personal_info?.email && <span>{cvData.personal_info.email} | </span>}
           {cvData.personal_info?.phone && <span>{cvData.personal_info.phone} | </span>}

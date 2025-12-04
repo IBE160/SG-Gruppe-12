@@ -56,7 +56,7 @@ describe('CreateApplicationPage', () => {
       toast: mockToast,
     });
     // Ensure useJobAnalysisStore always returns the latest mockJobAnalysisResult
-    (useJobAnalysisStore as jest.Mock).mockImplementation(() => ({
+    (useJobAnalysisStore as unknown as jest.Mock).mockImplementation(() => ({
       jobAnalysisResult: mockJobAnalysisResult,
       setJobAnalysisResult: mockSetJobAnalysisResult,
       clearJobAnalysisResult: mockClearJobAnalysisResult,
@@ -65,7 +65,7 @@ describe('CreateApplicationPage', () => {
 
     // Default mock for listCVs to return a CV
     mockListCVs.mockResolvedValue([
-      { id: 'cv123', personal_info: {}, education: [], experience: [], skills: [], languages: [] },
+      { id: 123, personal_info: {}, education: [], experience: [], skills: [], languages: [] },
     ]);
   });
 
@@ -116,9 +116,12 @@ describe('CreateApplicationPage', () => {
       missingKeywords: ['Vue.js'],
       strengthsSummary: 'You are strong in X',
       weaknessesSummary: 'You need Y',
-      jobRequirements: { /* mock data */ },
+      jobRequirements: { keywords: [], skills: [], qualifications: [], responsibilities: [] },
       rawKeywords: [],
       submittedAt: new Date().toISOString(),
+      atsScore: 85,
+      atsSuggestions: ['Add more keywords'],
+      atsQualitativeRating: 'Good' as const,
     };
     mockAnalyzeJobDescriptionApi.mockResolvedValue({
       success: true,
@@ -144,7 +147,7 @@ describe('CreateApplicationPage', () => {
     await waitFor(() => {
       expect(mockAnalyzeJobDescriptionApi).toHaveBeenCalledWith(
         'This is a valid job description.',
-        'cv123'
+        '123'
       );
     });
 
@@ -209,7 +212,7 @@ describe('CreateApplicationPage', () => {
     mockAnalyzeJobDescriptionApi.mockResolvedValue({
       success: false,
       message: 'Server error',
-      data: null,
+      data: {} as any,
     });
     render(<CreateApplicationPage />);
 
@@ -246,9 +249,12 @@ describe('CreateApplicationPage', () => {
       missingKeywords: [],
       strengthsSummary: '',
       weaknessesSummary: '',
-      jobRequirements: { /* mock data */ },
+      jobRequirements: { keywords: [], skills: [], qualifications: [], responsibilities: [] },
       rawKeywords: [],
       submittedAt: new Date().toISOString(),
+      atsScore: 85,
+      atsSuggestions: [],
+      atsQualitativeRating: 'Good' as const,
     };
     mockAnalyzeJobDescriptionApi.mockResolvedValue({
       success: true,

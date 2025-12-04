@@ -18,7 +18,8 @@ describe('CVParseConfirmation Component', () => {
 
   const mockCvData = {
     personal_info: {
-      name: 'John Doe',
+      firstName: 'John',
+      lastName: 'Doe',
       email: 'john@example.com',
       phone: '+1234567890',
       address: '123 Main St',
@@ -105,7 +106,8 @@ describe('CVParseConfirmation Component', () => {
     });
 
     // Check personal info fields
-    expect(screen.getByDisplayValue('John Doe')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('John')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Doe')).toBeInTheDocument();
     expect(screen.getByDisplayValue('john@example.com')).toBeInTheDocument();
     expect(screen.getByDisplayValue('+1234567890')).toBeInTheDocument();
 
@@ -136,13 +138,14 @@ describe('CVParseConfirmation Component', () => {
     render(<CVParseConfirmation cvId={mockCvId} onConfirm={mockOnConfirm} />);
 
     await waitFor(() => {
-      expect(screen.getByDisplayValue('John Doe')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('John')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Doe')).toBeInTheDocument();
     });
 
-    const nameInput = screen.getByDisplayValue('John Doe');
-    fireEvent.change(nameInput, { target: { value: 'Jane Smith' } });
+    const firstNameInput = screen.getByDisplayValue('John');
+    fireEvent.change(firstNameInput, { target: { value: 'Jane' } });
 
-    expect(screen.getByDisplayValue('Jane Smith')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Jane')).toBeInTheDocument();
   });
 
   it('allows adding new experience entry', async () => {

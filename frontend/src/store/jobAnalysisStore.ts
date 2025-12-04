@@ -1,7 +1,6 @@
 // frontend/src/store/jobAnalysisStore.ts
 import { create } from 'zustand';
-import { JobAnalysisResult } from '../../src/types/job.types'; // Adjusted path to backend types for now.
-// In a proper monorepo setup, these types would ideally be shared from a common package or generated.
+import { JobAnalysisResult } from '@/types/job.types';
 
 interface JobAnalysisState {
   jobAnalysisResult: JobAnalysisResult | null;

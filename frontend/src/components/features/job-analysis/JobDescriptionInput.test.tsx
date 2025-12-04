@@ -40,7 +40,7 @@ describe('JobDescriptionInput', () => {
     mockToast.mockClear();
 
     // Mock Zustand store hooks
-    (useCvStore as jest.Mock).mockReturnValue({
+    (useCvStore as unknown as jest.Mock).mockReturnValue({
       cv: null,
       setCV: mockSetCV,
     });

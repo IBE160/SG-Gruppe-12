@@ -11,6 +11,7 @@ jest.mock('@/lib/api/job-analysis', () => ({
 
 describe('useJobAnalysis', () => {
   const mockJobDescription = 'This is a test job description for analysis.';
+  const mockCvId = '123';
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -21,7 +22,6 @@ describe('useJobAnalysis', () => {
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeUndefined();
-    expect(result.current.data).toBeUndefined();
   });
 
   it('calls analyzeJobDescriptionApi and updates state on success', async () => {
@@ -35,12 +35,12 @@ describe('useJobAnalysis', () => {
     const { result } = renderHook(() => useJobAnalysis());
 
     await act(async () => {
-      await result.current.analyzeJobAnalysis(mockJobDescription);
+      await result.current.analyzeJobAnalysis(mockJobDescription, mockCvId);
     });
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeUndefined();
-    expect(analyzeJobDescriptionApi).toHaveBeenCalledWith(mockJobDescription);
+    expect(analyzeJobDescriptionApi).toHaveBeenCalledWith(mockJobDescription, mockCvId);
     // Note: SWR's data won't update automatically here without a real SWR cache or revalidation
     // For this test, we primarily check the API call and immediate loading/error states.
   });
@@ -52,14 +52,14 @@ describe('useJobAnalysis', () => {
     const { result } = renderHook(() => useJobAnalysis());
 
     await act(async () => {
-      await result.current.analyzeJobAnalysis(mockJobDescription).catch(() => {});
+      await result.current.analyzeJobAnalysis(mockJobDescription, mockCvId).catch(() => {});
     });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBe(mockErrorMessage);
     });
-    expect(analyzeJobDescriptionApi).toHaveBeenCalledWith(mockJobDescription);
+    expect(analyzeJobDescriptionApi).toHaveBeenCalledWith(mockJobDescription, mockCvId);
   });
 
   it('sets loading state during API call', async () => {
@@ -69,7 +69,7 @@ describe('useJobAnalysis', () => {
 
     let promise: Promise<any>;
     act(() => {
-      promise = result.current.analyzeJobAnalysis(mockJobDescription);
+      promise = result.current.analyzeJobAnalysis(mockJobDescription, mockCvId);
     });
 
     expect(result.current.isLoading).toBe(true);

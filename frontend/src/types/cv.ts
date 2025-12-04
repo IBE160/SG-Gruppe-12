@@ -3,12 +3,17 @@
 // Mirroring the backend's Zod schemas and Prisma model for type safety
 
 export interface PersonalInfo {
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   email?: string;
   phone?: string;
   address?: string;
+  city?: string;
+  country?: string;
+  postalCode?: string;
   linkedin?: string;
   portfolio?: string;
+  website?: string;
 }
 
 export interface EducationEntry {

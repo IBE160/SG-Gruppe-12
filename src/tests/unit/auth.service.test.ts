@@ -33,7 +33,7 @@ describe('Auth Service', () => {
     id: 'clsy96f0100001a1d6n8u2g2t',
     name: 'John Doe',
     email: 'john.doe@example.com',
-    passwordHash: 'hashed-password-123',
+    passwordHash: 'hashed_password',
     emailVerified: false,
     emailVerificationToken: 'mock-uuid-token',
     passwordResetToken: null,
@@ -47,7 +47,7 @@ describe('Auth Service', () => {
     updatedAt: new Date('2025-01-01'),
   };
 
-  // Mock user data (as it would be returned by service, excluding passwordHash and token)
+  // Mock user data (as it would be returned by service, excluding passwordHash and emailVerificationToken)
   const mockUserReturned = {
     id: mockUserStored.id,
     name: mockUserStored.name,
@@ -56,12 +56,12 @@ describe('Auth Service', () => {
     firstName: mockUserStored.firstName,
     lastName: mockUserStored.lastName,
     phoneNumber: mockUserStored.phoneNumber,
+    passwordResetToken: mockUserStored.passwordResetToken,
     consentEssential: mockUserStored.consentEssential,
     consentAiTraining: mockUserStored.consentAiTraining,
     consentMarketing: mockUserStored.consentMarketing,
     createdAt: mockUserStored.createdAt,
     updatedAt: mockUserStored.updatedAt,
-    passwordResetToken: mockUserStored.passwordResetToken,
   };
 
 

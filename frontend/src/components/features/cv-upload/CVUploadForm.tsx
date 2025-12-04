@@ -161,9 +161,9 @@ export function CVUploadForm({ onFileUploadSuccess, onFileUploadError }: CVUploa
                   disabled={isLoading}
                   accept={ACCEPTED_FILE_TYPES.join(',')}
                 />
-                {fileForm.formState.errors.cvFile && (
+                {fileForm.formState.errors.cvFile?.message && (
                   <p className="text-sm font-medium text-destructive">
-                    {fileForm.formState.errors.cvFile.message}
+                    {String(fileForm.formState.errors.cvFile.message)}
                   </p>
                 )}
                 <p className="text-sm text-muted-foreground">

@@ -20,7 +20,7 @@ const SkillsList: React.FC<SkillsListProps> = ({ skills, onDelete, isLoading }) 
     <div className="flex flex-wrap gap-2">
       {skills.map((skill, index) => (
         <Badge key={index} variant="secondary" className="flex items-center gap-1 px-3 py-1">
-          <span>{skill}</span>
+          <span>{skill.name}</span>
           <Button
             variant="ghost"
             size="icon"
