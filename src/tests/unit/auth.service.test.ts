@@ -25,6 +25,9 @@ jest.mock('../../config/redis', () => ({
 }));
 
 describe('Auth Service', () => {
+  beforeAll(() => {
+    console.log(process.env);
+  });
   // Mock user data (as it would be stored in DB)
   const mockUserStored: User = {
     id: 'clsy96f0100001a1d6n8u2g2t',
