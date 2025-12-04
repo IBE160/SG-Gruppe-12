@@ -11,7 +11,7 @@ describe('CV Service', () => {
   const mockUserId = 'user-123';
   const mockCvId = 1;
   const mockCvData: CvData = {
-    personalInfo: { firstName: 'John', lastName: 'Doe', name: 'John Doe' },
+    personal_info: { firstName: 'John', lastName: 'Doe', name: 'John Doe' },
     experience: [{ title: 'Developer', company: 'Tech Inc', start_date: '2022-01-01' }],
     education: [],
     skills: [],

@@ -49,7 +49,7 @@ describe('parsingService.parseCVFromText', () => {
 
       mockedGenerateObject.mockResolvedValue({
         object: {
-          personalInfo: { name: 'John Doe' },
+          personal_info: { name: 'John Doe' },
           skills: [],
         },
       } as any);
@@ -77,7 +77,7 @@ describe('parsingService.parseCVFromText', () => {
       `;
 
       const mockParsedData = {
-        personalInfo: {
+        personal_info: {
           name: 'John Doe',
           email: 'john.doe@example.com',
           phone: '+1-234-567-8900',
@@ -127,7 +127,7 @@ describe('parsingService.parseCVFromText', () => {
 
       mockedGenerateObject.mockResolvedValue({
         object: {
-          personalInfo: { name: 'John Doe' },
+          personal_info: { name: 'John Doe' },
         },
       } as any);
 
@@ -145,7 +145,7 @@ describe('parsingService.parseCVFromText', () => {
 
       mockedGenerateObject.mockResolvedValue({
         object: {
-          personalInfo: { name: 'John Doe' },
+          personal_info: { name: 'John Doe' },
         },
       } as any);
 
@@ -162,7 +162,7 @@ describe('parsingService.parseCVFromText', () => {
       const cvText = 'Partial CV data with some ambiguous information that spans multiple lines.';
 
       const mockParsedDataWithUncertainty = {
-        personalInfo: { name: 'Unknown Person' },
+        personal_info: { name: 'Unknown Person' },
         uncertain_fields: [
           {
             field: 'email',
@@ -200,7 +200,7 @@ describe('parsingService.parseCVFromText', () => {
       const cvText = 'Clean CV data with all fields clearly specified and no ambiguity present.';
 
       const mockParsedData = {
-        personalInfo: { name: 'Jane Smith', email: 'jane@example.com' },
+        personal_info: { name: 'Jane Smith', email: 'jane@example.com' },
         skills: [{ name: 'Python' }],
       };
 
@@ -233,7 +233,7 @@ describe('parsingService.parseCVFromText', () => {
       // Mock AI returning invalid data
       mockedGenerateObject.mockResolvedValue({
         object: {
-          personalInfo: {
+          personal_info: {
             email: 'invalid-email', // This will fail Zod email validation
           },
         },
@@ -293,7 +293,7 @@ describe('parsingService.parseCVFromText', () => {
       `;
 
       const mockComplexParsedData = {
-        personalInfo: {
+        personal_info: {
           name: 'Jane Smith',
           email: 'jane.smith@email.com',
           phone: '+1-555-0123',
@@ -363,7 +363,7 @@ describe('parsingService.parseCVFromText', () => {
       const minimalCVText = 'Bob Johnson, bob@email.com, Python developer with 3 years experience. Knows Django and Flask.';
 
       const mockMinimalData = {
-        personalInfo: {
+        personal_info: {
           name: 'Bob Johnson',
           email: 'bob@email.com',
         },
