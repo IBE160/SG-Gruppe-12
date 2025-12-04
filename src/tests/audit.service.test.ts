@@ -45,7 +45,7 @@ describe('Audit Service', () => {
 
       expect(prisma.auditLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          user_id: 'user-123',
+          userId: 'user-123',
           action: 'LOGIN',
           resource: 'auth',
           status: 'SUCCESS',
@@ -154,11 +154,11 @@ describe('Audit Service', () => {
 
       expect(prisma.auditLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          user_id: 'user-123',
+          userId: 'user-123',
           action: 'LOGIN',
           resource: 'auth',
           status: 'SUCCESS',
-          ip_address: '192.168.1.1',
+          ipAddress: '192.168.1.1',
           user_agent: 'Mozilla/5.0',
         }),
       });
@@ -200,10 +200,10 @@ describe('Audit Service', () => {
 
       expect(prisma.consentLog.create).toHaveBeenCalledWith({
         data: {
-          user_id: 'user-123',
+          userId: 'user-123',
           consent_type: 'ai_training',
           granted: true,
-          ip_address: '192.168.1.1',
+          ipAddress: '192.168.1.1',
         },
       });
 
@@ -337,21 +337,21 @@ describe('Audit Service', () => {
   describe('getUserAuditLogs', () => {
     it('should return user audit logs without sensitive fields', async () => {
       const mockLogs = [
-        { action: 'LOGIN', resource: 'auth', status: 'SUCCESS', created_at: new Date() },
+        { action: 'LOGIN', resource: 'auth', status: 'SUCCESS', createdAt: new Date() },
       ];
       (prisma.auditLog.findMany as jest.Mock).mockResolvedValue(mockLogs);
 
       const logs = await auditService.getUserAuditLogs('user-123', 50);
 
       expect(prisma.auditLog.findMany).toHaveBeenCalledWith({
-        where: { user_id: 'user-123' },
-        orderBy: { created_at: 'desc' },
+        where: { userId: 'user-123' },
+        orderBy: { createdAt: 'desc' },
         take: 50,
         select: {
           action: true,
           resource: true,
           status: true,
-          created_at: true,
+          createdAt: true,
         },
       });
       expect(logs).toEqual(mockLogs);
@@ -368,7 +368,7 @@ describe('Audit Service', () => {
       const history = await auditService.getUserConsentHistory('user-123');
 
       expect(prisma.consentLog.findMany).toHaveBeenCalledWith({
-        where: { user_id: 'user-123' },
+        where: { userId: 'user-123' },
         orderBy: { timestamp: 'desc' },
         select: {
           consent_type: true,
@@ -394,7 +394,7 @@ describe('Audit Service', () => {
           action: 'LOGIN_FAILED',
           status: 'FAILURE',
         },
-        orderBy: { created_at: 'desc' },
+        orderBy: { createdAt: 'desc' },
         take: 100,
       });
     });
@@ -408,12 +408,12 @@ describe('Audit Service', () => {
 
       expect(prisma.auditLog.findMany).toHaveBeenCalledWith({
         where: {
-          created_at: {
+          createdAt: {
             gte: startDate,
             lte: endDate,
           },
         },
-        orderBy: { created_at: 'desc' },
+        orderBy: { createdAt: 'desc' },
         take: 100,
       });
     });
@@ -428,8 +428,8 @@ describe('Audit Service', () => {
       expect(prisma.auditLog.count).toHaveBeenCalledWith({
         where: {
           action: 'LOGIN_FAILED',
-          ip_address: '192.168.1.1',
-          created_at: { gte: expect.any(Date) },
+          ipAddress: '192.168.1.1',
+          createdAt: { gte: expect.any(Date) },
         },
       });
       expect(count).toBe(5);
@@ -444,7 +444,7 @@ describe('Audit Service', () => {
 
       expect(prisma.auditLog.deleteMany).toHaveBeenCalledWith({
         where: {
-          created_at: { lt: expect.any(Date) },
+          createdAt: { lt: expect.any(Date) },
         },
       });
       expect(deletedCount).toBe(100);

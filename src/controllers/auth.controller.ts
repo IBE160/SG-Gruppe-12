@@ -12,8 +12,8 @@ export const authController = {
         name,
         email,
         password,
-        consent_ai_training,
-        consent_marketing,
+        consentAiTraining: consent_ai_training,
+        consentMarketing: consent_marketing,
       });
 
       // Respond with success and basic user info (exclude password hash)

@@ -25,17 +25,17 @@ describe('User Service', () => {
     id: mockUserId,
     name: 'John Doe',
     email: 'test@example.com',
-    password_hash: 'hashedpassword',
+    passwordHash: 'hashedpassword',
     firstName: 'John',
     lastName: 'Doe',
     phoneNumber: '1234567890',
-    created_at: new Date(),
-    updated_at: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     emailVerified: true,
     emailVerificationToken: 'mock-uuid-token',
-    consent_essential: true,
-    consent_ai_training: false,
-    consent_marketing: false,
+    consentEssential: true,
+    consentAiTraining: false,
+    consentMarketing: false,
   };
 
   beforeEach(() => {

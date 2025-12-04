@@ -30,20 +30,20 @@ describe('Auth Service', () => {
     id: 'clsy96f0100001a1d6n8u2g2t',
     name: 'John Doe',
     email: 'john.doe@example.com',
-    password_hash: 'hashed-password-123',
+    passwordHash: 'hashed-password-123',
     emailVerified: false,
     emailVerificationToken: 'mock-uuid-token',
     firstName: 'John',
     lastName: 'Doe',
     phoneNumber: null,
-    consent_essential: true,
-    consent_ai_training: false,
-    consent_marketing: false,
-    created_at: new Date('2025-01-01'),
-    updated_at: new Date('2025-01-01'),
+    consentEssential: true,
+    consentAiTraining: false,
+    consentMarketing: false,
+    createdAt: new Date('2025-01-01'),
+    updatedAt: new Date('2025-01-01'),
   };
 
-  // Mock user data (as it would be returned by service, excluding password_hash and token)
+  // Mock user data (as it would be returned by service, excluding passwordHash and token)
   const mockUserReturned = {
     id: mockUserStored.id,
     name: mockUserStored.name,
@@ -52,11 +52,11 @@ describe('Auth Service', () => {
     firstName: mockUserStored.firstName,
     lastName: mockUserStored.lastName,
     phoneNumber: mockUserStored.phoneNumber,
-    consent_essential: mockUserStored.consent_essential,
-    consent_ai_training: mockUserStored.consent_ai_training,
-    consent_marketing: mockUserStored.consent_marketing,
-    created_at: mockUserStored.created_at,
-    updated_at: mockUserStored.updated_at,
+    consentEssential: mockUserStored.consentEssential,
+    consentAiTraining: mockUserStored.consentAiTraining,
+    consentMarketing: mockUserStored.consentMarketing,
+    createdAt: mockUserStored.createdAt,
+    updatedAt: mockUserStored.updatedAt,
   };
 
 
@@ -64,8 +64,8 @@ describe('Auth Service', () => {
     name: 'John Doe',
     email: 'john.doe@example.com',
     password: 'SecurePassword123!',
-    consent_ai_training: false,
-    consent_marketing: false,
+    consentAiTraining: false,
+    consentMarketing: false,
   };
 
   beforeEach(() => {
@@ -92,10 +92,10 @@ describe('Auth Service', () => {
         expect(userRepository.create).toHaveBeenCalledWith({
           name: 'John Doe',
           email: 'john.doe@example.com',
-          password_hash: 'hashed-password-123',
-          consent_essential: true, // Always true
-          consent_ai_training: false,
-          consent_marketing: false,
+          passwordHash: 'hashed-password-123',
+          consentEssential: true, // Always true
+          consentAiTraining: false,
+          consentMarketing: false,
           emailVerificationToken: 'mock-uuid-token',
           emailVerified: false,
         });
@@ -115,15 +115,15 @@ describe('Auth Service', () => {
       it('should register user with AI training consent when provided', async () => {
         const userDataWithConsent = {
           ...validUserData,
-          consent_ai_training: true,
-          consent_marketing: true,
+          consentAiTraining: true,
+          consentMarketing: true,
         };
 
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
         (userRepository.create as jest.Mock).mockResolvedValue({
           ...mockUserStored,
-          consent_ai_training: true,
-          consent_marketing: true,
+          consentAiTraining: true,
+          consentMarketing: true,
         });
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
 
@@ -131,12 +131,12 @@ describe('Auth Service', () => {
 
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            consent_ai_training: true,
-            consent_marketing: true,
+            consentAiTraining: true,
+            consentMarketing: true,
           })
         );
-        expect(result.consent_ai_training).toBe(true);
-        expect(result.consent_marketing).toBe(true);
+        expect(result.consentAiTraining).toBe(true);
+        expect(result.consentMarketing).toBe(true);
       });
 
       it('should register user with default consent values when not provided', async () => {
@@ -154,9 +154,9 @@ describe('Auth Service', () => {
 
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            consent_essential: true,
-            consent_ai_training: false, // Default
-            consent_marketing: false, // Default
+            consentEssential: true,
+            consentAiTraining: false, // Default
+            consentMarketing: false, // Default
           })
         );
       });
@@ -240,7 +240,7 @@ describe('Auth Service', () => {
         // Verify the hashed password was passed to repository
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            password_hash: 'hashed-password-123',
+            passwordHash: 'hashed-password-123',
           })
         );
 
@@ -262,7 +262,7 @@ describe('Auth Service', () => {
         const createCallArgs = (userRepository.create as jest.Mock).mock.calls[0][0];
 
         expect(createCallArgs).not.toHaveProperty('password');
-        expect(createCallArgs).toHaveProperty('password_hash');
+        expect(createCallArgs).toHaveProperty('passwordHash');
       });
     });
 
@@ -360,7 +360,7 @@ describe('Auth Service', () => {
     });
 
     describe('essential consent handling', () => {
-      it('should always set consent_essential to true regardless of input', async () => {
+      it('should always set consentEssential to true regardless of input', async () => {
         (hashPassword as jest.Mock).mockResolvedValue('hashed-password-123');
         (userRepository.create as jest.Mock).mockResolvedValue(mockUserStored);
         (emailService.sendVerificationEmail as jest.Mock).mockResolvedValue(undefined);
@@ -369,7 +369,7 @@ describe('Auth Service', () => {
 
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            consent_essential: true,
+            consentEssential: true,
           })
         );
       });

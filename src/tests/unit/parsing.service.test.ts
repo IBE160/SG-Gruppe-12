@@ -29,7 +29,7 @@ describe('Parsing Service', () => {
             const fileType = 'application/pdf';
             const fileContent = 'This is the content of the CV.';
             const aiResponse = {
-                personal_info: {
+                personalInfo: {
                     firstName: 'John',
                     lastName: 'Doe',
                     email: 'john.doe@example.com',
@@ -92,7 +92,7 @@ describe('Parsing Service', () => {
 
             // Mock generateObject to return invalid data that will fail schema validation
             (generateObject as jest.Mock).mockResolvedValue({
-                object: { personal_info: 'invalid' }, // String instead of object will fail validation
+                object: { personalInfo: 'invalid' }, // String instead of object will fail validation
             });
 
             // Act & Assert
@@ -104,7 +104,7 @@ describe('Parsing Service', () => {
             // Arrange
             const supabaseFilePath = 'user-id/12345-cv.pdf';
             const fileType = 'application/pdf';
-            const invalidAiResponse = { personal_info: { name: 123 } }; // Name should be a string
+            const invalidAiResponse = { personalInfo: { name: 123 } }; // Name should be a string
             mockedStorageService.downloadFile.mockResolvedValue(Buffer.from('CV content'));
             
             (generateObject as jest.Mock).mockResolvedValue({

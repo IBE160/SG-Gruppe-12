@@ -23,13 +23,13 @@ export const applicationRepository = {
   async create(data: CreateApplicationData): Promise<ApplicationAnalysis> {
     return prisma.applicationAnalysis.create({
       data: {
-        user_id: data.userId,
-        cv_id: data.cvId,
-        job_posting_id: data.jobPostingId,
-        generated_cv_content: data.generatedCvContent,
-        generated_application_content: data.generatedApplicationContent,
-        ats_feedback: data.atsFeedback,
-        quality_feedback: data.qualityFeedback,
+        userId: data.userId,
+        cvId: data.cvId,
+        jobPostingId: data.jobPostingId,
+        generatedCvContent: data.generatedCvContent,
+        generatedApplicationContent: data.generatedApplicationContent,
+        atsFeedback: data.atsFeedback,
+        qualityFeedback: data.qualityFeedback,
       },
     });
   },
@@ -42,11 +42,11 @@ export const applicationRepository = {
 
   async findByUserId(userId: string): Promise<ApplicationAnalysis[]> {
     return prisma.applicationAnalysis.findMany({
-      where: { user_id: userId },
-      orderBy: { created_at: 'desc' },
+      where: { userId: userId },
+      orderBy: { createdAt: 'desc' },
       include: {
         cv: true,
-        job_posting: true,
+        jobPosting: true,
       },
     });
   },
@@ -54,9 +54,9 @@ export const applicationRepository = {
   async findByUserAndJob(userId: string, cvId: number, jobPostingId: number): Promise<ApplicationAnalysis | null> {
     return prisma.applicationAnalysis.findFirst({
       where: {
-        user_id: userId,
-        cv_id: cvId,
-        job_posting_id: jobPostingId,
+        userId: userId,
+        cvId: cvId,
+        jobPostingId: jobPostingId,
       },
     });
   },
@@ -65,10 +65,10 @@ export const applicationRepository = {
     return prisma.applicationAnalysis.update({
       where: { id },
       data: {
-        generated_cv_content: data.generatedCvContent,
-        generated_application_content: data.generatedApplicationContent,
-        ats_feedback: data.atsFeedback,
-        quality_feedback: data.qualityFeedback,
+        generatedCvContent: data.generatedCvContent,
+        generatedApplicationContent: data.generatedApplicationContent,
+        atsFeedback: data.atsFeedback,
+        qualityFeedback: data.qualityFeedback,
       },
     });
   },
@@ -81,7 +81,7 @@ export const applicationRepository = {
 
   async deleteByUserId(userId: string): Promise<{ count: number }> {
     return prisma.applicationAnalysis.deleteMany({
-      where: { user_id: userId },
+      where: { userId: userId },
     });
   },
 };

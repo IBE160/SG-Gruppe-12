@@ -4,16 +4,16 @@ import { User } from '@prisma/client'; // Import generated Prisma User type
 // Define the shape of user data for creation
 interface CreateUserData {
   email: string;
-  password_hash: string;
+  passwordHash: string;
   name: string;
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
   emailVerificationToken?: string;
   emailVerified?: boolean;
-  consent_essential?: boolean;
-  consent_ai_training?: boolean;
-  consent_marketing?: boolean;
+  consentEssential?: boolean;
+  consentAiTraining?: boolean;
+  consentMarketing?: boolean;
 }
 
 interface UpdateUserData {
@@ -23,7 +23,7 @@ interface UpdateUserData {
   emailVerified?: boolean;
   emailVerificationToken?: string | null;
   passwordResetToken?: string | null;
-  password_hash?: string;
+  passwordHash?: string;
 }
 
 export const userRepository = {
@@ -31,15 +31,15 @@ export const userRepository = {
     const user = await prisma.user.create({
       data: {
         email: data.email,
-        password_hash: data.password_hash,
+        passwordHash: data.passwordHash,
         name: data.name,
         firstName: data.firstName,
         lastName: data.lastName,
         phoneNumber: data.phoneNumber,
         emailVerificationToken: data.emailVerificationToken,
         emailVerified: data.emailVerified,
-        consent_ai_training: data.consent_ai_training,
-        consent_marketing: data.consent_marketing,
+        consentAiTraining: data.consentAiTraining,
+        consentMarketing: data.consentMarketing,
       },
     });
     return user;
@@ -66,7 +66,7 @@ export const userRepository = {
         phoneNumber: data.phoneNumber,
         emailVerified: data.emailVerified,
         emailVerificationToken: data.emailVerificationToken,
-        password_hash: data.password_hash,
+        passwordHash: data.passwordHash,
       },
     });
   },

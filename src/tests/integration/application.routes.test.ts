@@ -294,7 +294,7 @@ describe('Application Routes', () => {
     it('should update application content successfully', async () => {
       const mockUpdated = {
         id: mockApplicationId,
-        created_at: new Date(),
+        createdAt: new Date(),
       };
 
       (applicationService.updateApplication as jest.Mock).mockResolvedValue(mockUpdated);
@@ -313,7 +313,7 @@ describe('Application Routes', () => {
     it('should allow updating cover letter content', async () => {
       const mockUpdated = {
         id: mockApplicationId,
-        created_at: new Date(),
+        createdAt: new Date(),
       };
 
       (applicationService.updateApplication as jest.Mock).mockResolvedValue(mockUpdated);

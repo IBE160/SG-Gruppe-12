@@ -9,7 +9,7 @@ import { User } from '@prisma/client';
 import { redis } from '../config/redis';
 
 // Omit sensitive fields from user response
-type SafeUser = Omit<User, 'password_hash' | 'emailVerificationToken'>;
+type SafeUser = Omit<User, 'passwordHash' | 'emailVerificationToken'>;
 
 interface RegisterUserDto {
   name: string;
@@ -17,9 +17,9 @@ interface RegisterUserDto {
   password: string;
   firstName?: string; // Assuming these are added from remote's perspective
   lastName?: string;  // Assuming these are added from remote's perspective
-  consent_essential?: boolean; // Add this field
-  consent_ai_training?: boolean;
-  consent_marketing?: boolean;
+  consentEssential?: boolean; // Add this field
+  consentAiTraining?: boolean;
+  consentMarketing?: boolean;
 }
 
 interface LoginUserDto {
@@ -29,7 +29,7 @@ interface LoginUserDto {
 
 // Helper to strip sensitive fields from user
 function toSafeUser(user: User): SafeUser {
-  const { password_hash, emailVerificationToken, ...safeUser } = user;
+  const { passwordHash, emailVerificationToken, ...safeUser } = user;
   return safeUser;
 }
 
@@ -49,12 +49,12 @@ export const authService = {
       firstName: userData.firstName, // Assuming these fields are passed
       lastName: userData.lastName,   // Assuming these fields are passed
       email: userData.email,
-      password_hash: hashedPassword,
+      passwordHash: hashedPassword,
       emailVerificationToken: emailVerificationToken,
       emailVerified: false,
-      consent_essential: true, // Always true for basic platform use
-      consent_ai_training: userData.consent_ai_training ?? false,
-      consent_marketing: userData.consent_marketing ?? false,
+      consentEssential: true, // Always true for basic platform use
+      consentAiTraining: userData.consentAiTraining ?? false,
+      consentMarketing: userData.consentMarketing ?? false,
     });
 
     await emailService.sendVerificationEmail(user, emailVerificationToken);
@@ -70,7 +70,7 @@ export const authService = {
       throw new UnauthorizedError('Invalid credentials');
     }
 
-    const isPasswordValid = await comparePassword(password, user.password_hash);
+    const isPasswordValid = await comparePassword(password, user.passwordHash);
 
     if (!isPasswordValid) {
       throw new UnauthorizedError('Invalid credentials');

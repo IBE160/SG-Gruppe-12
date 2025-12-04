@@ -11,19 +11,130 @@ datasource db {
 }
 
 model User {
-  id                     String    @id @default(uuid()) @map("id")
-  email                  String    @unique @map("email")
-  passwordHash           String    @map("password_hash")
-  name                   String?   @map("name")
-  firstName              String?   @map("first_name")
-  lastName               String?   @map("last_name")
-  phoneNumber            String?   @map("phone_number")
-  createdAt              DateTime  @default(now()) @map("created_at")
-  updatedAt              DateTime  @updatedAt @map("updated_at")
-  emailVerified          Boolean   @default(false) @map("email_verified")
-  emailVerificationToken String?   @map("email_verification_token")
-  passwordResetToken     String?   @map("password_reset_token")
-  consentEssential       Boolean   @default(true) @map("consent_essential")
-  consentAiTraining      Boolean   @default(false) @map("consent_ai_training")
-  consentMarketing       Boolean   @default(false) @map("consent_marketing")
+  id                     String                @id @default(uuid()) @map("id")
+  email                  String                @unique @map("email")
+  passwordHash           String                @map("password_hash")
+  name                   String?               @map("name")
+  firstName              String?               @map("first_name")
+  lastName               String?               @map("last_name")
+  phoneNumber            String?               @map("phone_number")
+  createdAt              DateTime              @default(now()) @map("created_at")
+  updatedAt              DateTime              @updatedAt @map("updated_at")
+  emailVerified          Boolean               @default(false) @map("email_verified")
+  emailVerificationToken String?               @map("email_verification_token")
+  passwordResetToken     String?               @map("password_reset_token")
+  consentEssential       Boolean               @default(true) @map("consent_essential")
+  consentAiTraining      Boolean               @default(false) @map("consent_ai_training")
+  consentMarketing       Boolean               @default(false) @map("consent_marketing")
+
+  // Relations
+  cvs                    Cv[]
+  jobPostings            JobPosting[]          @relation("UserJobPostings")
+  applicationAnalyses    ApplicationAnalysis[]
+  auditLogs              AuditLog[]
+  consentLogs            ConsentLog[]
+
+  @@map("users")
+}
+
+model Cv {
+  id           Int         @id @default(autoincrement())
+  userId       String      @map("user_id")
+  title        String?     @map("title")
+  filePath     String?     @map("file_path")
+  personalInfo Json?       @map("personal_info")
+  education    Json?       @map("education")
+  experience   Json?       @map("experience")
+  skills       Json?       @map("skills")
+  languages    Json?       @map("languages")
+  summary      String?     @map("summary")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions     CvVersion[]
+  applications ApplicationAnalysis[]
+
+  @@map("cvs")
+}
+
+model CvVersion {
+  id            Int      @id @default(autoincrement())
+  cvId          Int      @map("cv_id")
+  versionNumber Int      @map("version_number")
+  snapshot      Json     @map("snapshot")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  // Relations
+  cv            Cv       @relation(fields: [cvId], references: [id], onDelete: Cascade)
+
+  @@unique([cvId, versionNumber], map: "cv_id_version_number")
+  @@map("cv_versions")
+}
+
+model JobPosting {
+  id           Int      @id @default(autoincrement())
+  userId       String?  @map("user_id")
+  title        String   @map("title")
+  company      String?  @map("company")
+  description  String   @map("description") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user         User?    @relation("UserJobPostings", fields: [userId], references: [id], onDelete: SetNull)
+  applications ApplicationAnalysis[]
+
+  @@map("job_postings")
+}
+
+model ApplicationAnalysis {
+  id                           Int         @id @default(autoincrement())
+  userId                       String      @map("user_id")
+  cvId                         Int         @map("cv_id")
+  jobPostingId                 Int         @map("job_posting_id")
+  generatedCvContent           String?     @map("generated_cv_content") @db.Text
+  generatedApplicationContent  String?     @map("generated_application_content") @db.Text
+  atsFeedback                  Json?       @map("ats_feedback")
+  qualityFeedback              Json?       @map("quality_feedback")
+  createdAt                    DateTime    @default(now()) @map("created_at")
+
+  // Relations
+  user                         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cv                           Cv          @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  jobPosting                   JobPosting  @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+
+  @@map("application_analyses")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     String?  @map("user_id")
+  action     String   @map("action")
+  resource   String?  @map("resource")
+  resourceId String?  @map("resource_id")
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  metadata   Json?    @map("metadata")
+  status     String   @map("status")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+model ConsentLog {
+  id          Int      @id @default(autoincrement())
+  userId      String   @map("user_id")
+  consentType String   @map("consent_type")
+  granted     Boolean  @map("granted")
+  ipAddress   String?  @map("ip_address")
+  timestamp   DateTime @default(now()) @map("timestamp")
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("consent_logs")
 }

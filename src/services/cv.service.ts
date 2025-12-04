@@ -28,7 +28,7 @@ export const cvService = {
   async createCV(userId: string, data: { title?: string; file_path?: string; } & Partial<CvData>): Promise<CvData & { id: number }> {
     const newCV = await cvRepository.create(userId, data);
     const initialCvData: CvData = {
-      personal_info: newCV.personal_info as unknown as PersonalInfo,
+      personal_info: newCV.personalInfo as unknown as PersonalInfo,
       education: newCV.education as unknown as EducationEntry[],
       experience: newCV.experience as unknown as ExperienceEntry[],
       skills: newCV.skills as unknown as SkillEntry[],
@@ -50,14 +50,14 @@ export const cvService = {
     if (!cv) {
       throw new NotFoundError('CV not found');
     }
-    if (cv.user_id !== userId) {
+    if (cv.userId !== userId) {
       throw new UnauthorizedError('Not authorized to access this CV');
     }
     return {
       id: cv.id,
       title: cv.title || undefined,
-      file_path: cv.file_path || undefined,
-      personal_info: cv.personal_info as unknown as PersonalInfo,
+      file_path: cv.filePath || undefined,
+      personal_info: cv.personalInfo as unknown as PersonalInfo,
       education: cv.education as unknown as EducationEntry[],
       experience: cv.experience as unknown as ExperienceEntry[],
       skills: cv.skills as unknown as SkillEntry[],
@@ -76,20 +76,21 @@ export const cvService = {
   async updateCV(userId: string, cvId: number, updates: Partial<CvData>): Promise<CvData & { id: number; title?: string; file_path?: string; }> {
     const existingCV = await this.getCVById(userId, cvId); // Performs auth check
     const updatedCV = await cvRepository.updateCV(cvId, {
-      ...existingCV, // Merge existing data to ensure full snapshot
-      ...updates,
-      personal_info: updates.personal_info,
-      education: updates.education,
-      experience: updates.experience,
-      skills: updates.skills,
-      languages: updates.languages,
+      title: updates.title || existingCV.title,
+      filePath: updates.file_path || existingCV.file_path,
+      personalInfo: updates.personal_info || existingCV.personal_info,
+      education: updates.education || existingCV.education,
+      experience: updates.experience || existingCV.experience,
+      skills: updates.skills || existingCV.skills,
+      languages: updates.languages || existingCV.languages,
+      summary: updates.summary || existingCV.summary,
     });
 
     const newCvData: CvData & { id: number; title?: string; file_path?: string; } = {
       id: updatedCV.id,
       title: updatedCV.title || undefined,
-      file_path: updatedCV.file_path || undefined,
-      personal_info: updatedCV.personal_info as unknown as PersonalInfo,
+      file_path: updatedCV.filePath || undefined,
+      personal_info: updatedCV.personalInfo as unknown as PersonalInfo,
       education: updatedCV.education as unknown as EducationEntry[],
       experience: updatedCV.experience as unknown as ExperienceEntry[],
       skills: updatedCV.skills as unknown as SkillEntry[],
@@ -318,7 +319,7 @@ export const cvService = {
   async listVersions(userId: string, cvId: number): Promise<{ versionNumber: number; createdAt: Date }[]> {
     await this.getCVById(userId, cvId); // Performs auth check
     const versions = await cvRepository.getVersions(cvId);
-    return versions.map(v => ({ versionNumber: v.version_number, createdAt: v.created_at }));
+    return versions.map(v => ({ versionNumber: v.versionNumber, createdAt: v.createdAt }));
   },
 
   /**
@@ -359,8 +360,8 @@ export const cvService = {
     return cvs.map(cv => ({
       id: cv.id,
       title: cv.title,
-      createdAt: cv.created_at,
-      updatedAt: cv.updated_at,
+      createdAt: cv.createdAt,
+      updatedAt: cv.updatedAt,
     }));
   },
 };

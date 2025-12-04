@@ -165,7 +165,7 @@ describe('POST /api/v1/jobs/analyze - Job Analysis Endpoint', () => {
         expect.arrayContaining([
           expect.objectContaining({
             field: 'body.jobDescription',
-            message: 'Job description must be at least 10 characters long.',
+            message: 'Job description or URL must be at least 10 characters long.',
           }),
         ])
       );

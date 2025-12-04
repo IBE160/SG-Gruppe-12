@@ -48,7 +48,7 @@ describe('analyzeJobDescriptionSchema', () => {
       expect.objectContaining({
         issues: expect.arrayContaining([
           expect.objectContaining({
-            message: 'Job description must be at least 10 characters long.',
+            message: 'Job description or URL must be at least 10 characters long.',
             path: ['body', 'jobDescription'],
           }),
         ]),

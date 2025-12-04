@@ -14,7 +14,7 @@ describe('JobAnalysisService', () => {
   describe('calculateATSScore', () => {
     // Mock CV data for testing
     const mockCV: CvData = {
-      personal_info: { name: 'Test User', email: 'test@example.com', phone: '123-456-7890', address: '123 Test St' },
+      personalInfo: { name: 'Test User', email: 'test@example.com', phone: '123-456-7890', address: '123 Test St' },
       education: [{ degree: 'MSc', institution: 'University', start_date: '2020-01-01', end_date: '2022-12-31' }],
       experience: [{ title: 'Developer', company: 'Tech Corp', start_date: '2022-01-01', end_date: 'present', description: 'Developed features, increased efficiency by 15%' }],
       skills: [{ name: 'TypeScript' }, { name: 'React' }, { name: 'Node.js' }], // Skills should be SkillEntry[]
@@ -79,7 +79,7 @@ describe('JobAnalysisService', () => {
 
     it('should penalize for incomplete sections', () => {
       const cvWithoutExp: CvData = {
-        personal_info: { name: 'Test User', email: 'test@example.com' },
+        personalInfo: { name: 'Test User', email: 'test@example.com' },
         education: [{ degree: 'BSc', institution: 'Uni', start_date: '2018-01-01', end_date: '2022-01-01' }],
         experience: [], // Missing Experience
         skills: [{ name: 'JavaScript' }],
@@ -107,7 +107,7 @@ describe('JobAnalysisService', () => {
 
     it('should suggest adding quantifiable achievements if none found', () => {
       const cvWithoutQuantifiable: CvData = {
-        personal_info: { name: 'Test User', email: 'test@example.com', phone: '123-456-7890', address: '123 Test St' },
+        personalInfo: { name: 'Test User', email: 'test@example.com', phone: '123-456-7890', address: '123 Test St' },
         education: [{ degree: 'MSc', institution: 'University', start_date: '2020-01-01', end_date: '2022-12-31' }],
         experience: [{ title: 'Developer', company: 'Tech Corp', start_date: '2022-01-01', end_date: 'present', description: 'Developed features for clients' }], // No numbers
         skills: [{ name: 'TypeScript' }, { name: 'React' }],
@@ -170,29 +170,29 @@ describe('JobAnalysisService', () => {
     };
 
     const mockPrismaCvEntity = { // This should match Prisma CV entity structure
-      user_id: 'user1',
+      userId: 'user1',
       id: 1,
-      personal_info: { name: 'Test User', email: 'test@example.com', phone: '123-456-7890', address: '123 Test St' },
+      personalInfo: { name: 'Test User', email: 'test@example.com', phone: '123-456-7890', address: '123 Test St' },
       education: [],
       experience: [],
       skills: [],
       languages: [],
-      created_at: new Date(),
-      updated_at: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       title: null,
-      file_path: null,
+      filePath: null,
       summary: null,
     };
 
     // Transformed CvData as expected by calculateATSScore
     const expectedCvDataForATS: CvData = {
-        personal_info: { name: 'Test User', email: 'test@example.com', phone: '123-456-7890', address: '123 Test St' },
+        personalInfo: { name: 'Test User', email: 'test@example.com', phone: '123-456-7890', address: '123 Test St' },
         education: [],
         experience: [],
         skills: [],
         languages: [],
         title: undefined,
-        file_path: undefined,
+        filePath: undefined,
         summary: undefined,
     };
 
@@ -218,14 +218,14 @@ describe('JobAnalysisService', () => {
 
       // Construct the expectedCvDataForATS based on the mockPrismaCvEntity for the assertion
       const constructedExpectedCvDataForATS: CvData = {
-          personal_info: mockPrismaCvEntity.personal_info as any,
+          personalInfo: mockPrismaCvEntity.personal_info as any,
           education: mockPrismaCvEntity.education as any,
           experience: mockPrismaCvEntity.experience as any,
           skills: mockPrismaCvEntity.skills as any, // This should be SkillEntry[]
           languages: mockPrismaCvEntity.languages as any,
           summary: mockPrismaCvEntity.summary || undefined,
           title: mockPrismaCvEntity.title || undefined,
-          file_path: mockPrismaCvEntity.file_path || undefined,
+          filePath: mockPrismaCvEntity.filePath || undefined,
       };
 
       expect(jobAnalysisService.calculateATSScore).toHaveBeenCalledWith(

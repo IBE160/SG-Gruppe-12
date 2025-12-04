@@ -51,7 +51,7 @@ export const SKILL_SYNONYMS: Record<string, string[]> = {
   'css': ['css3', 'cascading style sheets'],
 
   // ========== Frontend Frameworks & Libraries ==========
-  'react': ['reactjs', 'react.js', 'react native', 'react-native', 'react js'],
+  'react': ['reactjs', 'react.js', 'react js'],
   'angular': ['angularjs', 'angular.js', 'angular2', 'angular 2', 'angular4+', 'angular js'],
   'vue': ['vuejs', 'vue.js', 'vue js'],
   'svelte': ['sveltejs', 'svelte.js'],
@@ -179,8 +179,7 @@ export const SKILL_SYNONYMS: Record<string, string[]> = {
   'cargo': ['rust cargo'],
 
   // ========== Methodologies & Practices ==========
-  'agile': ['scrum', 'kanban', 'sprint', 'agile methodology'],
-  'scrum': ['scrum methodology', 'scrum framework'],
+  'agile': ['scrum', 'kanban', 'sprint', 'agile methodology', 'scrum methodology', 'scrum framework'],
   'kanban': ['kanban methodology'],
   'ci/cd': [
     'continuous integration',

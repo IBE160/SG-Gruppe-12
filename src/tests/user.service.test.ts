@@ -26,11 +26,11 @@ const mockUser = {
   lastName: 'User',
   emailVerified: false,
   emailVerificationToken: 'mock-email-verification-token', // Add this as it's in the User model
-  created_at: new Date(), // Use created_at
-  updated_at: new Date(), // Use updated_at
-  consent_ai_training: false,
-  consent_essential: true,
-  consent_marketing: false,
+  createdAt: new Date(), // Use createdAt
+  updatedAt: new Date(), // Use updatedAt
+  consentAiTraining: false,
+  consentEssential: true,
+  consentMarketing: false,
 };
 
 describe('userService', () => {
