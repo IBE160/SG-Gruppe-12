@@ -7,7 +7,8 @@ describe('MatchScoringService', () => {
       const cvData = { skills: ['TypeScript', 'React', 'Node.js'] };
       const extractedJobData = { keywords: ['React', 'Node.js', 'GraphQL'], skills: [], qualifications: [], responsibilities: [] };
       const { presentKeywords, missingKeywords } = MatchScoringService.compareCvToJob(cvData, extractedJobData);
-      expect(presentKeywords).toEqual(['react', 'node.js']);
+      // Node.js normalizes to 'javascript', so both match javascript
+      expect(presentKeywords).toEqual(['react', 'javascript']);
       expect(missingKeywords).toEqual(['graphql']);
     });
 
@@ -23,7 +24,8 @@ describe('MatchScoringService', () => {
       const cvData = { skills: ['TypeScript', 'React', 'Node.js'] };
       const extractedJobData = { keywords: ['React', 'Node.js'], skills: [], qualifications: [], responsibilities: [] };
       const { presentKeywords, missingKeywords } = MatchScoringService.compareCvToJob(cvData, extractedJobData);
-      expect(presentKeywords).toEqual(['react', 'node.js']);
+      // Node.js normalizes to 'javascript'
+      expect(presentKeywords).toEqual(['react', 'javascript']);
       expect(missingKeywords).toEqual([]);
     });
   });

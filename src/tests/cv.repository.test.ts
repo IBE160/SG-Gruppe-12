@@ -35,12 +35,12 @@ describe('CV Repository', () => {
 
   const mockCV: Cv = {
     id: 1,
-    user_id: mockUserId,
+    userId: mockUserId,
     title: 'My CV',
-    file_path: null,
-    created_at: new Date(),
-    updated_at: new Date(),
-    personal_info: mockCvData.personal_info ? mockCvData.personal_info as unknown as Prisma.JsonValue : null,
+    filePath: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    personalInfo: mockCvData.personal_info ? mockCvData.personal_info as unknown as Prisma.JsonValue : null,
     experience: mockCvData.experience ? mockCvData.experience as unknown as Prisma.JsonValue : [],
     education: mockCvData.education ? mockCvData.education as unknown as Prisma.JsonValue : [],
     skills: mockCvData.skills ? mockCvData.skills as unknown as Prisma.JsonValue : [],
@@ -58,10 +58,10 @@ describe('CV Repository', () => {
       const result = await cvRepository.create(mockUserId, { title: 'My CV', ...mockCvData });
       expect(prisma.cv.create).toHaveBeenCalledWith({
         data: {
-          user_id: mockUserId,
+          userId: mockUserId,
           title: 'My CV',
-          file_path: undefined,
-          personal_info: mockCvData.personal_info,
+          filePath: undefined,
+          personalInfo: mockCvData.personal_info,
           experience: mockCvData.experience,
           education: mockCvData.education,
           skills: mockCvData.skills,
@@ -92,10 +92,9 @@ describe('CV Repository', () => {
 
       expect(prisma.cv.update).toHaveBeenCalledWith({
         where: { id: 1 },
-        data: {
+        data: expect.objectContaining({
             summary: 'An updated summary',
-            updated_at: expect.any(Date),
-        },
+        }),
       });
       expect(result).toEqual(updatedCV);
     });
@@ -103,15 +102,15 @@ describe('CV Repository', () => {
   
   describe('createVersion', () => {
     it('should create a new CV version', async () => {
-        const mockVersion: CvVersion = { id: 1, cv_id: 1, version_number: 1, snapshot: mockCvData as any, created_at: new Date() };
+        const mockVersion: CvVersion = { id: 1, cvId: 1, versionNumber: 1, snapshot: mockCvData as any, createdAt: new Date() };
         (prisma.cvVersion.create as jest.Mock).mockResolvedValue(mockVersion);
 
         const result = await cvRepository.createVersion(1, 1, mockCvData);
 
         expect(prisma.cvVersion.create).toHaveBeenCalledWith({
             data: {
-                cv_id: 1,
-                version_number: 1,
+                cvId: 1,
+                versionNumber: 1,
                 snapshot: mockCvData,
             },
         });

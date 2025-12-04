@@ -131,17 +131,17 @@ describe('SQL Injection Security Tests', () => {
     const mockUser = {
       id: 'mock-user-id-123',
       email: 'test@example.com',
-      password_hash: 'hashedpassword',
+      passwordHash: 'hashedpassword',
       firstName: 'Test',
       lastName: 'User',
-      created_at: new Date(),
-      updated_at: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       emailVerified: true,
       emailVerificationToken: null,
       phoneNumber: '1234567890',
-      consent_essential: true,
-      consent_ai_training: false,
-      consent_marketing: false,
+      consentEssential: true,
+      consentAiTraining: false,
+      consentMarketing: false,
     };
 
     it('should safely handle malicious name input', async () => {
@@ -188,15 +188,15 @@ describe('SQL Injection Security Tests', () => {
       const maliciousUserData = {
         name: "Malicious User",
         email: "hacker@example.com' OR '1'='1",
-        password_hash: "password'; DROP TABLE sessions; --",
+        passwordHash: "password'; DROP TABLE sessions; --",
         emailVerified: false,
       };
 
       (prisma.user.create as jest.Mock).mockResolvedValue({
         id: 'mock-user-id-123',
         ...maliciousUserData,
-        created_at: new Date(),
-        updated_at: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
 
       await userRepository.create(maliciousUserData);
@@ -205,7 +205,7 @@ describe('SQL Injection Security Tests', () => {
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           email: maliciousUserData.email,
-          password_hash: maliciousUserData.password_hash,
+          passwordHash: maliciousUserData.passwordHash,
           emailVerified: maliciousUserData.emailVerified,
         }),
       });

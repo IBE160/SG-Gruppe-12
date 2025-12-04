@@ -132,12 +132,12 @@ export const auditService = {
 
       await prisma.auditLog.create({
         data: {
-          user_id: data.userId,
+          userId: data.userId,
           action: data.action,
           resource: data.resource,
-          resource_id: data.resourceId,
-          ip_address: data.ipAddress,
-          user_agent: data.userAgent ? data.userAgent.substring(0, 500) : undefined, // Truncate long user agents
+          resourceId: data.resourceId,
+          ipAddress: data.ipAddress,
+          userAgent: data.userAgent ? data.userAgent.substring(0, 500) : undefined, // Truncate long user agents
           metadata: safeMetadata,
           status: data.status,
         },
@@ -190,10 +190,10 @@ export const auditService = {
       // Create consent log entry
       await prisma.consentLog.create({
         data: {
-          user_id: data.userId,
-          consent_type: data.consentType,
+          userId: data.userId,
+          consentType: data.consentType,
           granted: data.granted,
-          ip_address: data.ipAddress,
+          ipAddress: data.ipAddress,
         },
       });
 
@@ -319,14 +319,14 @@ export const auditService = {
    */
   async getUserAuditLogs(userId: string, limit = 100): Promise<unknown[]> {
     return prisma.auditLog.findMany({
-      where: { user_id: userId },
-      orderBy: { created_at: 'desc' },
+      where: { userId: userId },
+      orderBy: { createdAt: 'desc' },
       take: limit,
       select: {
         action: true,
         resource: true,
         status: true,
-        created_at: true,
+        createdAt: true,
         // Exclude IP and user agent from user exports for privacy
       },
     });
@@ -337,10 +337,10 @@ export const auditService = {
    */
   async getUserConsentHistory(userId: string): Promise<unknown[]> {
     return prisma.consentLog.findMany({
-      where: { user_id: userId },
+      where: { userId: userId },
       orderBy: { timestamp: 'desc' },
       select: {
-        consent_type: true,
+        consentType: true,
         granted: true,
         timestamp: true,
       },
@@ -364,7 +364,7 @@ export const auditService = {
     if (filters.action) where.action = filters.action;
     if (filters.status) where.status = filters.status;
     if (filters.startDate || filters.endDate) {
-      where.created_at = {
+      where.createdAt = {
         ...(filters.startDate && { gte: filters.startDate }),
         ...(filters.endDate && { lte: filters.endDate }),
       };
@@ -372,7 +372,7 @@ export const auditService = {
 
     return prisma.auditLog.findMany({
       where,
-      orderBy: { created_at: 'desc' },
+      orderBy: { createdAt: 'desc' },
       take: limit,
     });
   },
@@ -386,8 +386,8 @@ export const auditService = {
     const count = await prisma.auditLog.count({
       where: {
         action: 'LOGIN_FAILED',
-        ip_address: ipAddress,
-        created_at: { gte: windowStart },
+        ipAddress: ipAddress,
+        createdAt: { gte: windowStart },
       },
     });
 
@@ -402,7 +402,7 @@ export const auditService = {
 
     const result = await prisma.auditLog.deleteMany({
       where: {
-        created_at: { lt: cutoffDate },
+        createdAt: { lt: cutoffDate },
       },
     });
 

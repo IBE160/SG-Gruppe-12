@@ -29,7 +29,7 @@ describe('Parsing Service', () => {
             const fileType = 'application/pdf';
             const fileContent = 'This is the content of the CV.';
             const aiResponse = {
-                personal_info: {
+                personalInfo: {
                     firstName: 'John',
                     lastName: 'Doe',
                     email: 'john.doe@example.com',

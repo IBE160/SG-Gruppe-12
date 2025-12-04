@@ -14,10 +14,10 @@ export const cvRepository = {
     const { title, file_path, personal_info, education, experience, skills, languages, summary } = data;
     return prisma.cv.create({
       data: {
-        user_id: userId,
+        userId: userId,
         title: title,
-        file_path: file_path,
-        personal_info: personal_info ? (personal_info as unknown as Prisma.InputJsonValue) : undefined,
+        filePath: file_path,
+        personalInfo: personal_info ? (personal_info as unknown as Prisma.InputJsonValue) : undefined,
         education: education ? (education as unknown as Prisma.InputJsonValue) : undefined,
         experience: experience ? (experience as unknown as Prisma.InputJsonValue) : undefined,
         skills: skills ? (skills as unknown as Prisma.InputJsonValue) : undefined,
@@ -45,8 +45,8 @@ export const cvRepository = {
    */
   async findByUserId(userId: string): Promise<Cv[]> {
     return prisma.cv.findMany({
-      where: { user_id: userId },
-      orderBy: { created_at: 'desc' },
+      where: { userId: userId },
+      orderBy: { createdAt: 'desc' },
     });
   },
 
@@ -56,20 +56,19 @@ export const cvRepository = {
    * @param data The partial CV data to update (title, file_path, and JSONB content).
    * @returns The updated CV object.
    */
-  async updateCV(cvId: number, data: { title?: string; file_path?: string; } & Partial<CvData>): Promise<Cv> {
-    const { title, file_path, personal_info, education, experience, skills, languages, summary } = data;
+  async updateCV(cvId: number, data: { title?: string; filePath?: string; personalInfo?: any; education?: any; experience?: any; skills?: any; languages?: any; summary?: string }): Promise<Cv> {
+    const { title, filePath, personalInfo, education, experience, skills, languages, summary } = data;
     return prisma.cv.update({
       where: { id: cvId },
       data: {
         title: title,
-        file_path: file_path,
-        personal_info: personal_info ? (personal_info as unknown as Prisma.InputJsonValue) : undefined,
+        filePath: filePath,
+        personalInfo: personalInfo ? (personalInfo as unknown as Prisma.InputJsonValue) : undefined,
         education: education ? (education as unknown as Prisma.InputJsonValue) : undefined,
         experience: experience ? (experience as unknown as Prisma.InputJsonValue) : undefined,
         skills: skills ? (skills as unknown as Prisma.InputJsonValue) : undefined,
         languages: languages ? (languages as unknown as Prisma.InputJsonValue) : undefined,
         summary: summary,
-        updated_at: new Date(),
       },
     });
   },
@@ -95,8 +94,8 @@ export const cvRepository = {
   async createVersion(cvId: number, versionNumber: number, snapshot: CvData): Promise<CvVersion> {
     return prisma.cvVersion.create({
       data: {
-        cv_id: cvId,
-        version_number: versionNumber,
+        cvId: cvId,
+        versionNumber: versionNumber,
         snapshot: snapshot as unknown as Prisma.InputJsonValue,
       },
     });
@@ -109,8 +108,8 @@ export const cvRepository = {
    */
   async getVersions(cvId: number): Promise<CvVersion[]> {
     return prisma.cvVersion.findMany({
-      where: { cv_id: cvId },
-      orderBy: { version_number: 'asc' },
+      where: { cvId: cvId },
+      orderBy: { versionNumber: 'asc' },
     });
   },
 
@@ -121,10 +120,10 @@ export const cvRepository = {
    */
   async getLatestVersionNumber(cvId: number): Promise<number> {
     const latestVersion = await prisma.cvVersion.findFirst({
-      where: { cv_id: cvId },
-      orderBy: { version_number: 'desc' },
+      where: { cvId: cvId },
+      orderBy: { versionNumber: 'desc' },
     });
-    return latestVersion ? latestVersion.version_number : 0;
+    return latestVersion ? latestVersion.versionNumber : 0;
   },
 
   /**
@@ -135,7 +134,7 @@ export const cvRepository = {
    */
   async getVersionByNumber(cvId: number, versionNumber: number): Promise<CvVersion | null> {
     return prisma.cvVersion.findUnique({
-      where: { cv_id_version_number: { cv_id: cvId, version_number: versionNumber } },
+      where: { cvId_versionNumber: { cvId: cvId, versionNumber: versionNumber } },
     });
   },
 };

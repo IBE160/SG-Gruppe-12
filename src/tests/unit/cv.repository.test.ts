@@ -21,45 +21,45 @@ describe('CV Repository Unit Tests', () => {
     experience: [{ title: 'Developer', company: 'Tech Corp', start_date: '2020-01-01' }],
   };
 
-  const mockCreatedCV = {
+  const mockCreatedCV: any = {
     id: cvId,
-    user_id: userId,
+    userId: userId,
     title: 'My CV',
-    file_path: null,
-    created_at: new Date(),
-    updated_at: new Date(),
-    personal_info: mockCvData.personal_info as any,
+    filePath: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    personalInfo: mockCvData.personal_info as any,
     education: [], experience: [], skills: [], languages: [], summary: null
   };
 
-  const mockFoundCV = {
+  const mockFoundCV: any = {
     id: cvId,
-    user_id: userId,
+    userId: userId,
     title: 'My CV',
-    file_path: null,
-    created_at: new Date(),
-    updated_at: new Date(),
-    personal_info: mockCvData.personal_info as any,
+    filePath: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    personalInfo: mockCvData.personal_info as any,
     education: [], experience: [], skills: [], languages: [], summary: null
   };
 
-  const mockUpdatedCV = {
+  const mockUpdatedCV: any = {
     id: cvId,
-    user_id: userId,
+    userId: userId,
     title: 'Updated CV Title',
-    file_path: null,
-    created_at: new Date(),
-    updated_at: new Date(),
-    personal_info: mockCvData.personal_info as any,
+    filePath: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    personalInfo: mockCvData.personal_info as any,
     education: [], experience: [], skills: [], languages: [], summary: null
   };
 
   const mockCreatedVersion = {
     id: 1,
-    cv_id: cvId,
-    version_number: 1,
+    cvId: cvId,
+    versionNumber: 1,
     snapshot: mockCvData as any,
-    created_at: new Date(),
+    createdAt: new Date(),
   };
 
   beforeEach(() => {
@@ -74,9 +74,9 @@ describe('CV Repository Unit Tests', () => {
 
       expect(prismaMock.cv.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          user_id: userId,
+          userId: userId,
           title: 'My CV',
-          personal_info: mockCvData.personal_info,
+          personalInfo: mockCvData.personal_info,
         }),
       });
       expect(result).toEqual(mockCreatedCV);
@@ -110,8 +110,8 @@ describe('CV Repository Unit Tests', () => {
       const result = await cvRepository.findByUserId(userId);
 
       expect(prismaMock.cv.findMany).toHaveBeenCalledWith({
-        where: { user_id: userId },
-        orderBy: { created_at: 'desc' },
+        where: { userId: userId },
+        orderBy: { createdAt: 'desc' },
       });
       expect(result).toEqual(mockUserCVs);
     });
@@ -153,8 +153,8 @@ describe('CV Repository Unit Tests', () => {
 
       expect(prismaMock.cvVersion.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          cv_id: cvId,
-          version_number: versionNumber,
+          cvId: cvId,
+          versionNumber: versionNumber,
           snapshot: mockCvData,
         }),
       });
@@ -170,8 +170,8 @@ describe('CV Repository Unit Tests', () => {
       const result = await cvRepository.getVersions(cvId);
 
       expect(prismaMock.cvVersion.findMany).toHaveBeenCalledWith({
-        where: { cv_id: cvId },
-        orderBy: { version_number: 'asc' },
+        where: { cvId: cvId },
+        orderBy: { versionNumber: 'asc' },
       });
       expect(result).toEqual(mockVersions);
     });
@@ -179,7 +179,7 @@ describe('CV Repository Unit Tests', () => {
 
   describe('getLatestVersionNumber', () => {
     it('should return the latest version number', async () => {
-      prismaMock.cvVersion.findFirst.mockResolvedValue({ version_number: 5 } as any);
+      prismaMock.cvVersion.findFirst.mockResolvedValue({ versionNumber: 5 } as any);
       const result = await cvRepository.getLatestVersionNumber(cvId);
       expect(result).toBe(5);
     });
@@ -200,7 +200,7 @@ describe('CV Repository Unit Tests', () => {
       const result = await cvRepository.getVersionByNumber(cvId, versionNumber);
 
       expect(prismaMock.cvVersion.findUnique).toHaveBeenCalledWith({
-        where: { cv_id_version_number: { cv_id: cvId, version_number: versionNumber } },
+        where: { cvId_versionNumber: { cvId: cvId, versionNumber: versionNumber } },
       });
       expect(result).toEqual(mockVersion);
     });

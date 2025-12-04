@@ -49,13 +49,14 @@ describe('Auth Service', () => {
     id: '1',
     name: 'John Doe',
     email: 'john.doe@example.com',
-    password_hash: 'hashedPassword123',
-    created_at: new Date(),
-    updated_at: new Date(),
-    consent_essential: true,
-    consent_ai_training: false,
-    consent_marketing: false,
+    passwordHash: 'hashedPassword123',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    consentEssential: true,
+    consentAiTraining: false,
+    consentMarketing: false,
     emailVerificationToken: null,
+    passwordResetToken: null,
     emailVerified: true,
     firstName: null,
     lastName: null,
@@ -70,11 +71,12 @@ describe('Auth Service', () => {
     firstName: mockUser.firstName,
     lastName: mockUser.lastName,
     phoneNumber: mockUser.phoneNumber,
-    consent_essential: mockUser.consent_essential,
-    consent_ai_training: mockUser.consent_ai_training,
-    consent_marketing: mockUser.consent_marketing,
-    created_at: mockUser.created_at,
-    updated_at: mockUser.updated_at,
+    consentEssential: mockUser.consentEssential,
+    consentAiTraining: mockUser.consentAiTraining,
+    consentMarketing: mockUser.consentMarketing,
+    createdAt: mockUser.createdAt,
+    updatedAt: mockUser.updatedAt,
+    passwordResetToken: mockUser.passwordResetToken,
   };
 
   beforeEach(() => {
@@ -87,8 +89,8 @@ describe('Auth Service', () => {
         name: 'John Doe',
         email: 'john.doe@example.com',
         password: 'Password123!',
-        consent_ai_training: true,
-        consent_marketing: false,
+        consentAiTraining: true,
+        consentMarketing: false,
       };
       const hashedPassword = 'hashedPassword123';
 
@@ -103,10 +105,10 @@ describe('Auth Service', () => {
         expect.objectContaining({
           name: mockUserData.name,
           email: mockUserData.email,
-          password_hash: hashedPassword,
-          consent_essential: true,
-          consent_ai_training: true,
-          consent_marketing: false,
+          passwordHash: hashedPassword,
+          consentEssential: true,
+          consentAiTraining: true,
+          consentMarketing: false,
           emailVerificationToken: expect.any(String),
           emailVerified: false,
         })
@@ -134,8 +136,8 @@ describe('Auth Service', () => {
 
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            consent_ai_training: false,
-            consent_marketing: false,
+            consentAiTraining: false,
+            consentMarketing: false,
           })
         );
         expect(result).toEqual(mockUserReturned);
@@ -160,7 +162,7 @@ describe('Auth Service', () => {
       const result = await authService.login(mockLoginData);
 
       expect(userRepository.findByEmail).toHaveBeenCalledWith(mockLoginData.email);
-      expect(comparePassword).toHaveBeenCalledWith(mockLoginData.password, mockUser.password_hash);
+      expect(comparePassword).toHaveBeenCalledWith(mockLoginData.password, mockUser.passwordHash);
       expect(jwtService.generateAccessToken).toHaveBeenCalledWith(mockUser.id, 'USER');
       expect(jwtService.generateRefreshToken).toHaveBeenCalledWith(mockUser.id, 'USER');
       expect(userRepository.updateLastLogin).toHaveBeenCalledWith(mockUser.id);
@@ -181,7 +183,7 @@ describe('Auth Service', () => {
 
       await expect(authService.login(mockLoginData)).rejects.toThrow(UnauthorizedError);
       expect(userRepository.findByEmail).toHaveBeenCalledWith(mockLoginData.email);
-      expect(comparePassword).toHaveBeenCalledWith(mockLoginData.password, mockUser.password_hash);
+      expect(comparePassword).toHaveBeenCalledWith(mockLoginData.password, mockUser.passwordHash);
       expect(jwtService.generateAccessToken).not.toHaveBeenCalled();
     });
   });

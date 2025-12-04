@@ -128,7 +128,7 @@ export const applicationController = {
         message: 'Application updated successfully',
         application: {
           id: updated.id,
-          updatedAt: updated.created_at,
+          updatedAt: updated.createdAt,
         },
       });
     } catch (error) {

@@ -199,19 +199,19 @@ export const applicationService = {
   async getApplication(userId: string, applicationId: number) {
     const application = await applicationRepository.findById(applicationId);
 
-    if (!application || application.user_id !== userId) {
+    if (!application || application.userId !== userId) {
       throw new NotFoundError('Application not found or access denied');
     }
 
     return {
       id: application.id,
-      cvId: application.cv_id,
-      jobPostingId: application.job_posting_id,
-      tailoredCv: this.safeJsonParse(application.generated_cv_content),
-      coverLetter: this.safeJsonParse(application.generated_application_content),
-      atsFeedback: application.ats_feedback,
-      qualityFeedback: application.quality_feedback,
-      createdAt: application.created_at,
+      cvId: application.cvId,
+      jobPostingId: application.jobPostingId,
+      tailoredCv: this.safeJsonParse(application.generatedCvContent),
+      coverLetter: this.safeJsonParse(application.generatedApplicationContent),
+      atsFeedback: application.atsFeedback,
+      qualityFeedback: application.qualityFeedback,
+      createdAt: application.createdAt,
     };
   },
 
@@ -223,11 +223,11 @@ export const applicationService = {
 
     return applications.map(app => ({
       id: app.id,
-      cvId: app.cv_id,
-      jobPostingId: app.job_posting_id,
-      hasTailoredCv: !!app.generated_cv_content,
-      hasCoverLetter: !!app.generated_application_content,
-      createdAt: app.created_at,
+      cvId: app.cvId,
+      jobPostingId: app.jobPostingId,
+      hasTailoredCv: !!app.generatedCvContent,
+      hasCoverLetter: !!app.generatedApplicationContent,
+      createdAt: app.createdAt,
     }));
   },
 
@@ -241,7 +241,7 @@ export const applicationService = {
   ) {
     const application = await applicationRepository.findById(applicationId);
 
-    if (!application || application.user_id !== userId) {
+    if (!application || application.userId !== userId) {
       throw new NotFoundError('Application not found or access denied');
     }
 
@@ -260,7 +260,7 @@ export const applicationService = {
   ): Promise<GenerationContext> {
     // Fetch CV with ownership check
     const cv = await cvRepository.findById(cvId);
-    if (!cv || cv.user_id !== userId) {
+    if (!cv || cv.userId !== userId) {
       throw new NotFoundError('CV not found or access denied');
     }
 

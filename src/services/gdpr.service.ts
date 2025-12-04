@@ -62,14 +62,14 @@ export const gdprService = {
           include: {
             versions: {
               select: {
-                version_number: true,
-                created_at: true,
+                versionNumber: true,
+                createdAt: true,
               },
             },
           },
         },
-        job_postings: true,
-        application_analyses: true,
+        jobPostings: true,
+        applicationAnalyses: true,
       },
     });
 
@@ -88,39 +88,39 @@ export const gdprService = {
         lastName: user.lastName,
         phoneNumber: user.phoneNumber,
         emailVerified: user.emailVerified,
-        createdAt: user.created_at,
+        createdAt: user.createdAt,
         consents: {
-          essential: user.consent_essential,
-          aiTraining: user.consent_ai_training,
-          marketing: user.consent_marketing,
+          essential: user.consentEssential,
+          aiTraining: user.consentAiTraining,
+          marketing: user.consentMarketing,
         },
       },
       cvs: user.cvs.map((cv) => ({
         id: cv.id,
         title: cv.title || 'Untitled CV',
-        createdAt: cv.created_at,
-        updatedAt: cv.updated_at,
+        createdAt: cv.createdAt,
+        updatedAt: cv.updatedAt,
         versions: cv.versions.map((v) => ({
-          versionNumber: v.version_number,
-          createdAt: v.created_at,
+          versionNumber: v.versionNumber,
+          createdAt: v.createdAt,
         })),
       })),
-      jobPostings: user.job_postings.map((job) => ({
+      jobPostings: user.jobPostings.map((job) => ({
         id: job.id,
         title: job.title,
         company: job.company,
         description: job.description,
-        createdAt: job.created_at,
+        createdAt: job.createdAt,
       })),
-      applications: user.application_analyses.map((app) => ({
+      applications: user.applicationAnalyses.map((app) => ({
         id: app.id,
-        cvId: app.cv_id,
-        jobPostingId: app.job_posting_id,
-        generatedCvContent: app.generated_cv_content,
-        generatedApplicationContent: app.generated_application_content,
-        atsFeedback: app.ats_feedback,
-        qualityFeedback: app.quality_feedback,
-        createdAt: app.created_at,
+        cvId: app.cvId,
+        jobPostingId: app.jobPostingId,
+        generatedCvContent: app.generatedCvContent,
+        generatedApplicationContent: app.generatedApplicationContent,
+        atsFeedback: app.atsFeedback,
+        qualityFeedback: app.qualityFeedback,
+        createdAt: app.createdAt,
       })),
     };
   },
@@ -138,12 +138,12 @@ export const gdprService = {
         email: true,
         firstName: true,
         lastName: true,
-        created_at: true,
+        createdAt: true,
         _count: {
           select: {
             cvs: true,
-            job_postings: true,
-            application_analyses: true,
+            jobPostings: true,
+            applicationAnalyses: true,
           },
         },
       },
@@ -159,11 +159,11 @@ export const gdprService = {
       name: user.firstName && user.lastName
         ? `${user.firstName} ${user.lastName}`
         : user.firstName || user.lastName || null,
-      memberSince: user.created_at,
+      memberSince: user.createdAt,
       dataCounts: {
         cvs: user._count.cvs,
-        jobPostings: user._count.job_postings,
-        applications: user._count.application_analyses,
+        jobPostings: user._count.jobPostings,
+        applications: user._count.applicationAnalyses,
       },
     };
   },
@@ -190,33 +190,33 @@ export const gdprService = {
 
     // 1. Delete application analyses
     const deletedApplications = await prisma.applicationAnalysis.deleteMany({
-      where: { user_id: userId },
+      where: { userId: userId },
     });
     logger.info(`GDPR: Deleted ${deletedApplications.count} applications for user ${userId}`);
 
     // 2. Delete CV versions (cascade from CVs, but let's be explicit)
     const userCvIds = await prisma.cv.findMany({
-      where: { user_id: userId },
+      where: { userId: userId },
       select: { id: true },
     });
 
     if (userCvIds.length > 0) {
       const deletedVersions = await prisma.cvVersion.deleteMany({
-        where: { cv_id: { in: userCvIds.map(cv => cv.id) } },
+        where: { cvId: { in: userCvIds.map(cv => cv.id) } },
       });
       logger.info(`GDPR: Deleted ${deletedVersions.count} CV versions for user ${userId}`);
     }
 
     // 3. Delete CVs (cascade will delete versions)
     const deletedCvs = await prisma.cv.deleteMany({
-      where: { user_id: userId },
+      where: { userId: userId },
     });
     logger.info(`GDPR: Deleted ${deletedCvs.count} CVs for user ${userId}`);
 
     // 4. Anonymize job postings (set user_id to null per schema design)
     const anonymizedJobs = await prisma.jobPosting.updateMany({
-      where: { user_id: userId },
-      data: { user_id: null },
+      where: { userId: userId },
+      data: { userId: null },
     });
     logger.info(`GDPR: Anonymized ${anonymizedJobs.count} job postings for user ${userId}`);
 
@@ -256,22 +256,22 @@ export const gdprService = {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        consent_ai_training: consents.aiTraining ?? user.consent_ai_training,
-        consent_marketing: consents.marketing ?? user.consent_marketing,
+        consentAiTraining: consents.aiTraining ?? user.consentAiTraining,
+        consentMarketing: consents.marketing ?? user.consentMarketing,
       },
       select: {
-        consent_essential: true,
-        consent_ai_training: true,
-        consent_marketing: true,
+        consentEssential: true,
+        consentAiTraining: true,
+        consentMarketing: true,
       },
     });
 
     logger.info(`GDPR: Consent preferences updated for user ${userId}`);
 
     return {
-      essential: updatedUser.consent_essential,
-      aiTraining: updatedUser.consent_ai_training,
-      marketing: updatedUser.consent_marketing,
+      essential: updatedUser.consentEssential,
+      aiTraining: updatedUser.consentAiTraining,
+      marketing: updatedUser.consentMarketing,
     };
   },
 
@@ -284,9 +284,9 @@ export const gdprService = {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
-        consent_essential: true,
-        consent_ai_training: true,
-        consent_marketing: true,
+        consentEssential: true,
+        consentAiTraining: true,
+        consentMarketing: true,
       },
     });
 
@@ -295,9 +295,9 @@ export const gdprService = {
     }
 
     return {
-      essential: user.consent_essential,
-      aiTraining: user.consent_ai_training,
-      marketing: user.consent_marketing,
+      essential: user.consentEssential,
+      aiTraining: user.consentAiTraining,
+      marketing: user.consentMarketing,
     };
   },
 };

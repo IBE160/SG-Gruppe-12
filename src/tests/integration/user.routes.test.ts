@@ -42,19 +42,19 @@ describe('User Profile API', () => {
   const mockUser: User = {
     id: mockUserId,
     email: 'test@example.com',
-    password_hash: 'hashedpassword',
+    passwordHash: 'hashedpassword',
     firstName: 'John',
     lastName: 'Doe',
     phoneNumber: '1234567890',
-    created_at: new Date(),
-    updated_at: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     emailVerified: true,
     emailVerificationToken: null,
-    // Removed passwordResetToken as it might not be directly on the User type or should be mocked differently
+    passwordResetToken: null,
     name: 'John Doe',
-    consent_essential: true, // Assuming this is part of your extended User type in actual schema
-    consent_ai_training: false,
-    consent_marketing: false,
+    consentEssential: true,
+    consentAiTraining: false,
+    consentMarketing: false,
   };
 
   let validToken: string;

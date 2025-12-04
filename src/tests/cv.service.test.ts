@@ -21,12 +21,12 @@ describe('CV Service', () => {
 
   const mockCV: Cv = {
     id: mockCvId,
-    user_id: mockUserId,
+    userId: mockUserId,
     title: 'My CV',
-    file_path: null,
-    created_at: new Date(),
-    updated_at: new Date(),
-    personal_info: mockCvData.personal_info as unknown as Prisma.JsonValue,
+    filePath: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    personalInfo: mockCvData.personal_info as unknown as Prisma.JsonValue,
     experience: mockCvData.experience as unknown as Prisma.JsonValue,
     education: mockCvData.education as unknown as Prisma.JsonValue,
     skills: mockCvData.skills as unknown as Prisma.JsonValue,
@@ -60,13 +60,13 @@ describe('CV Service', () => {
       expect(result).toEqual({
         id: mockCV.id,
         title: mockCV.title || undefined,
-        file_path: mockCV.file_path || undefined,
+        filePath: mockCV.filePath || undefined,
         ...mockCvData
       });
     });
 
     it('should throw UnauthorizedError if user is not owner', async () => {
-      (cvRepository.findById as jest.Mock).mockResolvedValue({ ...mockCV, user_id: 'another-user' });
+      (cvRepository.findById as jest.Mock).mockResolvedValue({ ...mockCV, userId: 'another-user' });
       await expect(cvService.getCVById(mockUserId, mockCvId)).rejects.toThrow(UnauthorizedError);
     });
   });

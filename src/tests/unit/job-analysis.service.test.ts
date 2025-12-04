@@ -170,17 +170,17 @@ describe('JobAnalysisService', () => {
     };
 
     const mockPrismaCvEntity = { // This should match Prisma CV entity structure
-      user_id: 'user1',
+      userId: 'user1',
       id: 1,
-      personal_info: { name: 'Test User', email: 'test@example.com', phone: '123-456-7890', address: '123 Test St' },
+      personalInfo: { name: 'Test User', email: 'test@example.com', phone: '123-456-7890', address: '123 Test St' },
       education: [],
       experience: [],
       skills: [],
       languages: [],
-      created_at: new Date(),
-      updated_at: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       title: null,
-      file_path: null,
+      filePath: null,
       summary: null,
     };
 
@@ -218,14 +218,14 @@ describe('JobAnalysisService', () => {
 
       // Construct the expectedCvDataForATS based on the mockPrismaCvEntity for the assertion
       const constructedExpectedCvDataForATS: CvData = {
-          personal_info: mockPrismaCvEntity.personal_info as any,
+          personal_info: mockPrismaCvEntity.personalInfo as any,
           education: mockPrismaCvEntity.education as any,
           experience: mockPrismaCvEntity.experience as any,
           skills: mockPrismaCvEntity.skills as any, // This should be SkillEntry[]
           languages: mockPrismaCvEntity.languages as any,
           summary: mockPrismaCvEntity.summary || undefined,
           title: mockPrismaCvEntity.title || undefined,
-          file_path: mockPrismaCvEntity.file_path || undefined,
+          file_path: mockPrismaCvEntity.filePath || undefined,
       };
 
       expect(jobAnalysisService.calculateATSScore).toHaveBeenCalledWith(

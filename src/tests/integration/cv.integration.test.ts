@@ -68,11 +68,11 @@ describe('CV API - Work Experience Endpoints', () => {
 
   const mockCV = {
     id: parseInt(mockCvId, 10),
-    user_id: mockUserId,
+    userId: mockUserId,
     title: 'Test CV',
-    file_path: null,
-    created_at: new Date(),
-    updated_at: new Date(),
+    filePath: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     personal_info: mockCvData.personal_info,
     education: mockCvData.education,
     experience: mockCvData.experience,

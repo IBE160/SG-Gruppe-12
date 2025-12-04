@@ -26,38 +26,38 @@ describe('User Repository', () => {
       firstName: 'Test',
       lastName: 'User',
       email: 'test@example.com',
-      password_hash: 'hashedpassword',
-      consent_ai_training: false,
-      consent_marketing: false,
+      passwordHash: 'hashedpassword',
+      consentAiTraining: false,
+      consentMarketing: false,
       emailVerificationToken: 'some_token',
       emailVerified: false,
     };
-    const mockCreatedUser = { id: 'clsy96f0100001a1d6n8u2g2t', ...mockUserData, created_at: new Date(), updated_at: new Date() };
+    const mockCreatedUser = { id: 'clsy96f0100001a1d6n8u2g2t', ...mockUserData, createdAt: new Date(), updatedAt: new Date() };
 
     (prisma.user.create as jest.Mock).mockResolvedValue(mockCreatedUser);
 
     const result = await userRepository.create(mockUserData);
 
-    // Repository maps fields explicitly (excludes consent_essential, adds phoneNumber)
+    // Repository maps fields explicitly (excludes consentEssential, adds phoneNumber)
     expect(prisma.user.create).toHaveBeenCalledWith({
       data: {
         email: mockUserData.email,
-        password_hash: mockUserData.password_hash,
+        passwordHash: mockUserData.passwordHash,
         name: mockUserData.name,
         firstName: mockUserData.firstName,
         lastName: mockUserData.lastName,
         phoneNumber: undefined,
         emailVerificationToken: mockUserData.emailVerificationToken,
         emailVerified: mockUserData.emailVerified,
-        consent_ai_training: mockUserData.consent_ai_training,
-        consent_marketing: mockUserData.consent_marketing,
+        consentAiTraining: mockUserData.consentAiTraining,
+        consentMarketing: mockUserData.consentMarketing,
       },
     });
     expect(result).toEqual(mockCreatedUser);
   });
 
   it('should find a user by email', async () => {
-    const mockUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Test', password_hash: 'hashed' };
+    const mockUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Test', passwordHash: 'hashed' };
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
     const result = await userRepository.findByEmail('test@example.com');
@@ -67,7 +67,7 @@ describe('User Repository', () => {
   });
 
   it('should find a user by ID', async () => {
-    const mockUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Test', password_hash: 'hashed' };
+    const mockUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Test', passwordHash: 'hashed' };
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
     const result = await userRepository.findById('clsy96f0100001a1d6n8u2g2t');
@@ -78,7 +78,7 @@ describe('User Repository', () => {
 
   it('should update a user', async () => {
     const mockUpdates = { firstName: 'Updated', lastName: 'User' };
-    const mockUpdatedUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Updated User', password_hash: 'hashed', ...mockUpdates };
+    const mockUpdatedUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Updated User', passwordHash: 'hashed', ...mockUpdates };
     (prisma.user.update as jest.Mock).mockResolvedValue(mockUpdatedUser);
 
     const result = await userRepository.update('clsy96f0100001a1d6n8u2g2t', mockUpdates);
@@ -88,7 +88,7 @@ describe('User Repository', () => {
   });
 
   it('should update last login', async () => {
-    const mockUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Test', password_hash: 'hashed' };
+    const mockUser = { id: 'clsy96f0100001a1d6n8u2g2t', email: 'test@example.com', name: 'Test', passwordHash: 'hashed' };
     (prisma.user.update as jest.Mock).mockResolvedValue(mockUser);
 
     const result = await userRepository.updateLastLogin('clsy96f0100001a1d6n8u2g2t');
