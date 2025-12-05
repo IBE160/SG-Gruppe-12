@@ -6,11 +6,10 @@
   "scripts": {
     "start": "npm run start --workspace=src",
     "dev": "npm run dev --workspace=src & npm run dev --workspace=frontend",
-    "build": "cd src && npm run build && cd ../frontend && npm run build",
-    "test": "npm run test:src && npm run test:frontend",
-    "test:src": "dotenv -e src/.env.test -- jest --config=src/jest.config.js",
-    "test:frontend": "jest --config=frontend/jest.config.js",
-    "lint": "cd src && npm run lint && cd ../frontend && npm run lint"
+    "build": "npm run build --workspace=src && npm run build --workspace=frontend",
+    "test": "npm run test --workspace=src && npm run test --workspace=frontend",
+    "lint": "npm run lint --workspace=src && npm run lint --workspace=frontend",
+    "type-check": "npm run type-check --workspace=src && npm run type-check --workspace=frontend"
   },
   "keywords": [],
   "author": "",
